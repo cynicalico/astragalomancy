@@ -1,0 +1,45 @@
+{
+    "version": 10,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 31,
+        "patch": 0
+    },
+    "$comment": "CMake presets for Astragalomancy",
+    "configurePresets": [
+        {
+            "name": "debug",
+            "displayName": "debug",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/.build/dbg",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "BUILD_SHARED_LIBS": "OFF",
+                "ASTRA_BUILD_EXAMPLES": "ON"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "release",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/.build/rel",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_BUILD_TYPE": "Release",
+                "BUILD_SHARED_LIBS": "OFF",
+                "ASTRA_BUILD_EXAMPLES": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default",
+            "configurePreset": "debug"
+        },
+        {
+            "name": "release",
+            "configurePreset": "release"
+        }
+    ]
+}
