@@ -30,3 +30,34 @@ std::shared_ptr<spdlog::logger> logger();
 #define ASTRA_LOG_WARN(...) SPDLOG_LOGGER_WARN(astra::logger(), __VA_ARGS__)
 #define ASTRA_LOG_ERROR(...) SPDLOG_LOGGER_ERROR(astra::logger(), __VA_ARGS__)
 #define ASTRA_LOG_CRITICAL(...) SPDLOG_LOGGER_CRITICAL(astra::logger(), __VA_ARGS__)
+
+#if defined(ASTRA_ENABLE_UINT128)
+#include <boost/multiprecision/cpp_int.hpp>
+
+template<>
+struct fmt::formatter<boost::multiprecision::int128_t> : ostream_formatter {};
+
+template<>
+struct fmt::formatter<boost::multiprecision::int256_t> : ostream_formatter {};
+
+template<>
+struct fmt::formatter<boost::multiprecision::int512_t> : ostream_formatter {};
+
+template<>
+struct fmt::formatter<boost::multiprecision::int1024_t> : ostream_formatter {};
+
+template<>
+struct fmt::formatter<boost::multiprecision::uint128_t> : ostream_formatter {};
+
+template<>
+struct fmt::formatter<boost::multiprecision::uint256_t> : ostream_formatter {};
+
+template<>
+struct fmt::formatter<boost::multiprecision::uint512_t> : ostream_formatter {};
+
+template<>
+struct fmt::formatter<boost::multiprecision::uint1024_t> : ostream_formatter {};
+
+template<>
+struct fmt::formatter<boost::multiprecision::cpp_int> : ostream_formatter {};
+#endif

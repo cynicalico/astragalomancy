@@ -1,6 +1,6 @@
 include(FetchContent)
 
-if (astra_BUILD_DEPENDENCIES)
+if (ASTRA_BUILD_DEPENDENCIES)
     FetchContent_Declare(
             fmt
             GIT_REPOSITORY https://github.com/fmtlib/fmt
@@ -30,10 +30,24 @@ if (astra_BUILD_DEPENDENCIES)
     )
     set(SPDLOG_FMT_EXTERNAL ON)
     FetchContent_MakeAvailable(spdlog)
+
+    if (ASTRA_ENABLE_UINT128)
+        FetchContent_Declare(
+                boost_multiprecision
+                GIT_REPOSITORY https://github.com/boostorg/multiprecision
+                GIT_TAG Boost_1_89_0
+                GIT_SHALLOW TRUE
+                GIT_PROGRESS TRUE
+        )
+        FetchContent_MakeAvailable(boost_multiprecision)
+    endif ()
 else ()
     find_package(fmt REQUIRED)
     find_package(SDL3 REQUIRED)
     find_package(spdlog REQUIRED)
+    if (ASTRA_ENABLE_UINT128)
+        find_package(Boost REQUIRED)
+    endif ()
 endif ()
 
 FetchContent_Declare(
@@ -160,6 +174,7 @@ target_compile_definitions(
         IMGUI_USER_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/imconfig.hpp"
 )
 
+
 target_link_libraries(
         astra_thirdparty
 
@@ -169,3 +184,11 @@ target_link_libraries(
         SDL3::SDL3
         spdlog::spdlog
 )
+
+if (ASTRA_ENABLE_UINT128)
+    if (ASTRA_BUILD_DEPENDENCIES)
+        target_link_libraries(astra_thirdparty PUBLIC Boost::multiprecision)
+    else ()
+        target_link_libraries(astra_thirdparty PUBLIC Boost::boost)
+    endif ()
+endif ()

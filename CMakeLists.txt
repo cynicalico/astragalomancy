@@ -6,6 +6,8 @@ project(
 )
 
 option(ASTRA_BUILD_EXAMPLES "Build astra examples" OFF)
+option(ASTRA_BUILD_DEPENDENCIES "Build astra dependencies (a la FetchContent)" OFF)
+option(ASTRA_ENABLE_UINT128 "Enable uint128 type (requires Boost)" ON)
 
 add_library(astra)
 add_library(astra::astra ALIAS astra)
@@ -26,6 +28,7 @@ target_sources(
         include
         FILES
         include/astra/core/log.hpp
+        include/astra/util/constexpr_hash.hpp
         include/astra/util/is_any_of.hpp
         include/astra/util/platform.hpp
         include/astra/util/rng.hpp
@@ -33,6 +36,10 @@ target_sources(
 )
 
 target_compile_features(astra PRIVATE cxx_std_23)
+
+if (ASTRA_ENABLE_UINT128)
+    target_compile_definitions(astra PUBLIC ASTRA_ENABLE_UINT128)
+endif ()
 
 add_subdirectory(thirdparty)
 target_link_libraries(astra PUBLIC astra::astra_thirdparty)
