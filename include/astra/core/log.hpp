@@ -8,6 +8,8 @@
 #endif
 #endif
 
+#include "astra/core/types.hpp"
+
 #include <fmt/chrono.h> // Allow logging chrono types
 #include <fmt/ranges.h> // Allow logging ranges (vector, etc.)
 #include <fmt/std.h> // Allow logging STL types
@@ -31,33 +33,29 @@ std::shared_ptr<spdlog::logger> logger();
 #define ASTRA_LOG_ERROR(...) SPDLOG_LOGGER_ERROR(astra::logger(), __VA_ARGS__)
 #define ASTRA_LOG_CRITICAL(...) SPDLOG_LOGGER_CRITICAL(astra::logger(), __VA_ARGS__)
 
-#if defined(ASTRA_ENABLE_UINT128)
-#include <boost/multiprecision/cpp_int.hpp>
+template<>
+struct fmt::formatter<astra::int128_t> : ostream_formatter {};
 
 template<>
-struct fmt::formatter<boost::multiprecision::int128_t> : ostream_formatter {};
+struct fmt::formatter<astra::int256_t> : ostream_formatter {};
 
 template<>
-struct fmt::formatter<boost::multiprecision::int256_t> : ostream_formatter {};
+struct fmt::formatter<astra::int512_t> : ostream_formatter {};
 
 template<>
-struct fmt::formatter<boost::multiprecision::int512_t> : ostream_formatter {};
+struct fmt::formatter<astra::int1024_t> : ostream_formatter {};
 
 template<>
-struct fmt::formatter<boost::multiprecision::int1024_t> : ostream_formatter {};
+struct fmt::formatter<astra::uint128_t> : ostream_formatter {};
 
 template<>
-struct fmt::formatter<boost::multiprecision::uint128_t> : ostream_formatter {};
+struct fmt::formatter<astra::uint256_t> : ostream_formatter {};
 
 template<>
-struct fmt::formatter<boost::multiprecision::uint256_t> : ostream_formatter {};
+struct fmt::formatter<astra::uint512_t> : ostream_formatter {};
 
 template<>
-struct fmt::formatter<boost::multiprecision::uint512_t> : ostream_formatter {};
+struct fmt::formatter<astra::uint1024_t> : ostream_formatter {};
 
 template<>
-struct fmt::formatter<boost::multiprecision::uint1024_t> : ostream_formatter {};
-
-template<>
-struct fmt::formatter<boost::multiprecision::cpp_int> : ostream_formatter {};
-#endif
+struct fmt::formatter<astra::ap_int> : ostream_formatter {};
