@@ -14,4 +14,30 @@ using uint512_t = boost::multiprecision::uint512_t;
 using uint1024_t = boost::multiprecision::uint1024_t;
 
 using ap_int = boost::multiprecision::cpp_int;
+
+template<typename T, uint64_t N>
+constexpr T constant(const char (&s)[N]) {
+    auto i = static_cast<T>(0);
+    for (int64_t j = 0; j < N - 1; ++j)
+        i = i * 10 + s[j] - '0';
+    return i;
+}
+
+template<typename T, uint64_t N>
+constexpr T hex_constant(const char (&s)[N]) {
+    auto i = static_cast<T>(0);
+    for (int64_t j = 0; j < N - 1; ++j) {
+        i *= 16;
+        switch (s[j]) {
+        case 'a': i += 10; break;
+        case 'b': i += 11; break;
+        case 'c': i += 12; break;
+        case 'd': i += 13; break;
+        case 'e': i += 14; break;
+        case 'f': i += 15; break;
+        default: i += s[j] - '0'; break;
+        }
+    }
+    return i;
+}
 } // namespace astra

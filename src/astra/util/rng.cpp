@@ -55,7 +55,7 @@ void astra::rng::debug_show_seed() {
     if (static_cast<std::uint64_t>(seed_info().seed >> 64) == 0 &&
         static_cast<std::uint64_t>(seed_info().stream >> 64) == 0) {
         ASTRA_LOG_DEBUG(
-                "Seed statement: rnd::seed({:#x}, {:#x});",
+                "Seed statement: astra::rng::seed({:#x}, {:#x});",
                 static_cast<std::uint64_t>(seed_info().seed),
                 static_cast<std::uint64_t>(seed_info().stream));
 
@@ -65,7 +65,11 @@ void astra::rng::debug_show_seed() {
         auto stream_hi = static_cast<std::uint64_t>(seed_info().stream >> 64);
         auto stream_lo = static_cast<std::uint64_t>(seed_info().stream);
         ASTRA_LOG_DEBUG(
-                "Seed statement: rnd::seed128({:#x}, {:#x}, {:#x}, {:#x});", seed_hi, seed_lo, stream_hi, stream_lo);
+                "Seed statement: astra::rng::seed128({:#x}, {:#x}, {:#x}, {:#x});",
+                seed_hi,
+                seed_lo,
+                stream_hi,
+                stream_lo);
     }
 }
 
