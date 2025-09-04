@@ -81,7 +81,7 @@ constexpr std::uint32_t murmur_x86_32(const char *key, const std::uint32_t len, 
         k1 *= c2;
         h1 ^= k1;
         break;
-    default: std::unreachable();
+    default:;
     }
 
     // finalization
@@ -193,7 +193,7 @@ constexpr uint128_t murmur_x86_128(const char *key, const std::uint32_t len, con
         k1 *= c2;
         h1 ^= k1;
         break;
-    default: std::unreachable();
+    default:;
     }
 
     // finalization
@@ -292,7 +292,7 @@ constexpr uint128_t murmur_x64_128(const char *key, const std::uint32_t len, con
         k1 *= c2;
         h1 ^= k1;
         break;
-    default: std::unreachable();
+    default:;
     }
 
     // finalization
