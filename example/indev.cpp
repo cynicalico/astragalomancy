@@ -9,16 +9,6 @@
 
 #define ASTRA_TAG_MEMBER(name) constexpr static std::uint32_t ASTRA_MESSENGER_TAG{astra::murmur_x86_32(#name, 0)};
 
-template<typename T, typename... Args>
-std::span<std::byte> make_payload(Args &&...args) {
-    return std::span(reinterpret_cast<std::byte *>(new T{std::forward<Args>(args)...}), sizeof(T));
-}
-
-template<typename T>
-const T *extract_payload(const std::span<const std::byte> &buffer) {
-    return reinterpret_cast<const T *>(buffer.data());
-}
-
 struct MsgA {
     ASTRA_TAG_MEMBER(MsgA);
     int a;
@@ -30,31 +20,51 @@ struct MsgB {
     float a;
 };
 
+template<typename T>
+const T *extract_payload(const std::span<const std::byte> &buffer) {
+    return reinterpret_cast<const T *>(buffer.data());
+}
+
+template<typename T>
+concept HasAstraTag = std::same_as<decltype(T::ASTRA_MESSENGER_TAG), const std::uint32_t>;
+
 class Messenger {
     using Receiver = std::function<void(std::span<const std::byte>)>;
 
 public:
     template<typename T>
+        requires HasAstraTag<T>
     void subscribe(Receiver &&r);
 
     template<typename T, typename... Args>
+        requires HasAstraTag<T>
     void publish(Args &&...args);
 
 private:
     std::unordered_map<std::uint32_t, std::vector<Receiver>> receivers_;
+
+    template<typename T, typename... Args>
+    std::span<std::byte> make_payload_(Args &&...args);
 };
 
 template<typename T>
+    requires HasAstraTag<T>
 void Messenger::subscribe(Receiver &&r) {
     receivers_[T::ASTRA_MESSENGER_TAG].push_back(std::forward<Receiver>(r));
 }
 
 template<typename T, typename... Args>
+    requires HasAstraTag<T>
 void Messenger::publish(Args &&...args) {
-    auto payload = make_payload<T>(std::forward<Args>(args)...);
+    const auto payload = make_payload_<T>(std::forward<Args>(args)...);
     for (auto &r: receivers_[T::ASTRA_MESSENGER_TAG])
         r(payload);
     operator delete(payload.data(), payload.size());
+}
+
+template<typename T, typename... Args>
+std::span<std::byte> Messenger::make_payload_(Args &&...args) {
+    return std::span(reinterpret_cast<std::byte *>(new T{std::forward<Args>(args)...}), sizeof(T));
 }
 
 static int i = 0;
@@ -66,7 +76,7 @@ int main(int, char *[]) {
         i += msg->a + msg->b;
     });
 
-    constexpr int N = 10'000'000;
+    constexpr int N = 100'000'000;
     auto t1 = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < N; ++i)
         messenger.publish<MsgA>(astra::rng::get<int>(5), astra::rng::get<int>(5));
