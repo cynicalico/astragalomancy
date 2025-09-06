@@ -8,6 +8,9 @@
 #include "sdl3_raii/window.hpp"
 
 int main(int, char *[]) {
+    astra::uint128_t i = 123'456;
+    fmt::println("{: #010x}", i);
+
     astra::log_platform();
 
     if (!sdl3::init())
