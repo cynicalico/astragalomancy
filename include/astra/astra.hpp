@@ -1,6 +1,8 @@
 #pragma once
 
 #include "astra/core/log.hpp"
+#include "astra/core/messenger.hpp"
+#include "astra/core/payloads.hpp"
 #include "astra/core/types.hpp"
 
 #include "astra/util/constexpr_hash.hpp"

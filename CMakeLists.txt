@@ -33,6 +33,7 @@ target_sources(
         include
         FILES
         include/astra/core/log.hpp
+        include/astra/core/messenger.hpp
         include/astra/core/types.hpp
         include/astra/util/constexpr_hash.hpp
         include/astra/util/enum_class_helpers.hpp

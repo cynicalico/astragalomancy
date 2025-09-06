@@ -116,6 +116,11 @@ T get(const double chance) {
     return BoolDist(chance)(generator());
 }
 
+template<BoolDistCompatible T>
+T get() {
+    return BoolDist(0.5)(generator());
+}
+
 /*******
  * MISC
  */
