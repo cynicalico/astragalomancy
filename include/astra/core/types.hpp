@@ -67,10 +67,11 @@ struct fmt::formatter<T> {
     sign sign_option = sign::none;
     bool zero_padding = false;
     int width = 0;
+    int arg_id = -1;
     bool uppercase = false;
     presentation_type type = presentation_type::dec;
 
-    constexpr auto parse(const format_parse_context &ctx) -> decltype(ctx.begin()) {
+    constexpr auto parse(format_parse_context &ctx) -> decltype(ctx.begin()) {
         auto it = ctx.begin();
 
         if (it != ctx.end() && it + 1 != ctx.end() && (*(it + 1) == '<' || *(it + 1) == '>' || *(it + 1) == '^')) {
@@ -92,6 +93,7 @@ struct fmt::formatter<T> {
             ++it;
         }
 
+        // Handle sign
         if (it != ctx.end() && (*it == '+' || *it == '-' || *it == ' ')) {
             switch (*it) {
             case '+': sign_option = sign::plus; break;
@@ -112,7 +114,10 @@ struct fmt::formatter<T> {
             ++it;
         }
 
-        if (it != ctx.end() && std::isdigit(*it)) {
+        if (it != ctx.end() && *it == '{' && *(it + 1) == '}') {
+            arg_id = ctx.next_arg_id();
+            it += 2;
+        } else if (it != ctx.end() && std::isdigit(*it)) {
             width = 0;
             while (it != ctx.end() && std::isdigit(*it)) {
                 width = width * 10 + (*it - '0');
@@ -155,6 +160,47 @@ struct fmt::formatter<T> {
         return it;
     }
 
+    auto format(const T &value, format_context &ctx) const {
+        int actual_width = width;
+
+        if (arg_id >= 0) {
+            ctx.arg(arg_id).visit([&actual_width](auto arg) {
+                if constexpr (std::is_integral_v<std::decay_t<decltype(arg)>>)
+                    actual_width = static_cast<int>(arg);
+                else
+                    throw format_error("invalid format");
+            });
+        }
+
+        std::ostringstream oss;
+        switch (type) {
+        case presentation_type::hex:
+            if (alternative)
+                oss << (uppercase ? "0X" : "0x");
+            oss << std::hex << (uppercase ? std::uppercase : std::nouppercase) << value;
+            break;
+        case presentation_type::oct:
+            if (alternative)
+                oss << "0o";
+            oss << std::oct << value;
+            break;
+        case presentation_type::bin:
+            if (alternative)
+                oss << (uppercase ? "0B" : "0b");
+            oss << format_binary(value);
+            break;
+        default:
+        case presentation_type::dec: oss << value; break;
+        }
+
+        std::string result = oss.str();
+        result = apply_sign(result, value);
+        if (actual_width > 0)
+            result = apply_alignment_with_width(result, actual_width);
+
+        return fmt::format_to(ctx.out(), "{}", result);
+    }
+
 private:
     std::string format_binary(const T &value) const {
         if (value == 0)
@@ -189,11 +235,11 @@ private:
         }
     }
 
-    std::string apply_alignment(const std::string &str) const {
-        if (width <= static_cast<int>(str.length()))
+    std::string apply_alignment_with_width(const std::string &str, int actual_width) const {
+        if (actual_width <= static_cast<int>(str.length()))
             return str;
 
-        const int padding = width - static_cast<int>(str.length());
+        const int padding = actual_width - static_cast<int>(str.length());
 
         if (zero_padding && align_option == align::none) {
             size_t insert_pos = 0;
@@ -222,37 +268,5 @@ private:
         }
         default: return std::string(padding, fill_char) + str;
         }
-    }
-
-public:
-    template<typename FormatContext>
-    auto format(const T &value, FormatContext &ctx) const -> decltype(ctx.out()) {
-        std::ostringstream oss;
-        switch (type) {
-        case presentation_type::hex:
-            if (alternative)
-                oss << (uppercase ? "0X" : "0x");
-            oss << std::hex << (uppercase ? std::uppercase : std::nouppercase) << value;
-            break;
-        case presentation_type::oct:
-            if (alternative)
-                oss << "0o";
-            oss << std::oct << value;
-            break;
-        case presentation_type::bin:
-            if (alternative)
-                oss << (uppercase ? "0B" : "0b");
-            oss << format_binary(value);
-            break;
-        default:
-        case presentation_type::dec: oss << value; break;
-        }
-
-        std::string result = oss.str();
-        result = apply_sign(result, value);
-        if (width > 0)
-            result = apply_alignment(result);
-
-        return fmt::format_to(ctx.out(), "{}", result);
     }
 };

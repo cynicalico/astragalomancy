@@ -9,7 +9,7 @@
 
 int main(int, char *[]) {
     astra::uint128_t i = 123'456;
-    fmt::println("{: #010x}", i);
+    fmt::println("{: #0{}x}", i, 20);
 
     astra::log_platform();
 
