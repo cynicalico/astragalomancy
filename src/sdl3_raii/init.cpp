@@ -5,7 +5,37 @@
 #include <SDL3/SDL.h>
 #include <fmt/format.h>
 
-bool sdl3::init() {
+const char *app_type_str(const sdl3::AppType &t) {
+    switch (t) {
+    case sdl3::AppType::Game: return "game";
+    case sdl3::AppType::MediaPlayer: return "mediaplayer";
+    case sdl3::AppType::Application: return "application";
+    }
+    std::unreachable();
+}
+
+bool sdl3::init(AppInfo app_info) {
+    if (!SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING, app_info.name.c_str()))
+        ASTRA_LOG_ERROR("Failed to set metadata, name: {}", SDL_GetError());
+
+    if (!SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING, app_info.version.c_str()))
+        ASTRA_LOG_ERROR("Failed to set metadata, version: {}", SDL_GetError());
+
+    if (!SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_IDENTIFIER_STRING, app_info.identifier.c_str()))
+        ASTRA_LOG_ERROR("Failed to set metadata, identifier: {}", SDL_GetError());
+
+    if (!SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, app_info.creator.c_str()))
+        ASTRA_LOG_ERROR("Failed to set metadata, creator: {}", SDL_GetError());
+
+    if (!SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING, app_info.copyright.c_str()))
+        ASTRA_LOG_ERROR("Failed to set metadata, copyright: {}", SDL_GetError());
+
+    if (!SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING, app_info.url.c_str()))
+        ASTRA_LOG_ERROR("Failed to set metadata, url: {}", SDL_GetError());
+
+    if (!SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, app_type_str(app_info.type)))
+        ASTRA_LOG_ERROR("Failed to set metadata, type: {}", SDL_GetError());
+
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         ASTRA_LOG_CRITICAL("Failed to initialize SDL3: {}", SDL_GetError());
         return false;

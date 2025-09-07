@@ -8,12 +8,18 @@
 #include "sdl3_raii/window.hpp"
 
 int main(int, char *[]) {
-    astra::uint128_t i = 123'456;
-    fmt::println("{: #0{}x}", i, 20);
-
     astra::log_platform();
 
-    if (!sdl3::init())
+    const auto app_info = sdl3::AppInfo{
+            .name = "Indev",
+            .version = "0.0.1",
+            .identifier = "gay.cynicalico.indev",
+            .creator = "cynicalico",
+            .copyright = "This is free and unencumbered software released into the public domain.",
+            .url = "https://github.com/cynicalico/astragalomancy",
+            .type = sdl3::AppType::Game,
+    };
+    if (!sdl3::init(app_info))
         return 1;
 
     sdl3::GlAttr::set_context_version(4, 6);
