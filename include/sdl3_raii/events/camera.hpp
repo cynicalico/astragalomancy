@@ -16,7 +16,7 @@ enum class CameraEventType {
     Denied = SDL_EVENT_CAMERA_DEVICE_DENIED,
 };
 
-struct CameraEvent {
+struct CameraDeviceEvent {
     ASTRA_TAG_MEMBER(sdl3::CameraEvent);
     CameraEventType type;
     std::uint64_t timestamp;
@@ -43,8 +43,8 @@ struct fmt::formatter<sdl3::CameraEventType> : formatter<std::string_view> {
 };
 
 template<>
-struct fmt::formatter<sdl3::CameraEvent> : formatter<std::string_view> {
-    auto format(const sdl3::CameraEvent &e, format_context &ctx) const {
+struct fmt::formatter<sdl3::CameraDeviceEvent> : formatter<std::string_view> {
+    auto format(const sdl3::CameraDeviceEvent &e, format_context &ctx) const {
         return format_to(ctx.out(), "CameraEvent(type={}, timestamp={}, which={})", e.type, e.timestamp, e.which);
     }
 };

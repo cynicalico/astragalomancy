@@ -30,6 +30,42 @@ int main(int, char *[]) {
 
     bool running = true;
 
+    messenger->subscribe<sdl3::AudioDeviceEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::CameraDeviceEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::ClipboardEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::DisplayEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::DropEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::GamepadAxisEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::GamepadButtonEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::GamepadDeviceEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::GamepadSensorEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::GamepadTouchpadEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::JoystickAxisEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::JoystickBallEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::JoystickBatteryEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::JoystickButtonEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::JoystickDeviceEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::JoystickHatEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::KeyboardDeviceEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::KeyboardEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::MouseButtonEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::MouseDeviceEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::MouseMotionEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::MouseWheelEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::PenAxisEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::PenButtonEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::PenMotionEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::PenProximityEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::PenTouchEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::QuitEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::RenderEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::SensorEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::TextEditingCandidatesEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::TextEditingEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::TextInputEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::UserEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+    messenger->subscribe<sdl3::WindowEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+
     messenger->subscribe<sdl3::QuitEvent>([&running](auto) { running = false; });
 
     messenger->subscribe<sdl3::KeyboardEvent>([&running](const auto e) {

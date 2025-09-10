@@ -34,7 +34,7 @@ void EventPump::publish_event_(const SDL_Event &e) {
     case SDL_EVENT_AUDIO_DEVICE_ADDED:
     case SDL_EVENT_AUDIO_DEVICE_REMOVED:
     case SDL_EVENT_AUDIO_DEVICE_FORMAT_CHANGED:
-        messenger_->publish<AudioEvent>(
+        messenger_->publish<AudioDeviceEvent>(
                 static_cast<AudioEventType>(e.type), e.adevice.timestamp, e.adevice.which, e.adevice.recording);
         break;
 
@@ -42,7 +42,7 @@ void EventPump::publish_event_(const SDL_Event &e) {
     case SDL_EVENT_CAMERA_DEVICE_REMOVED:
     case SDL_EVENT_CAMERA_DEVICE_APPROVED:
     case SDL_EVENT_CAMERA_DEVICE_DENIED:
-        messenger_->publish<CameraEvent>(static_cast<CameraEventType>(e.type), e.adevice.timestamp, e.adevice.which);
+        messenger_->publish<CameraDeviceEvent>(static_cast<CameraEventType>(e.type), e.adevice.timestamp, e.adevice.which);
         break;
 
     case SDL_EVENT_CLIPBOARD_UPDATE: {

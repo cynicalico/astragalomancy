@@ -15,7 +15,7 @@ enum class AudioEventType {
     FormatChanged = SDL_EVENT_AUDIO_DEVICE_FORMAT_CHANGED,
 };
 
-struct AudioEvent {
+struct AudioDeviceEvent {
     ASTRA_TAG_MEMBER(sdl3::AudioEvent);
     AudioEventType type;
     std::uint64_t timestamp;
@@ -41,8 +41,8 @@ struct fmt::formatter<sdl3::AudioEventType> : formatter<std::string_view> {
 };
 
 template<>
-struct fmt::formatter<sdl3::AudioEvent> : formatter<std::string_view> {
-    auto format(const sdl3::AudioEvent &e, format_context &ctx) const {
+struct fmt::formatter<sdl3::AudioDeviceEvent> : formatter<std::string_view> {
+    auto format(const sdl3::AudioDeviceEvent &e, format_context &ctx) const {
         return format_to(
                 ctx.out(),
                 "AudioEvent(type={}, timestamp={}, which={}, recording={})",
