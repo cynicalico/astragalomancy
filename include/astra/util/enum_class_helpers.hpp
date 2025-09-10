@@ -9,9 +9,8 @@
  * 2. There must be no gaps in the underlying values (i.e., 1, 2, 3 is fine, 1, 2, 4 is not)
  */
 constexpr inline auto enum_range = []<typename T>(T front, T back) {
-    return std::views::iota(std::to_underlying(front), std::to_underlying(back) + 1) | std::views::transform([](T e) {
-               return T(e);
-           });
+    return std::views::iota(std::to_underlying(front), std::to_underlying(back) + 1) |
+           std::views::transform([](T e) { return T(e); });
 };
 
 /* Easy cast to underlying
@@ -26,41 +25,41 @@ constexpr std::underlying_type_t<Enum> unwrap(Enum e) {
  */
 
 template<typename Enum>
-struct BismuthEnableBitops {
+struct AstraEnableBitops {
     static constexpr bool enable = false;
 };
 
 template<typename Enum>
-std::enable_if_t<BismuthEnableBitops<Enum>::enable, Enum> operator|(Enum lhs, Enum rhs) {
+std::enable_if_t<AstraEnableBitops<Enum>::enable, Enum> operator|(Enum lhs, Enum rhs) {
     using underlying = std::underlying_type_t<Enum>;
     return static_cast<Enum>(static_cast<underlying>(lhs) | static_cast<underlying>(rhs));
 }
 
 template<typename Enum>
-std::enable_if_t<BismuthEnableBitops<Enum>::enable, Enum> &operator|=(Enum &lhs, Enum rhs) {
+std::enable_if_t<AstraEnableBitops<Enum>::enable, Enum> &operator|=(Enum &lhs, Enum rhs) {
     using underlying = std::underlying_type_t<Enum>;
     return lhs = static_cast<Enum>(static_cast<underlying>(lhs) | static_cast<underlying>(rhs));
 }
 
 template<typename Enum>
-std::enable_if_t<BismuthEnableBitops<Enum>::enable, Enum> operator&(Enum lhs, Enum rhs) {
+std::enable_if_t<AstraEnableBitops<Enum>::enable, Enum> operator&(Enum lhs, Enum rhs) {
     using underlying = std::underlying_type_t<Enum>;
     return static_cast<Enum>(static_cast<underlying>(lhs) & static_cast<underlying>(rhs));
 }
 
 template<typename Enum>
-std::enable_if_t<BismuthEnableBitops<Enum>::enable, Enum> &operator&=(Enum &lhs, Enum rhs) {
+std::enable_if_t<AstraEnableBitops<Enum>::enable, Enum> &operator&=(Enum &lhs, Enum rhs) {
     using underlying = std::underlying_type_t<Enum>;
     return lhs = static_cast<Enum>(static_cast<underlying>(lhs) & static_cast<underlying>(rhs));
 }
 
 template<typename Enum>
-std::enable_if_t<BismuthEnableBitops<Enum>::enable, bool> is_flag_set(Enum e, Enum mask) {
+std::enable_if_t<AstraEnableBitops<Enum>::enable, bool> is_flag_set(Enum e, Enum mask) {
     return (e & mask) == mask;
 }
 
 #define ENUM_CLASS_ENABLE_BITOPS(x)                                                                                    \
     template<>                                                                                                         \
-    struct BismuthEnableBitops<x> {                                                                                    \
+    struct AstraEnableBitops<x> {                                                                                      \
         static constexpr bool enable = true;                                                                           \
     }

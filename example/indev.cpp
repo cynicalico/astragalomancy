@@ -1,11 +1,6 @@
 #include "astra/astra.hpp"
-
-#include "gloo/init.hpp"
-
-#include "sdl3_raii/gl_attr.hpp"
-#include "sdl3_raii/gl_context_flags.hpp"
-#include "sdl3_raii/init.hpp"
-#include "sdl3_raii/window.hpp"
+#include "gloo/gloo.hpp"
+#include "sdl3_raii/sdl3_raii.hpp"
 
 int main(int, char *[]) {
     astra::log_platform();
@@ -27,19 +22,23 @@ int main(int, char *[]) {
 #if !defined(NDEBUG)
     sdl3::GlAttr::set_context_flags().debug().set();
 #endif
-    auto window = sdl3::WindowBuilder("Indev", {1280, 720}).opengl().build();
-
+    const auto window = sdl3::WindowBuilder("Indev", {1280, 720}).opengl().build();
     gloo::init();
 
+    const auto messenger = std::make_unique<astra::Messenger>();
+    auto event_pump = sdl3::EventPump(messenger.get());
+
     bool running = true;
+
+    messenger->subscribe<sdl3::QuitEvent>([&running](auto) { running = false; });
+
+    messenger->subscribe<sdl3::KeyboardEvent>([&running](const auto e) {
+        if (e->type == sdl3::KeyboardEventType::Up && e->key == SDLK_ESCAPE)
+            running = false;
+    });
+
     while (running) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-            case SDL_EVENT_QUIT: running = false; break;
-            default: break;
-            }
-        }
+        event_pump.pump();
 
         window->swap();
     }

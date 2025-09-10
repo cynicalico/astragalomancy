@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <functional>
 #include <span>
 #include <unordered_map>
@@ -9,16 +10,14 @@ namespace astra {
 template<typename T>
 concept HasAstraTag = std::same_as<decltype(T::ASTRA_MESSENGER_TAG), const std::uint32_t>;
 
-template<typename T>
-const T *extract_payload(const std::span<const std::byte> &buffer);
-
 class Messenger {
-    using Receiver = std::function<void(std::span<const std::byte>)>;
+    using Payload = std::span<const std::byte>;
+    using Receiver = std::function<void(Payload)>;
 
 public:
-    template<typename T>
-        requires HasAstraTag<T>
-    void subscribe(Receiver &&r);
+    template<typename T, typename Func>
+        requires HasAstraTag<T> and std::invocable<Func, const T *>
+    void subscribe(Func &&f);
 
     template<typename T, typename... Args>
         requires HasAstraTag<T>
@@ -32,23 +31,19 @@ private:
 };
 } // namespace astra
 
-template<typename T>
-const T *astra::extract_payload(const std::span<const std::byte> &buffer) {
-    return reinterpret_cast<const T *>(buffer.data());
-}
-
-template<typename T>
-    requires astra::HasAstraTag<T>
-void astra::Messenger::subscribe(Receiver &&r) {
-    receivers_[T::ASTRA_MESSENGER_TAG].push_back(std::forward<Receiver>(r));
+template<typename T, typename Func>
+    requires astra::HasAstraTag<T> and std::invocable<Func, const T *>
+void astra::Messenger::subscribe(Func &&f) {
+    receivers_[T::ASTRA_MESSENGER_TAG].emplace_back([f = std::move(f)](const Payload buffer) {
+        f(reinterpret_cast<const T *>(buffer.data()));
+    });
 }
 
 template<typename T, typename... Args>
     requires astra::HasAstraTag<T>
 void astra::Messenger::publish(Args &&...args) {
     const auto payload = make_payload_<T>(std::forward<Args>(args)...);
-    for (auto &r: receivers_[T::ASTRA_MESSENGER_TAG])
-        r(payload);
+    for (auto &r: receivers_[T::ASTRA_MESSENGER_TAG]) r(payload);
     operator delete(payload.data(), payload.size());
 }
 

@@ -36,7 +36,7 @@ bool sdl3::init(AppInfo app_info) {
     if (!SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, app_type_str(app_info.type)))
         ASTRA_LOG_ERROR("Failed to set metadata, type: {}", SDL_GetError());
 
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
         ASTRA_LOG_CRITICAL("Failed to initialize SDL3: {}", SDL_GetError());
         return false;
     }
@@ -51,6 +51,4 @@ bool sdl3::init(AppInfo app_info) {
     return true;
 }
 
-void sdl3::exit() {
-    SDL_Quit();
-}
+void sdl3::exit() { SDL_Quit(); }

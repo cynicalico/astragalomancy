@@ -21,6 +21,7 @@ target_sources(
         src/astra/util/time.cpp
         src/gloo/init.cpp
         src/gloo/gl.cpp
+        src/sdl3_raii/event_pump.cpp
         src/sdl3_raii/gl_attr.cpp
         src/sdl3_raii/gl_context_flags.cpp
         src/sdl3_raii/init.cpp
@@ -43,10 +44,32 @@ target_sources(
         include/astra/util/time.hpp
         include/astra/astra.hpp
         include/gloo/init.hpp
+        include/gloo/gloo.hpp
         include/gloo/gl.hpp
+        include/sdl3_raii/events/audio.hpp
+        include/sdl3_raii/events/camera.hpp
+        include/sdl3_raii/events/clipboard.hpp
+        include/sdl3_raii/events/display.hpp
+        include/sdl3_raii/events/drop.hpp
+        include/sdl3_raii/events/gamepad.hpp
+        include/sdl3_raii/events/joystick.hpp
+        include/sdl3_raii/events/keyboard.hpp
+        include/sdl3_raii/events/mouse.hpp
+        include/sdl3_raii/events/pen.hpp
+        include/sdl3_raii/events/quit.hpp
+        include/sdl3_raii/events/render.hpp
+        include/sdl3_raii/events/sensor.hpp
+        include/sdl3_raii/events/text.hpp
+        include/sdl3_raii/events/touch.hpp
+        include/sdl3_raii/events/user.hpp
+        include/sdl3_raii/events/window.hpp
+        include/sdl3_raii/event_pump.hpp
         include/sdl3_raii/gl_attr.hpp
         include/sdl3_raii/gl_context_flags.hpp
         include/sdl3_raii/init.hpp
+        include/sdl3_raii/keycode.hpp
+        include/sdl3_raii/scancode.hpp
+        include/sdl3_raii/sdl3_raii.hpp
         include/sdl3_raii/window.hpp
 )
 
