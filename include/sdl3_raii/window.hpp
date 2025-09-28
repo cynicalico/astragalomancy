@@ -19,13 +19,13 @@ public:
     Window(const Window &other) = delete;
     Window &operator=(const Window &other) = delete;
 
-    Window(Window &&other) noexcept = delete;
-    Window &operator=(Window &&other) noexcept = delete;
+    Window(Window &&other) noexcept;
+    Window &operator=(Window &&other) noexcept;
 
     [[nodiscard]] SDL_Window *handle() const;
     [[nodiscard]] SDL_GLContext gl_context() const;
 
-    // void set_icon(const std::filesystem::path &path);
+    void set_icon(const std::filesystem::path &path);
 
     void hide();
     void show();

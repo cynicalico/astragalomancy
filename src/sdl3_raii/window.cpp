@@ -3,12 +3,31 @@
 #include "sdl3_raii/gl_attr.hpp"
 
 #include "astra/core/log.hpp"
-
-// #include "bismuth/util/io.hpp"
+#include "astra/util/io.hpp"
 
 sdl3::Window::~Window() {
-    SDL_GL_DestroyContext(gl_context_);
-    SDL_DestroyWindow(handle_);
+    if (handle_ && gl_context_) {
+        SDL_GL_DestroyContext(gl_context_);
+        SDL_DestroyWindow(handle_);
+    }
+}
+
+sdl3::Window::Window(Window &&other) noexcept
+    : handle_(other.handle_),
+      gl_context_(other.gl_context_) {
+    other.gl_context_ = nullptr;
+    other.handle_ = nullptr;
+}
+
+sdl3::Window &sdl3::Window::operator=(Window &&other) noexcept {
+    if (this != &other) {
+        handle_ = other.handle_;
+        gl_context_ = other.gl_context_;
+
+        other.gl_context_ = nullptr;
+        other.handle_ = nullptr;
+    }
+    return *this;
 }
 
 SDL_Window *sdl3::Window::handle() const {
@@ -19,33 +38,39 @@ SDL_GLContext sdl3::Window::gl_context() const {
     return gl_context_;
 }
 
-// void sdl3::Window::set_icon(const std::filesystem::path &path) {
-//     if (std::filesystem::is_directory(path)) {
-//         SDL_Surface *surf = nullptr;
-//
-//         for (const auto &e: std::filesystem::directory_iterator(path)) {
-//             if (!e.is_regular_file())
-//                 continue;
-//
-//             const auto e_surf = read_image_to_sdl_surface(e.path());
-//             if (!e_surf)
-//                 continue;
-//
-//             if (surf) {
-//                 if (!SDL_AddSurfaceAlternateImage(surf, e_surf))
-//                     ASTRA_LOG_ERROR("Failed to add alternate image to SDL surface: {}", SDL_GetError());
-//                 SDL_DestroySurface(e_surf);
-//             } else {
-//                 surf = e_surf;
-//             }
-//         }
-//
-//         if (surf && !SDL_SetWindowIcon(handle_, surf))
-//             ASTRA_LOG_ERROR("Failed to set window icon: {}", SDL_GetError());
-//     } else {
-//         // TODO
-//     }
-// }
+void sdl3::Window::set_icon(const std::filesystem::path &path) {
+    SDL_Surface *surf = nullptr;
+
+    if (std::filesystem::is_directory(path)) {
+        for (const auto &e: std::filesystem::directory_iterator(path)) {
+            if (!e.is_regular_file())
+                continue;
+
+            const auto e_surf = astra::read_image_to_sdl_surface(e.path());
+            if (!e_surf)
+                continue;
+
+            if (surf) {
+                if (!SDL_AddSurfaceAlternateImage(surf, e_surf))
+                    ASTRA_LOG_ERROR("Failed to add alternate image to SDL surface: {}", SDL_GetError());
+                SDL_DestroySurface(e_surf);
+            } else {
+                surf = e_surf;
+            }
+        }
+
+    } else if (std::filesystem::is_regular_file(path)) {
+        surf = astra::read_image_to_sdl_surface(path);
+
+    } else {
+        ASTRA_LOG_ERROR("'{}' must be a directory or regular file", path);
+    }
+
+    if (!surf)
+        ASTRA_LOG_ERROR("Failed to set window icon");
+    else if (!SDL_SetWindowIcon(handle_, surf))
+        ASTRA_LOG_ERROR("Failed to set window icon: {}", SDL_GetError());
+}
 
 void sdl3::Window::hide() {
     if (!SDL_HideWindow(handle_))
@@ -111,8 +136,8 @@ void sdl3::Window::swap() {
 sdl3::Window::Window(SDL_Window *handle, SDL_GLContext gl_context, std::optional<std::filesystem::path> icon_path)
     : handle_(handle),
       gl_context_(gl_context) {
-    // if (icon_path)
-    //     set_icon(*icon_path);
+    if (icon_path)
+        set_icon(*icon_path);
 }
 
 sdl3::WindowBuilder::WindowBuilder(const std::string_view title, const glm::ivec2 size)

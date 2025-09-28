@@ -14,7 +14,7 @@ const char *app_type_str(const sdl3::AppType &t) {
     std::unreachable();
 }
 
-bool sdl3::init(AppInfo app_info) {
+bool sdl3::init(const AppInfo& app_info) {
     if (!SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING, app_info.name.c_str()))
         ASTRA_LOG_ERROR("Failed to set metadata, name: {}", SDL_GetError());
 

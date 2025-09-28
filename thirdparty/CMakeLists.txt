@@ -6,16 +6,22 @@ if (ASTRA_BUILD_DEPENDENCIES)
             GIT_REPOSITORY https://github.com/fmtlib/fmt
             GIT_TAG 11.2.0
             GIT_SHALLOW TRUE
-            GIT_PROGRESS TRUE
     )
     FetchContent_MakeAvailable(fmt)
+
+    FetchContent_Declare(
+            glm
+            GIT_REPOSITORY https://github.com/g-truc/glm
+            GIT_TAG e7714885929f1dcd2bdc2531cc99d3c1dc6daa18
+            GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(glm)
 
     FetchContent_Declare(
             sdl3
             GIT_REPOSITORY https://github.com/libsdl-org/SDL
             GIT_TAG release-3.2.18
             GIT_SHALLOW TRUE
-            GIT_PROGRESS TRUE
     )
     set(SDL_SHARED OFF)
     set(SDL_STATIC ON)
@@ -26,7 +32,6 @@ if (ASTRA_BUILD_DEPENDENCIES)
             GIT_REPOSITORY https://github.com/gabime/spdlog
             GIT_TAG v1.15.3
             GIT_SHALLOW TRUE
-            GIT_PROGRESS TRUE
     )
     set(SPDLOG_FMT_EXTERNAL ON)
     FetchContent_MakeAvailable(spdlog)
@@ -36,11 +41,11 @@ if (ASTRA_BUILD_DEPENDENCIES)
             GIT_REPOSITORY https://github.com/boostorg/multiprecision
             GIT_TAG Boost_1_89_0
             GIT_SHALLOW TRUE
-            GIT_PROGRESS TRUE
     )
     FetchContent_MakeAvailable(boost_multiprecision)
 else ()
     find_package(fmt REQUIRED)
+    find_package(glm REQUIRED)
     find_package(SDL3 REQUIRED)
     find_package(spdlog REQUIRED)
     find_package(Boost REQUIRED)
@@ -51,7 +56,6 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/Dav1dde/glad
         GIT_TAG v2.0.8
         GIT_SHALLOW TRUE
-        GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(glad2)
 add_subdirectory(${glad2_SOURCE_DIR}/cmake ${glad2_BINARY_DIR})
@@ -66,7 +70,6 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/ocornut/imgui
         GIT_TAG v1.92.2
         GIT_SHALLOW TRUE
-        GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(imgui)
 
@@ -75,7 +78,6 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/epezent/implot
         GIT_TAG 3da8bd34299965d3b0ab124df743fe3e076fa222
         GIT_SHALLOW TRUE
-        GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(implot)
 
@@ -84,7 +86,6 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/imneme/pcg-cpp
         GIT_TAG 428802d1a5634f96bcd0705fab379ff0113bcf13
         GIT_SHALLOW TRUE
-        GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(pcg)
 
@@ -93,7 +94,6 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/nothings/stb
         GIT_TAG fede005abaf93d9d7f3a679d1999b2db341b360f
         GIT_SHALLOW TRUE
-        GIT_PROGRESS TRUE
 )
 FetchContent_MakeAvailable(stb)
 
@@ -176,6 +176,7 @@ target_link_libraries(
 
         PUBLIC
         fmt::fmt
+        glm::glm
         glad_gl_core_46
         SDL3::SDL3
         spdlog::spdlog

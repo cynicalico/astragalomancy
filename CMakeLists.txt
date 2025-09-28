@@ -8,14 +8,17 @@ project(
 option(ASTRA_BUILD_EXAMPLES "Build astra examples" OFF)
 option(ASTRA_BUILD_DEPENDENCIES "Build astra dependencies (à la FetchContent)" OFF)
 
-add_library(astra)
+add_library(astra
+        src/astra/core/engine.cpp)
 add_library(astra::astra ALIAS astra)
 
 target_sources(
         astra
 
         PRIVATE
+        src/astra/core/engine.cpp
         src/astra/core/log.cpp
+        src/astra/util/io.cpp
         src/astra/util/platform.cpp
         src/astra/util/rng.cpp
         src/astra/util/time.cpp
@@ -33,11 +36,14 @@ target_sources(
         BASE_DIRS
         include
         FILES
+        include/astra/core/engine.hpp
         include/astra/core/log.hpp
         include/astra/core/messenger.hpp
+        include/astra/core/payloads.hpp
         include/astra/core/types.hpp
         include/astra/util/constexpr_hash.hpp
         include/astra/util/enum_class_helpers.hpp
+        include/astra/util/io.hpp
         include/astra/util/is_any_of.hpp
         include/astra/util/platform.hpp
         include/astra/util/rng.hpp
@@ -74,6 +80,8 @@ target_sources(
 )
 
 target_compile_features(astra PRIVATE cxx_std_23)
+
+target_compile_definitions(astra PUBLIC /utf-8)
 
 add_subdirectory(thirdparty)
 target_link_libraries(astra PUBLIC astra::astra_thirdparty)

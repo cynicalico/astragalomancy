@@ -57,7 +57,7 @@ struct AppInfo {
     std::string url;
 
     /**
-     *  `SDL_PROP_APP_METADATA_TYPE_STRING`: The type of application this is.
+     * `SDL_PROP_APP_METADATA_TYPE_STRING`: The type of application this is.
      * Currently this string can be "game" for a video game, "mediaplayer" for a
      * media player, or generically "application" if nothing else applies.
      * Future versions of SDL might add new types. This defaults to
@@ -66,7 +66,7 @@ struct AppInfo {
     AppType type;
 };
 
-bool init(AppInfo app_info);
+bool init(const AppInfo& app_info);
 
 void exit();
 } // namespace sdl3

@@ -2,82 +2,82 @@
 #include "gloo/gloo.hpp"
 #include "sdl3_raii/sdl3_raii.hpp"
 
-int main(int, char *[]) {
-    astra::log_platform();
+class Indev {
+public:
+    astra::Engine engine;
 
-    const auto app_info = sdl3::AppInfo{
-            .name = "Indev",
-            .version = "0.0.1",
-            .identifier = "gay.cynicalico.indev",
-            .creator = "cynicalico",
-            .copyright = "This is free and unencumbered software released into the public domain.",
-            .url = "https://github.com/cynicalico/astragalomancy",
-            .type = sdl3::AppType::Game,
-    };
-    if (!sdl3::init(app_info))
-        return 1;
+    explicit Indev(astra::Engine engine);
+    ~Indev();
 
-    sdl3::GlAttr::set_context_version(4, 6);
-    sdl3::GlAttr::set_context_profile(sdl3::GlProfile::Core);
-#if !defined(NDEBUG)
-    sdl3::GlAttr::set_context_flags().debug().set();
-#endif
-    const auto window = sdl3::WindowBuilder("Indev", {1280, 720}).opengl().build();
-    gloo::init();
+    Indev(const Indev &other) = delete;
+    Indev &operator=(Indev &&other) noexcept = delete;
 
-    const auto messenger = std::make_unique<astra::Messenger>();
-    auto event_pump = sdl3::EventPump(messenger.get());
+    Indev(Indev &&other) noexcept = delete;
+    Indev &operator=(const Indev &other) = delete;
 
-    bool running = true;
+    void mainloop();
 
-    messenger->subscribe<sdl3::AudioDeviceEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::CameraDeviceEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::ClipboardEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::DisplayEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::DropEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::GamepadAxisEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::GamepadButtonEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::GamepadDeviceEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::GamepadSensorEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::GamepadTouchpadEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::JoystickAxisEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::JoystickBallEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::JoystickBatteryEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::JoystickButtonEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::JoystickDeviceEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::JoystickHatEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::KeyboardDeviceEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::KeyboardEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::MouseButtonEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::MouseDeviceEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::MouseMotionEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::MouseWheelEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::PenAxisEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::PenButtonEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::PenMotionEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::PenProximityEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::PenTouchEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::QuitEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::RenderEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::SensorEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::TextEditingCandidatesEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::TextEditingEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::TextInputEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::UserEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
-    messenger->subscribe<sdl3::WindowEvent>([](const auto e) { ASTRA_LOG_INFO("{}", *e); });
+private:
+    void update_(double dt);
 
-    messenger->subscribe<sdl3::QuitEvent>([&running](auto) { running = false; });
+    void draw_();
 
-    messenger->subscribe<sdl3::KeyboardEvent>([&running](const auto e) {
+    std::optional<astra::Messenger::ID> callback_id_;
+    void register_callbacks_();
+    void unregister_callbacks_();
+};
+
+Indev::Indev(astra::Engine engine)
+    : engine(std::move(engine)) {
+    register_callbacks_();
+}
+
+Indev::~Indev() {
+    unregister_callbacks_();
+}
+
+void Indev::mainloop() {
+    engine.mainloop();
+}
+
+void Indev::update_(double dt) {}
+
+void Indev::draw_() {
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Indev::register_callbacks_() {
+    callback_id_ = engine.messenger->get_id();
+
+    engine.messenger->subscribe<sdl3::KeyboardEvent>(*callback_id_, [this](const auto e) {
         if (e->type == sdl3::KeyboardEventType::Up && e->key == SDLK_ESCAPE)
-            running = false;
+            engine.shutdown();
     });
 
-    while (running) {
-        event_pump.pump();
+    engine.messenger->subscribe<astra::Update>(*callback_id_, [this](const auto e) { update_(e->dt); });
 
-        window->swap();
-    }
+    engine.messenger->subscribe<astra::Draw>(*callback_id_, [this](auto) { draw_(); });
+}
 
-    sdl3::exit();
+void Indev::unregister_callbacks_() {
+    engine.messenger->release_id(*callback_id_);
+    callback_id_ = std::nullopt;
+}
+
+int main(int, char *[]) {
+    auto engine = astra::Engine(
+            sdl3::AppInfo{
+                    .name = "Indev",
+                    .version = "0.0.1",
+                    .identifier = "gay.cynicalico.indev",
+                    .creator = "cynicalico",
+                    .copyright = "This is free and unencumbered software released into the public domain.",
+                    .url = "https://github.com/cynicalico/astragalomancy",
+                    .type = sdl3::AppType::Game,
+            },
+            {1280, 720},
+            [](sdl3::WindowBuilder &window_builder) { window_builder.icon("assets/icon/"); });
+
+    Indev(std::move(engine)).mainloop();
 }
