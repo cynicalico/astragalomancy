@@ -31,8 +31,4 @@ struct Draw {
 struct PostDraw {
     ASTRA_TAG_MEMBER(astra::PostDraw);
 };
-
-struct Present {
-    ASTRA_TAG_MEMBER(astra::Present);
-};
 } // namespace astra

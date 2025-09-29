@@ -1,12 +1,26 @@
 #include "astra/core/engine.hpp"
 
+#include "astra/core/log.hpp"
 #include "astra/util/platform.hpp"
 #include "gloo/init.hpp"
-#include "sdl3_raii/event_pump.hpp"
 #include "sdl3_raii/events/quit.hpp"
 #include "sdl3_raii/gl_attr.hpp"
 
 #include <pcg_random.hpp>
+
+astra::Application::Application(Engine *engine)
+    : engine(engine) {
+    callback_id_ = engine->messenger->get_id();
+}
+
+astra::Application::~Application() {
+    engine->messenger->release_id(*callback_id_);
+    callback_id_ = std::nullopt;
+}
+
+void astra::Application::update(double dt) {}
+
+void astra::Application::draw() {}
 
 astra::Engine::Engine(
         const sdl3::AppInfo &app_info,
@@ -63,24 +77,6 @@ astra::Engine &astra::Engine::operator=(Engine &&other) noexcept {
     return *this;
 }
 
-void astra::Engine::mainloop() {
-    auto event_pump = sdl3::EventPump(messenger.get());
-
-    while (running_) {
-        event_pump.pump();
-
-        messenger->publish<PreUpdate>(0.0);
-        messenger->publish<Update>(0.0);
-        messenger->publish<PostUpdate>(0.0);
-
-        messenger->publish<PreDraw>();
-        messenger->publish<Draw>();
-        messenger->publish<PostDraw>();
-
-        messenger->publish<Present>();
-    }
-}
-
 void astra::Engine::shutdown() {
     running_ = false;
 }
@@ -89,11 +85,10 @@ void astra::Engine::register_callbacks_() {
     callback_id_ = messenger->get_id();
 
     messenger->subscribe<sdl3::QuitEvent>(*callback_id_, [this](auto) { shutdown(); });
-
-    messenger->subscribe<Present>(*callback_id_, [this](auto) { window->swap(); });
 }
 
 void astra::Engine::unregister_callbacks_() {
     messenger->release_id(*callback_id_);
+
     callback_id_ = std::nullopt;
 }

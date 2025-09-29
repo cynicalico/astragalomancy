@@ -280,7 +280,7 @@ sdl3::WindowBuilder &sdl3::WindowBuilder::icon(const std::filesystem::path &path
 std::unique_ptr<sdl3::Window> sdl3::WindowBuilder::build() {
     const auto window_size_rect_result = get_window_size_rect();
     if (!window_size_rect_result)
-        ASTRA_LOG_ERROR("Failed to build window: {}", window_size_rect_result.error());
+        ASTRA_LOG_ERROR("Failed to get window size rect: {}", window_size_rect_result.error());
 
     const auto [x, y, w, h] = *window_size_rect_result;
     if (!SDL_SetNumberProperty(props_, SDL_PROP_WINDOW_CREATE_X_NUMBER, x))

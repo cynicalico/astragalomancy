@@ -9,7 +9,7 @@
 #include <filesystem>
 
 #if defined(ASTRA_PLATFORM_WINDOWS)
-#include "windows.h"
+#include <windows.h>
 #endif
 
 std::shared_ptr<spdlog::sinks::dist_sink_mt> astra::sinks() {
