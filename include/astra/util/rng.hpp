@@ -10,8 +10,8 @@
 
 namespace astra::rng {
 struct seed_data {
-    pcg_extras::pcg128_t seed{static_cast<pcg_extras::pcg128_t>(0)};
-    pcg_extras::pcg128_t stream{static_cast<pcg_extras::pcg128_t>(0)};
+    pcg_extras::pcg128_t seed{0};
+    pcg_extras::pcg128_t stream{0};
 };
 
 pcg64 &generator();

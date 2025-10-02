@@ -4,6 +4,8 @@
 
 class Indev final : public astra::Application {
 public:
+    astra::TimerMgr timer_mgr;
+
     explicit Indev(astra::Engine *engine);
 
     void update(double dt) override;
@@ -12,10 +14,19 @@ public:
 };
 
 Indev::Indev(astra::Engine *engine)
-    : Application(engine) {
+    : Application(engine),
+      timer_mgr(engine->messenger.get()) {
     this->engine->messenger->subscribe<sdl3::KeyboardEvent>(*callback_id_, [this](const auto e) {
         if (e->type == sdl3::KeyboardEventType::Up && e->key == SDLK_ESCAPE)
             this->engine->shutdown();
+    });
+
+    timer_mgr.every({0.25, 0.5}, 5, [] { fmt::println("wawa"); });
+
+    timer_mgr.until(0.25, [] {
+        static int i = 5;
+        fmt::println("wawa 2");
+        return --i != 0;
     });
 }
 
@@ -37,7 +48,7 @@ int main(int, char *[]) {
             .type = sdl3::AppType::Game,
     };
 
-    astra::Engine(app_info, {}, [](sdl3::WindowBuilder &window_builder) {
-        window_builder.fullscreen().icon("assets/icon/");
+    astra::Engine(app_info, {1280, 720}, [](sdl3::WindowBuilder &window_builder) {
+        window_builder.icon("assets/icon/");
     }).mainloop<Indev>();
 }

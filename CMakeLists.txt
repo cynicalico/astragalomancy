@@ -18,6 +18,7 @@ target_sources(
         PRIVATE
         src/astra/core/engine.cpp
         src/astra/core/log.cpp
+        src/astra/util/module/timer_mgr.cpp
         src/astra/util/io.cpp
         src/astra/util/platform.cpp
         src/astra/util/rng.cpp
@@ -41,6 +42,7 @@ target_sources(
         include/astra/core/messenger.hpp
         include/astra/core/payloads.hpp
         include/astra/core/types.hpp
+        include/astra/util/module/timer_mgr.hpp
         include/astra/util/constexpr_hash.hpp
         include/astra/util/enum_class_helpers.hpp
         include/astra/util/io.hpp
@@ -81,7 +83,9 @@ target_sources(
 
 target_compile_features(astra PRIVATE cxx_std_23)
 
-target_compile_definitions(astra PUBLIC /utf-8)
+if (MSVC)
+    target_compile_definitions(astra PUBLIC /utf-8)
+endif ()
 
 add_subdirectory(thirdparty)
 target_link_libraries(astra PUBLIC astra::astra_thirdparty)

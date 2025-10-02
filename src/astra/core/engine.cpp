@@ -2,7 +2,9 @@
 
 #include "astra/core/log.hpp"
 #include "astra/util/platform.hpp"
+#include "astra/util/time.hpp"
 #include "gloo/init.hpp"
+#include "sdl3_raii/event_pump.hpp"
 #include "sdl3_raii/events/quit.hpp"
 #include "sdl3_raii/gl_attr.hpp"
 
@@ -61,7 +63,6 @@ astra::Engine::Engine(Engine &&other) noexcept
     : window(std::move(other.window)) {
     other.unregister_callbacks_();
     messenger = std::move(other.messenger);
-
     register_callbacks_();
 }
 
@@ -69,9 +70,9 @@ astra::Engine &astra::Engine::operator=(Engine &&other) noexcept {
     if (this != &other) {
         window = std::move(other.window);
 
+        unregister_callbacks_();
         other.unregister_callbacks_();
         messenger = std::move(other.messenger);
-
         register_callbacks_();
     }
     return *this;
@@ -79,6 +80,28 @@ astra::Engine &astra::Engine::operator=(Engine &&other) noexcept {
 
 void astra::Engine::shutdown() {
     running_ = false;
+}
+
+void astra::Engine::mainloop_() {
+    auto event_pump = sdl3::EventPump(messenger.get());
+
+    auto last_time = time_ns();
+    while (running_) {
+        event_pump.pump();
+
+        const auto now = time_ns();
+        const auto dt = now - last_time;
+        last_time = now;
+        messenger->publish<PreUpdate>(dt / 1e9);
+        messenger->publish<Update>(dt / 1e9);
+        messenger->publish<PostUpdate>(dt / 1e9);
+
+        messenger->publish<PreDraw>();
+        messenger->publish<Draw>();
+        messenger->publish<PostDraw>();
+
+        window->swap();
+    }
 }
 
 void astra::Engine::register_callbacks_() {
