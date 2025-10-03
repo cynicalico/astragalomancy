@@ -1,6 +1,7 @@
 #include "astra/util/module/timer_mgr.hpp"
 
 #include "astra/core/payloads.hpp"
+#include "astra/util/rng.hpp"
 
 astra::TimerMgr::EveryTimer::EveryTimer(
         std::vector<double> intervals, const std::optional<std::size_t> count, std::function<void()> callback)

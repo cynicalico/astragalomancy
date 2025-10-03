@@ -1,7 +1,6 @@
 #pragma once
 
 #include "astra/core/messenger.hpp"
-#include "astra/util/rng.hpp"
 
 #include <functional>
 #include <optional>
