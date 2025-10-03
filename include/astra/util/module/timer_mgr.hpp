@@ -25,8 +25,7 @@ class TimerMgr {
         std::function<void()> callback;
         double acc{0.0};
 
-        EveryTimer(
-                std::vector<double> intervals, const std::optional<std::size_t> count, std::function<void()> callback);
+        EveryTimer(std::vector<double> intervals, std::optional<std::size_t> count, std::function<void()> callback);
 
         bool update(double dt) override;
         bool fire() override;
@@ -38,16 +37,32 @@ class TimerMgr {
         std::function<bool()> callback;
         double acc{0.0};
 
-        UntilTimer(
-                std::vector<double> intervals, const std::optional<std::size_t> count, std::function<bool()> callback);
+        UntilTimer(std::vector<double> intervals, std::optional<std::size_t> count, std::function<bool()> callback);
 
         bool update(double dt) override;
         bool fire() override;
     };
 
-    // TODO: AfterTimer
+    struct AfterTimer final : Timer {
+        std::function<void()> callback;
+        double acc{0.0};
 
-    // TODO: DuringTimer
+        AfterTimer(double interval, std::function<void()> callback);
+
+        bool update(double dt) override;
+        bool fire() override;
+    };
+
+    struct DuringTimer final : Timer {
+        std::function<void()> callback;
+        std::function<void()> after_callback;
+        double acc{0.0};
+
+        DuringTimer(double duration, std::function<void()> callback, std::function<void()> after_callback);
+
+        bool update(double dt) override;
+        bool fire() override;
+    };
 
 public:
     explicit TimerMgr(Messenger *messenger);
@@ -58,6 +73,10 @@ public:
 
     TimerMgr(TimerMgr &&other) noexcept;
     TimerMgr &operator=(TimerMgr &&other) noexcept;
+
+    void cancel(const std::string &id);
+
+    void clear();
 
     template<typename T>
     std::string every(const std::vector<double> &intervals, std::size_t count, T &&callback);
@@ -83,6 +102,15 @@ public:
     template<typename T>
     std::string until(double interval, T &&callback);
 
+    template<typename T>
+    std::string after(double interval, T &&callback);
+
+    template<typename T>
+    std::string during(double duration, T &&callback);
+
+    template<typename T, typename U>
+    std::string during(double duration, T &&callback, U &&after_callback);
+
 private:
     std::unordered_map<std::string, Timer *> timers_;
 
@@ -91,6 +119,10 @@ private:
 
     std::string
     until_(const std::vector<double> &intervals, std::optional<std::size_t> count, std::function<bool()> callback);
+
+    std::string after_(double interval, std::function<void()> callback);
+
+    std::string during_(double duration, std::function<void()> callback, std::function<void()> after_callback);
 
     void update_(double dt);
 
@@ -139,4 +171,19 @@ std::string astra::TimerMgr::until(double interval, std::size_t count, T &&callb
 template<typename T>
 std::string astra::TimerMgr::until(double interval, T &&callback) {
     return until_(std::vector{interval}, std::nullopt, std::forward<T>(callback));
+}
+
+template<typename T>
+std::string astra::TimerMgr::after(double interval, T &&callback) {
+    return after_(interval, std::forward<T>(callback));
+}
+
+template<typename T>
+std::string astra::TimerMgr::during(double duration, T &&callback) {
+    return during_(duration, std::forward<T>(callback), nullptr);
+}
+
+template<typename T, typename U>
+std::string astra::TimerMgr::during(double duration, T &&callback, U &&after_callback) {
+    return during_(duration, std::forward<T>(callback), std::forward<U>(after_callback));
 }

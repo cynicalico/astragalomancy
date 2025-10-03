@@ -19,6 +19,29 @@ Indev::Indev(astra::Engine *engine)
     this->engine->messenger->subscribe<sdl3::KeyboardEvent>(*callback_id_, [this](const auto e) {
         if (e->type == sdl3::KeyboardEventType::Up && e->key == SDLK_ESCAPE)
             this->engine->shutdown();
+
+        if (e->type == sdl3::KeyboardEventType::Down && e->key == SDLK_Q)
+            timer_mgr.after(2.0, [] { fmt::println("wawa 3"); });
+
+        if (e->type == sdl3::KeyboardEventType::Down && e->key == SDLK_W) {
+            timer_mgr.during(1.0, [] {
+                static int i = 0;
+                fmt::println("{}", ++i);
+            });
+        }
+
+        if (e->type == sdl3::KeyboardEventType::Down && e->key == SDLK_E) {
+            timer_mgr.during(
+                    1.0,
+                    [] {
+                        static int i = 0;
+                        fmt::println("{}", ++i);
+                    },
+                    [] {
+                        static int j = 0;
+                        fmt::println("{}", ++j);
+                    });
+        }
     });
 
     timer_mgr.every({0.25, 0.5}, 5, [] { fmt::println("wawa"); });

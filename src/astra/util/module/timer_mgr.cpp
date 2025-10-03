@@ -52,6 +52,41 @@ bool astra::TimerMgr::UntilTimer::fire() {
     return should_continue;
 }
 
+astra::TimerMgr::AfterTimer::AfterTimer(double interval, std::function<void()> callback)
+    : callback(std::move(callback)),
+      acc(interval) {}
+
+bool astra::TimerMgr::AfterTimer::update(double dt) {
+    acc -= dt;
+    return acc <= 0.0;
+}
+
+bool astra::TimerMgr::AfterTimer::fire() {
+    callback();
+    return false;
+}
+
+astra::TimerMgr::DuringTimer::DuringTimer(
+        double duration, std::function<void()> callback, std::function<void()> after_callback)
+    : callback(std::move(callback)),
+      after_callback(std::move(after_callback)),
+      acc(duration) {}
+
+bool astra::TimerMgr::DuringTimer::update(double dt) {
+    acc -= dt;
+    return true;
+}
+
+bool astra::TimerMgr::DuringTimer::fire() {
+    callback();
+    if (acc <= 0.0) {
+        if (after_callback)
+            after_callback();
+        return false;
+    }
+    return true;
+}
+
 astra::TimerMgr::TimerMgr(Messenger *messenger)
     : messenger(messenger) {
     register_callbacks_();
@@ -80,6 +115,15 @@ astra::TimerMgr &astra::TimerMgr::operator=(TimerMgr &&other) noexcept {
     return *this;
 }
 
+void astra::TimerMgr::cancel(const std::string &id) {
+    if (auto it = timers_.find(id); it != timers_.end())
+        timers_.erase(it);
+}
+
+void astra::TimerMgr::clear() {
+    timers_.clear();
+}
+
 std::string astra::TimerMgr::every_(
         const std::vector<double> &intervals, std::optional<std::size_t> count, std::function<void()> callback) {
     const auto id = rng::base58(11);
@@ -91,6 +135,18 @@ std::string astra::TimerMgr::until_(
         const std::vector<double> &intervals, std::optional<std::size_t> count, std::function<bool()> callback) {
     const auto id = rng::base58(11);
     timers_.emplace(id, new UntilTimer(std::move(intervals), count, std::move(callback)));
+    return id;
+}
+std::string astra::TimerMgr::after_(double interval, std::function<void()> callback) {
+    const auto id = rng::base58(11);
+    timers_.emplace(id, new AfterTimer(interval, std::move(callback)));
+    return id;
+}
+
+std::string
+astra::TimerMgr::during_(double duration, std::function<void()> callback, std::function<void()> after_callback) {
+    const auto id = rng::base58(11);
+    timers_.emplace(id, new DuringTimer(duration, std::move(callback), std::move(after_callback)));
     return id;
 }
 
