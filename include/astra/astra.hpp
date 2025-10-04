@@ -1,5 +1,6 @@
 #pragma once
 
+#include "astra/core/color.hpp"
 #include "astra/core/engine.hpp"
 #include "astra/core/log.hpp"
 #include "astra/core/messenger.hpp"

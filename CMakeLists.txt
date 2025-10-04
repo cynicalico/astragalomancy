@@ -16,6 +16,7 @@ target_sources(
         astra
 
         PRIVATE
+        src/astra/core/color.cpp
         src/astra/core/engine.cpp
         src/astra/core/log.cpp
         src/astra/util/module/timer_mgr.cpp
@@ -37,6 +38,7 @@ target_sources(
         BASE_DIRS
         include
         FILES
+        include/astra/core/color.hpp
         include/astra/core/engine.hpp
         include/astra/core/log.hpp
         include/astra/core/messenger.hpp

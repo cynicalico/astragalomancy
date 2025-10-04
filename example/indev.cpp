@@ -4,6 +4,7 @@
 
 class Indev final : public astra::Application {
 public:
+    astra::HSV clear_color;
     astra::TimerMgr timer_mgr;
 
     explicit Indev(astra::Engine *engine);
@@ -19,20 +20,24 @@ Indev::Indev(astra::Engine *engine)
     this->engine->messenger->subscribe<sdl3::KeyboardEvent>(*callback_id_, [this](const auto e) {
         if (e->type == sdl3::KeyboardEventType::Up && e->key == SDLK_ESCAPE)
             this->engine->shutdown();
-
-        if (e->type == sdl3::KeyboardEventType::Down && e->key == SDLK_Q) {
-            timer_mgr.after(2.0, [this](this auto &&self) {
-                fmt::println("wawa 3");
-                timer_mgr.after(2.0, std::forward<decltype(self)>(self));
-            });
-        }
     });
+
+    clear_color = astra::hsv(0.0, 0.5, 0.5);
+
+    fmt::println("{}", astra::RGB(clear_color));
+    fmt::println("{}", astra::HSV(astra::RGB(clear_color)));
+    fmt::println("{}", astra::HSL(astra::HSV(astra::RGB(clear_color))));
+    fmt::println("{}", astra::HSV(astra::HSL(astra::HSV(astra::RGB(clear_color)))));
+    fmt::println("{}", astra::RGB(astra::HSV(astra::HSL(astra::HSV(astra::RGB(clear_color))))));
 }
 
-void Indev::update(double dt) {}
+void Indev::update(double dt) {
+    clear_color.rotate(30.0f * dt);
+}
 
 void Indev::draw() {
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    const auto c = clear_color.gl_color();
+    glClearColor(c.r, c.g, c.b, c.a);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
