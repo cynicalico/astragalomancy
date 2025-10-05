@@ -4,7 +4,7 @@
 
 class Indev final : public astra::Application {
 public:
-    astra::HSV clear_color;
+    astra::Dear dear;
     astra::TimerMgr timer_mgr;
 
     explicit Indev(astra::Engine *engine);
@@ -16,29 +16,25 @@ public:
 
 Indev::Indev(astra::Engine *engine)
     : Application(engine),
+      dear(engine->messenger.get(), engine->window.get()),
       timer_mgr(engine->messenger.get()) {
     this->engine->messenger->subscribe<sdl3::KeyboardEvent>(*callback_id_, [this](const auto e) {
+        ASTRA_LOG_INFO("{}", *e);
+
         if (e->type == sdl3::KeyboardEventType::Up && e->key == SDLK_ESCAPE)
             this->engine->shutdown();
     });
-
-    clear_color = astra::hsv(0.0, 0.5, 0.5);
-
-    fmt::println("{}", astra::RGB(clear_color));
-    fmt::println("{}", astra::HSV(astra::RGB(clear_color)));
-    fmt::println("{}", astra::HSL(astra::HSV(astra::RGB(clear_color))));
-    fmt::println("{}", astra::HSV(astra::HSL(astra::HSV(astra::RGB(clear_color)))));
-    fmt::println("{}", astra::RGB(astra::HSV(astra::HSL(astra::HSV(astra::RGB(clear_color))))));
 }
 
-void Indev::update(double dt) {
-    clear_color.rotate(30.0f * dt);
-}
+void Indev::update(double dt) {}
 
 void Indev::draw() {
-    const auto c = clear_color.gl_color();
-    glClearColor(c.r, c.g, c.b, c.a);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    if (ImGui::Begin("Test"))
+        ImGui::Text("Hello, world!");
+    ImGui::End();
 }
 
 int main(int, char *[]) {

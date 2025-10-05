@@ -125,7 +125,7 @@ private:
 
     void update_(double dt);
 
-    Messenger *messenger;
+    Messenger *messenger_;
     std::optional<Messenger::ID> callback_id_;
     void register_callbacks_();
     void unregister_callbacks_();

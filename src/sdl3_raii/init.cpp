@@ -7,14 +7,17 @@
 
 const char *app_type_str(const sdl3::AppType &t) {
     switch (t) {
-    case sdl3::AppType::Game: return "game";
-    case sdl3::AppType::MediaPlayer: return "mediaplayer";
-    case sdl3::AppType::Application: return "application";
+    case sdl3::AppType::Game:
+        return "game";
+    case sdl3::AppType::MediaPlayer:
+        return "mediaplayer";
+    case sdl3::AppType::Application:
+        return "application";
     }
     std::unreachable();
 }
 
-bool sdl3::init(const AppInfo& app_info) {
+bool sdl3::init(const AppInfo &app_info) {
     if (!SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING, app_info.name.c_str()))
         ASTRA_LOG_ERROR("Failed to set metadata, name: {}", SDL_GetError());
 
@@ -43,7 +46,7 @@ bool sdl3::init(const AppInfo& app_info) {
 
     const auto version = SDL_GetVersion();
     ASTRA_LOG_DEBUG(
-            "SDL version: {}.{}.{}",
+            "SDL v{}.{}.{}",
             SDL_VERSIONNUM_MAJOR(version),
             SDL_VERSIONNUM_MINOR(version),
             SDL_VERSIONNUM_MICRO(version));
@@ -51,4 +54,6 @@ bool sdl3::init(const AppInfo& app_info) {
     return true;
 }
 
-void sdl3::exit() { SDL_Quit(); }
+void sdl3::exit() {
+    SDL_Quit();
+}

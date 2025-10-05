@@ -14,4 +14,5 @@
 #include "astra/util/rng.hpp"
 #include "astra/util/time.hpp"
 
+#include "astra/util/module/dear.hpp"
 #include "astra/util/module/timer_mgr.hpp"

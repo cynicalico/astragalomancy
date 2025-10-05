@@ -89,7 +89,7 @@ bool astra::TimerMgr::DuringTimer::fire() {
 }
 
 astra::TimerMgr::TimerMgr(Messenger *messenger)
-    : messenger(messenger) {
+    : messenger_(messenger) {
     register_callbacks_();
 }
 
@@ -99,9 +99,9 @@ astra::TimerMgr::~TimerMgr() {
 }
 
 astra::TimerMgr::TimerMgr(TimerMgr &&other) noexcept
-    : messenger(other.messenger) {
+    : messenger_(other.messenger_) {
     other.unregister_callbacks_();
-    other.messenger = nullptr;
+    other.messenger_ = nullptr;
     register_callbacks_();
 }
 
@@ -109,8 +109,8 @@ astra::TimerMgr &astra::TimerMgr::operator=(TimerMgr &&other) noexcept {
     if (this != &other) {
         unregister_callbacks_();
         other.unregister_callbacks_();
-        messenger = other.messenger;
-        other.messenger = nullptr;
+        messenger_ = other.messenger_;
+        other.messenger_ = nullptr;
         register_callbacks_();
     }
     return *this;
@@ -170,13 +170,13 @@ void astra::TimerMgr::update_(double dt) {
 }
 
 void astra::TimerMgr::register_callbacks_() {
-    callback_id_ = messenger->get_id();
+    callback_id_ = messenger_->get_id();
 
-    messenger->subscribe<PreUpdate>(*callback_id_, [&](const auto *p) { update_(p->dt); });
+    messenger_->subscribe<PreUpdate>(*callback_id_, [&](const auto *p) { update_(p->dt); });
 }
 
 void astra::TimerMgr::unregister_callbacks_() {
-    messenger->release_id(*callback_id_);
+    messenger_->release_id(*callback_id_);
 
     callback_id_ = std::nullopt;
 }

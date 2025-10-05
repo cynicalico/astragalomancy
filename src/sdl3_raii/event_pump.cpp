@@ -11,6 +11,7 @@
 #include "sdl3_raii/events/mouse.hpp"
 #include "sdl3_raii/events/pen.hpp"
 #include "sdl3_raii/events/quit.hpp"
+#include "sdl3_raii/events/raw.hpp"
 #include "sdl3_raii/events/render.hpp"
 #include "sdl3_raii/events/sensor.hpp"
 #include "sdl3_raii/events/text.hpp"
@@ -18,18 +19,19 @@
 #include "sdl3_raii/events/user.hpp"
 #include "sdl3_raii/events/window.hpp"
 
-#include <cstring>
-
 namespace sdl3 {
 EventPump::EventPump(astra::Messenger *messenger)
     : messenger_(messenger) {}
 
 void EventPump::pump() {
     SDL_Event e;
-    while (SDL_PollEvent(&e)) publish_event_(e);
+    while (SDL_PollEvent(&e))
+        publish_event_(e);
 }
 
 void EventPump::publish_event_(const SDL_Event &e) {
+    messenger_->publish<RawEvent>(e);
+
     switch (e.type) {
     case SDL_EVENT_AUDIO_DEVICE_ADDED:
     case SDL_EVENT_AUDIO_DEVICE_REMOVED:
@@ -42,12 +44,14 @@ void EventPump::publish_event_(const SDL_Event &e) {
     case SDL_EVENT_CAMERA_DEVICE_REMOVED:
     case SDL_EVENT_CAMERA_DEVICE_APPROVED:
     case SDL_EVENT_CAMERA_DEVICE_DENIED:
-        messenger_->publish<CameraDeviceEvent>(static_cast<CameraEventType>(e.type), e.adevice.timestamp, e.adevice.which);
+        messenger_->publish<CameraDeviceEvent>(
+                static_cast<CameraEventType>(e.type), e.adevice.timestamp, e.adevice.which);
         break;
 
     case SDL_EVENT_CLIPBOARD_UPDATE: {
         std::vector<std::string> mime_types;
-        for (std::size_t i = 0; i < e.clipboard.num_mime_types; ++i) mime_types.emplace_back(e.clipboard.mime_types[i]);
+        for (std::size_t i = 0; i < e.clipboard.num_mime_types; ++i)
+            mime_types.emplace_back(e.clipboard.mime_types[i]);
         messenger_->publish<ClipboardEvent>(e.clipboard.timestamp, e.clipboard.owner, mime_types);
     } break;
 
@@ -292,7 +296,9 @@ void EventPump::publish_event_(const SDL_Event &e) {
                 e.ptouch.down);
         break;
 
-    case SDL_EVENT_QUIT: messenger_->publish<QuitEvent>(e.quit.timestamp); break;
+    case SDL_EVENT_QUIT:
+        messenger_->publish<QuitEvent>(e.quit.timestamp);
+        break;
 
     case SDL_EVENT_RENDER_TARGETS_RESET:
     case SDL_EVENT_RENDER_DEVICE_RESET:
@@ -308,7 +314,8 @@ void EventPump::publish_event_(const SDL_Event &e) {
 
     case SDL_EVENT_TEXT_EDITING_CANDIDATES: {
         std::vector<std::string> candidates;
-        for (std::size_t i = 0; i < e.edit_candidates.num_candidates; ++i) candidates.emplace_back(e.edit.text);
+        for (std::size_t i = 0; i < e.edit_candidates.num_candidates; ++i)
+            candidates.emplace_back(e.edit.text);
         messenger_->publish<TextEditingCandidatesEvent>(
                 e.edit_candidates.timestamp,
                 e.edit_candidates.windowID,

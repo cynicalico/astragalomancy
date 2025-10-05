@@ -112,6 +112,5 @@ void astra::Engine::register_callbacks_() {
 
 void astra::Engine::unregister_callbacks_() {
     messenger->release_id(*callback_id_);
-
     callback_id_ = std::nullopt;
 }

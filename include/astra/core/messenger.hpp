@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <ranges>
 #include <span>
 #include <unordered_map>
@@ -33,10 +34,19 @@ public:
         requires HasAstraTag<T>
     void publish(Args &&...args);
 
+    template<typename T>
+        requires HasAstraTag<T>
+    void capture(ID id);
+
+    template<typename T>
+        requires HasAstraTag<T>
+    void uncapture(ID id, bool force = false);
+
 private:
     ID next_id_ = 0;
     std::vector<ID> recycled_ids_{};
 
+    std::unordered_map<std::uint32_t, std::optional<ID>> captures_;
     std::unordered_map<std::uint32_t, std::vector<Receiver>> receivers_;
 
     template<typename T, typename... Args>
@@ -57,6 +67,10 @@ inline void astra::Messenger::release_id(const ID id) {
     for (auto &receivers: receivers_ | std::views::values)
         if (receivers.size() > id)
             receivers[id] = nullptr;
+
+    for (auto &capture: captures_ | std::views::values)
+        if (capture && *capture == id)
+            capture.reset();
 
     recycled_ids_.push_back(id);
 }
@@ -84,10 +98,30 @@ template<typename T, typename... Args>
     requires astra::HasAstraTag<T>
 void astra::Messenger::publish(Args &&...args) {
     const auto payload = make_payload_<T>(std::forward<Args>(args)...);
-    for (auto &r: receivers_[T::ASTRA_MESSENGER_TAG])
-        if (r)
-            r(payload);
+    if (auto cap_id_opt = captures_[T::ASTRA_MESSENGER_TAG]; cap_id_opt) {
+        if (receivers_[T::ASTRA_MESSENGER_TAG].size() > *cap_id_opt) {
+            if (auto &r = receivers_[T::ASTRA_MESSENGER_TAG][*cap_id_opt]; r)
+                r(payload);
+        }
+    } else {
+        for (auto &r: receivers_[T::ASTRA_MESSENGER_TAG])
+            if (r)
+                r(payload);
+    }
     operator delete(payload.data(), payload.size());
+}
+
+template<typename T>
+    requires astra::HasAstraTag<T>
+void astra::Messenger::capture(ID id) {
+    captures_[T::ASTRA_MESSENGER_TAG] = id;
+}
+
+template<typename T>
+    requires astra::HasAstraTag<T>
+void astra::Messenger::uncapture(ID id, bool force) {
+    if (force || captures_[T::ASTRA_MESSENGER_TAG] && *captures_[T::ASTRA_MESSENGER_TAG] == id)
+        captures_[T::ASTRA_MESSENGER_TAG].reset();
 }
 
 template<typename T, typename... Args>
