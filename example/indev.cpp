@@ -19,8 +19,6 @@ Indev::Indev(astra::Engine *engine)
       dear(engine->messenger.get(), engine->window.get()),
       timer_mgr(engine->messenger.get()) {
     this->engine->messenger->subscribe<sdl3::KeyboardEvent>(*callback_id_, [this](const auto e) {
-        ASTRA_LOG_INFO("{}", *e);
-
         if (e->type == sdl3::KeyboardEventType::Up && e->key == SDLK_ESCAPE)
             this->engine->shutdown();
     });
@@ -32,8 +30,15 @@ void Indev::draw() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if (ImGui::Begin("Test"))
-        ImGui::Text("Hello, world!");
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowSize(glm::vec2(engine->window->pixel_size()));
+    if (ImGui::Begin(
+                "##overlay",
+                nullptr,
+                ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove |
+                        ImGuiWindowFlags_NoInputs)) {
+        ImGui::TextUnformatted(fmt::format("{:.2f}fps", ImGui::GetIO().Framerate).c_str());
+    }
     ImGui::End();
 }
 
