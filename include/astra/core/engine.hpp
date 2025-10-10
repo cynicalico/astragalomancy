@@ -2,11 +2,14 @@
 
 #include "astra/core/messenger.hpp"
 #include "astra/core/payloads.hpp"
+#include "astra/util/module/dear.hpp"
 #include "sdl3_raii/init.hpp"
 #include "sdl3_raii/window.hpp"
 
+#include <deque>
 #include <memory>
 #include <optional>
+#include <string>
 
 namespace astra {
 class Engine;
@@ -28,8 +31,9 @@ protected:
 
 class Engine {
 public:
-    std::unique_ptr<sdl3::Window> window;
     std::unique_ptr<Messenger> messenger;
+    std::unique_ptr<sdl3::Window> window;
+    std::unique_ptr<Dear> dear;
 
     Engine(const sdl3::AppInfo &app_info,
            glm::ivec2 window_size,
@@ -51,6 +55,12 @@ public:
 
 private:
     bool running_{true};
+
+    struct LogFlyout {
+        std::string text;
+        double acc;
+    };
+    std::deque<LogFlyout> log_flyouts_;
 
     void mainloop_();
 

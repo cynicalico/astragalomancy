@@ -3,12 +3,14 @@
 #include "astra/core/log.hpp"
 #include "astra/util/platform.hpp"
 #include "astra/util/time.hpp"
-#include "gloo/init.hpp"
+#include "gloo/gloo.hpp"
 #include "sdl3_raii/event_pump.hpp"
 #include "sdl3_raii/events/quit.hpp"
 #include "sdl3_raii/gl_attr.hpp"
 
 #include <pcg_random.hpp>
+#include <spdlog/sinks/callback_sink.h>
+#include <string_view>
 
 astra::Application::Application(Engine *engine)
     : engine(engine) {
@@ -28,6 +30,14 @@ astra::Engine::Engine(
         const sdl3::AppInfo &app_info,
         const glm::ivec2 window_size,
         const std::function<void(sdl3::WindowBuilder &)> &window_build_f) {
+    const auto callback_sink = std::make_shared<spdlog::sinks::callback_sink_mt>(
+            [&](const spdlog::details::log_msg &msg) { messenger->publish<LogMessage>(msg); });
+    callback_sink->set_level(spdlog::level::trace);
+    sinks()->add_sink(callback_sink);
+
+    messenger = std::make_unique<Messenger>();
+    register_callbacks_();
+
     log_platform();
 
     if (!sdl3::init(app_info))
@@ -46,21 +56,24 @@ astra::Engine::Engine(
         throw std::runtime_error("Failed to build SDL3 window");
     gloo::init();
 
-    messenger = std::make_unique<Messenger>();
-
-    register_callbacks_();
+    dear = std::make_unique<Dear>(messenger.get(), window.get());
 }
 
 astra::Engine::~Engine() {
-    if (callback_id_)
+    if (callback_id_) {
         unregister_callbacks_();
 
-    if (window)
+        dear.reset();
+        window.reset();
+        messenger.reset();
+
         sdl3::exit();
+    }
 }
 
 astra::Engine::Engine(Engine &&other) noexcept
-    : window(std::move(other.window)) {
+    : window(std::move(other.window)),
+      dear(std::move(other.dear)) {
     other.unregister_callbacks_();
     messenger = std::move(other.messenger);
     register_callbacks_();
@@ -69,6 +82,7 @@ astra::Engine::Engine(Engine &&other) noexcept
 astra::Engine &astra::Engine::operator=(Engine &&other) noexcept {
     if (this != &other) {
         window = std::move(other.window);
+        dear = std::move(other.dear);
 
         unregister_callbacks_();
         other.unregister_callbacks_();
@@ -90,14 +104,51 @@ void astra::Engine::mainloop_() {
         event_pump.pump();
 
         const auto now = time_ns();
-        const auto dt = now - last_time;
+        const auto dt = (now - last_time) / 1e9;
         last_time = now;
-        messenger->publish<PreUpdate>(dt / 1e9);
-        messenger->publish<Update>(dt / 1e9);
-        messenger->publish<PostUpdate>(dt / 1e9);
+        messenger->publish<PreUpdate>(dt);
+        messenger->publish<Update>(dt);
+        messenger->publish<PostUpdate>(dt);
 
         messenger->publish<PreDraw>();
         messenger->publish<Draw>();
+
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowSize(glm::vec2(window->pixel_size()));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 2));
+        if (ImGui::Begin(
+                    "##overlay",
+                    nullptr,
+                    ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove |
+                            ImGuiWindowFlags_NoInputs)) {
+            const auto draw_list = ImGui::GetWindowDrawList();
+
+
+            ImGui::TextUnformatted(fmt::format("{:.2f}fps", ImGui::GetIO().Framerate).c_str());
+
+            auto pos = ImVec2(0, ImGui::GetWindowSize().y);
+            pos.x += ImGui::GetStyle().WindowPadding.x;
+            pos.y -= ImGui::GetStyle().WindowPadding.y;
+
+            for (auto &[text, acc]: log_flyouts_) {
+                const auto lh = ImGui::GetTextLineHeightWithSpacing();
+                const auto text_size = ImGui::CalcTextSize(text.c_str());
+                const auto alpha = static_cast<float>(std::clamp(acc, 0.0, 1.0));
+                const auto bg_color = ImGui::ColorConvertFloat4ToU32({0.0, 0.0, 0.0, alpha});
+                auto fg_color = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+                fg_color.w = alpha;
+
+                pos.y -= lh;
+                draw_list->AddRectFilled(
+                        pos,
+                        ImVec2(pos.x + text_size.x, pos.y + text_size.y + ImGui::GetStyle().ItemSpacing.y),
+                        bg_color);
+                draw_list->AddText(pos, ImGui::ColorConvertFloat4ToU32(fg_color), text.c_str());
+            }
+        }
+        ImGui::End();
+        ImGui::PopStyleVar();
+
         messenger->publish<PostDraw>();
 
         window->swap();
@@ -108,6 +159,17 @@ void astra::Engine::register_callbacks_() {
     callback_id_ = messenger->get_id();
 
     messenger->subscribe<sdl3::QuitEvent>(*callback_id_, [this](auto) { shutdown(); });
+
+    messenger->subscribe<PreUpdate>(*callback_id_, [this](const auto *p) {
+        for (auto &[text, acc]: log_flyouts_)
+            acc -= p->dt;
+        while (!log_flyouts_.empty() && log_flyouts_.back().acc <= 0)
+            log_flyouts_.pop_back();
+    });
+
+    messenger->subscribe<LogMessage>(*callback_id_, [this](const auto *p) {
+        log_flyouts_.emplace_front(std::string(p->msg.payload.data(), p->msg.payload.size()), 3.0);
+    });
 }
 
 void astra::Engine::unregister_callbacks_() {

@@ -41,7 +41,11 @@ SDL_Surface *astra::read_image_to_sdl_surface(const std::filesystem::path &path)
         return nullptr;
     }
 #else
-#error Not yet implemented
+    fp = fopen(path.c_str(), "rb");
+    if (!fp) {
+        ASTRA_LOG_ERROR("Failed to open file: '{}'", path);
+        return nullptr;
+    }
 #endif
 
     int w, h, channels;

@@ -2,6 +2,8 @@
 
 #include "astra/util/constexpr_hash.hpp"
 
+#include <spdlog/details/log_msg.h>
+
 #define ASTRA_TAG_MEMBER(name) constexpr static std::uint32_t ASTRA_MESSENGER_TAG{astra::murmur_x86_32(#name, 0)};
 
 namespace astra {
@@ -30,5 +32,10 @@ struct Draw {
 
 struct PostDraw {
     ASTRA_TAG_MEMBER(astra::PostDraw);
+};
+
+struct LogMessage {
+    ASTRA_TAG_MEMBER(astra::LogMessage);
+    const spdlog::details::log_msg &msg;
 };
 } // namespace astra
