@@ -88,6 +88,7 @@ target_sources(
 
 target_compile_features(astra PRIVATE cxx_std_23)
 
+target_compile_definitions(astra PUBLIC SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 if (MSVC)
     target_compile_definitions(astra PUBLIC /utf-8)
 endif ()

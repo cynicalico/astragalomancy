@@ -36,6 +36,7 @@ struct PostDraw {
 
 struct LogMessage {
     ASTRA_TAG_MEMBER(astra::LogMessage);
-    const spdlog::details::log_msg &msg;
+    spdlog::level::level_enum level;
+    std::string text;
 };
 } // namespace astra

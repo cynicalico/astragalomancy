@@ -57,6 +57,7 @@ private:
     bool running_{true};
 
     struct LogFlyout_ {
+        spdlog::level::level_enum level;
         std::string text;
         double acc;
     };

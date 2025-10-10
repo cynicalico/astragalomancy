@@ -23,11 +23,13 @@ std::shared_ptr<spdlog::logger> astra::logger() {
 
         auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         console_sink->set_color_mode(spdlog::color_mode::always);
+        console_sink->set_level(spdlog::level::trace);
         s->add_sink(console_sink);
 
         auto filename = fmt::format("{}.log", timestamp());
         auto path = (std::filesystem::path(".log") / filename).string();
         auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path);
+        file_sink->set_level(spdlog::level::trace);
         s->add_sink(file_sink);
 
         auto l = std::make_shared<spdlog::logger>("astra", s);
