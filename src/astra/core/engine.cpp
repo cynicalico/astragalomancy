@@ -96,6 +96,40 @@ void astra::Engine::shutdown() {
     running_ = false;
 }
 
+void text_with_bg(ImDrawList *dl, ImVec2 pos, float alpha, const char *text) {
+    const ImVec2 text_size = ImGui::CalcTextSize(text);
+    const ImU32 bg_color = ImGui::ColorConvertFloat4ToU32({0.0f, 0.0f, 0.0f, alpha});
+    const ImU32 fg_color = ImGui::ColorConvertFloat4ToU32({1.0f, 1.0f, 1.0f, alpha});
+    dl->AddRectFilled(pos, {pos.x + text_size.x, pos.y + text_size.y + ImGui::GetStyle().ItemSpacing.y}, bg_color);
+    dl->AddText(pos, fg_color, text);
+}
+
+void astra::Engine::draw_debug_overlay_() {
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowSize(glm::vec2(window->pixel_size()));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 2));
+    if (ImGui::Begin(
+                "##overlay",
+                nullptr,
+                ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove |
+                        ImGuiWindowFlags_NoInputs)) {
+        const auto draw_list = ImGui::GetWindowDrawList();
+
+        const auto fps_text = fmt::format("{:.2f}fps", ImGui::GetIO().Framerate);
+        text_with_bg(draw_list, ImGui::GetStyle().WindowPadding, 1.0f, fps_text.c_str());
+
+        ImVec2 pos = {ImGui::GetStyle().WindowPadding.x, ImGui::GetWindowSize().y - ImGui::GetStyle().WindowPadding.y};
+        for (auto &[text, acc]: log_flyouts_) {
+            const auto lh = ImGui::GetTextLineHeightWithSpacing();
+            pos.y -= lh;
+            const auto alpha = static_cast<float>(std::clamp(acc, 0.0, 1.0));
+            text_with_bg(draw_list, pos, alpha, text.c_str());
+        }
+    }
+    ImGui::End();
+    ImGui::PopStyleVar();
+}
+
 void astra::Engine::mainloop_() {
     auto event_pump = sdl3::EventPump(messenger.get());
 
@@ -112,43 +146,7 @@ void astra::Engine::mainloop_() {
 
         messenger->publish<PreDraw>();
         messenger->publish<Draw>();
-
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::SetNextWindowSize(glm::vec2(window->pixel_size()));
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 2));
-        if (ImGui::Begin(
-                    "##overlay",
-                    nullptr,
-                    ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove |
-                            ImGuiWindowFlags_NoInputs)) {
-            const auto draw_list = ImGui::GetWindowDrawList();
-
-
-            ImGui::TextUnformatted(fmt::format("{:.2f}fps", ImGui::GetIO().Framerate).c_str());
-
-            auto pos = ImVec2(0, ImGui::GetWindowSize().y);
-            pos.x += ImGui::GetStyle().WindowPadding.x;
-            pos.y -= ImGui::GetStyle().WindowPadding.y;
-
-            for (auto &[text, acc]: log_flyouts_) {
-                const auto lh = ImGui::GetTextLineHeightWithSpacing();
-                const auto text_size = ImGui::CalcTextSize(text.c_str());
-                const auto alpha = static_cast<float>(std::clamp(acc, 0.0, 1.0));
-                const auto bg_color = ImGui::ColorConvertFloat4ToU32({0.0, 0.0, 0.0, alpha});
-                auto fg_color = ImGui::GetStyleColorVec4(ImGuiCol_Text);
-                fg_color.w = alpha;
-
-                pos.y -= lh;
-                draw_list->AddRectFilled(
-                        pos,
-                        ImVec2(pos.x + text_size.x, pos.y + text_size.y + ImGui::GetStyle().ItemSpacing.y),
-                        bg_color);
-                draw_list->AddText(pos, ImGui::ColorConvertFloat4ToU32(fg_color), text.c_str());
-            }
-        }
-        ImGui::End();
-        ImGui::PopStyleVar();
-
+        draw_debug_overlay_();
         messenger->publish<PostDraw>();
 
         window->swap();

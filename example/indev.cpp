@@ -17,17 +17,27 @@ Indev::Indev(astra::Engine *engine)
     : Application(engine),
       timer_mgr(engine->messenger.get()) {
     this->engine->messenger->subscribe<sdl3::KeyboardEvent>(*callback_id_, [this](const auto e) {
-        if (e->type == sdl3::KeyboardEventType::Up && e->key == SDLK_ESCAPE)
-            this->engine->shutdown();
-
-        ASTRA_LOG_INFO("{}", *e);
+        switch (e->type) {
+        case sdl3::KeyboardEventType::Down:
+            break;
+        case sdl3::KeyboardEventType::Up:
+            switch (e->key) {
+            case SDLK_ESCAPE:
+                this->engine->shutdown();
+                break;
+            default:; // do nothing
+            }
+            break;
+        default:
+            std::unreachable();
+        }
     });
 }
 
 void Indev::update(double dt) {}
 
 void Indev::draw() {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

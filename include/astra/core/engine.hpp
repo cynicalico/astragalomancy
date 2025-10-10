@@ -56,11 +56,12 @@ public:
 private:
     bool running_{true};
 
-    struct LogFlyout {
+    struct LogFlyout_ {
         std::string text;
         double acc;
     };
-    std::deque<LogFlyout> log_flyouts_;
+    std::deque<LogFlyout_> log_flyouts_;
+    void draw_debug_overlay_();
 
     void mainloop_();
 
