@@ -1,5 +1,6 @@
 #include "astra/core/engine.hpp"
 
+#include "astra/core/color.hpp"
 #include "astra/core/log.hpp"
 #include "astra/util/platform.hpp"
 #include "astra/util/time.hpp"
@@ -116,13 +117,19 @@ void astra::Engine::shutdown() {
     running_ = false;
 }
 
-void text_with_bg(ImDrawList *dl, ImVec2 pos, ImVec4 bg_color, ImVec4 fg_color, float alpha, const char *text) {
+void text_with_bg(
+        ImDrawList *dl,
+        ImVec2 pos,
+        const astra::Color &bg_color,
+        const astra::Color &fg_color,
+        std::uint8_t alpha,
+        const char *text) {
     const ImVec2 text_size = ImGui::CalcTextSize(text);
     dl->AddRectFilled(
             pos,
             {pos.x + text_size.x, pos.y + text_size.y + ImGui::GetStyle().ItemSpacing.y},
-            ImGui::ColorConvertFloat4ToU32({bg_color.x, bg_color.y, bg_color.z, alpha}));
-    dl->AddText(pos, ImGui::ColorConvertFloat4ToU32({fg_color.x, fg_color.y, fg_color.z, alpha}), text);
+            bg_color.imgui_color_u32(alpha));
+    dl->AddText(pos, fg_color.imgui_color_u32(alpha), text);
 }
 
 void astra::Engine::draw_debug_overlay_() {
@@ -138,54 +145,52 @@ void astra::Engine::draw_debug_overlay_() {
         const auto draw_list = ImGui::GetWindowDrawList();
 
         const auto fps_text = fmt::format("FPS {:.2f}", ImGui::GetIO().Framerate);
-        text_with_bg(
-                draw_list,
-                ImGui::GetStyle().WindowPadding,
-                {0.0f, 0.0f, 0.0f, 1.0f},
-                {1.0f, 1.0f, 1.0f, 1.0f},
-                1.0f,
-                fps_text.c_str());
+        text_with_bg(draw_list, ImGui::GetStyle().WindowPadding, rgb(0x000000), rgb(0xffffff), 255, fps_text.c_str());
 
         ImVec2 pos = {ImGui::GetStyle().WindowPadding.x, ImGui::GetWindowSize().y - ImGui::GetStyle().WindowPadding.y};
         for (auto &[level, text, acc]: log_flyouts_) {
             const auto lh = ImGui::GetTextLineHeightWithSpacing();
             pos.y -= lh;
 
-            ImVec4 bg_color;
-            ImVec4 fg_color;
+            RGB bg_color, fg_color;
             switch (level) {
             case spdlog::level::trace:
-                bg_color = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-                fg_color = ImVec4(0.50f, 0.50f, 0.50f, 1.0f); // 7f7f7f
+                bg_color = rgb(0x000000);
+                fg_color = rgb(0x7f7f7f);
                 break;
             case spdlog::level::debug:
-                bg_color = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-                fg_color = ImVec4(0.36F, 0.36F, 1.0f, 1.0f); // 5c5cff
+                bg_color = rgb(0x000000);
+                fg_color = rgb(0x5c5cff);
                 break;
             case spdlog::level::info:
-                bg_color = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-                fg_color = ImVec4(0.0f, 1.0f, 0.0f, 1.0f); // 00ff00
+                bg_color = rgb(0x000000);
+                fg_color = rgb(0x00ff00);
                 break;
             case spdlog::level::warn:
-                bg_color = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-                fg_color = ImVec4(1.0f, 1.0f, 0.0f, 1.0f); // ffff00
+                bg_color = rgb(0x000000);
+                fg_color = rgb(0xffff00);
                 break;
             case spdlog::level::err:
-                bg_color = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-                fg_color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); // ff0000
+                bg_color = rgb(0x000000);
+                fg_color = rgb(0xff0000);
                 break;
             case spdlog::level::critical:
-                bg_color = ImVec4(0.80f, 0.0f, 0.0f, 1.0f); // cd0000
-                fg_color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // ffffff
+                bg_color = rgb(0xcd0000);
+                fg_color = rgb(0xffffff);
                 break;
             default:
-                bg_color = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-                fg_color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+                bg_color = rgb(0x000000);
+                fg_color = rgb(0xffffff);
                 break;
             }
 
             text_with_bg(
-                    draw_list, pos, bg_color, fg_color, static_cast<float>(std::clamp(acc, 0.0, 1.0)), text.c_str());
+                    draw_list,
+                    pos,
+                    bg_color,
+                    fg_color,
+                    static_cast<std::uint8_t>(255.0 * std::clamp(acc, 0.0, 1.0)),
+                    text.c_str());
         }
     }
     ImGui::End();

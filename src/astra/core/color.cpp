@@ -2,6 +2,29 @@
 
 #include <algorithm>
 
+glm::vec4 astra::Color::gl_color(std::uint8_t override_alpha) {
+    const auto color = gl_color();
+    return {color.r, color.g, color.b, static_cast<float>(override_alpha) / 255.0f};
+}
+
+ImVec4 astra::Color::imgui_color_vec4() const {
+    const auto color = gl_color();
+    return ImVec4(color.r, color.g, color.b, color.a);
+}
+
+ImVec4 astra::Color::imgui_color_vec4(std::uint8_t override_alpha) const {
+    const auto color = gl_color();
+    return ImVec4(color.r, color.g, color.b, static_cast<float>(override_alpha) / 255.0f);
+}
+
+ImU32 astra::Color::imgui_color_u32() const {
+    return ImGui::ColorConvertFloat4ToU32(imgui_color_vec4());
+}
+
+ImU32 astra::Color::imgui_color_u32(std::uint8_t override_alpha) const {
+    return ImGui::ColorConvertFloat4ToU32(imgui_color_vec4(override_alpha));
+}
+
 astra::RGB::RGB()
     : RGB(0, 0, 0, 0) {}
 

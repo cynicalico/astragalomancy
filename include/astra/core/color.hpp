@@ -2,6 +2,7 @@
 
 #include <fmt/format.h>
 #include <glm/vec4.hpp>
+#include <imgui.h>
 
 // fuck windows
 #if defined(RGB)
@@ -12,7 +13,15 @@ namespace astra {
 class Color {
 public:
     virtual ~Color() = default;
+
     [[nodiscard]] virtual glm::vec4 gl_color() const = 0;
+    [[nodiscard]] virtual glm::vec4 gl_color(std::uint8_t override_alpha);
+
+    [[nodiscard]] ImVec4 imgui_color_vec4() const;
+    [[nodiscard]] ImVec4 imgui_color_vec4(std::uint8_t override_alpha) const;
+
+    [[nodiscard]] ImU32 imgui_color_u32() const;
+    [[nodiscard]] ImU32 imgui_color_u32(std::uint8_t override_alpha) const;
 };
 
 class RGB;

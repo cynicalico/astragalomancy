@@ -22,6 +22,7 @@ target_sources(
         src/astra/util/module/dear.cpp
         src/astra/util/module/timer_mgr.cpp
         src/astra/util/io.cpp
+        src/astra/util/math.cpp
         src/astra/util/platform.cpp
         src/astra/util/rng.cpp
         src/astra/util/time.cpp
@@ -51,6 +52,7 @@ target_sources(
         include/astra/util/enum_class_helpers.hpp
         include/astra/util/io.hpp
         include/astra/util/is_any_of.hpp
+        include/astra/util/math.hpp
         include/astra/util/platform.hpp
         include/astra/util/rng.hpp
         include/astra/util/time.hpp

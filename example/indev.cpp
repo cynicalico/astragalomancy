@@ -25,17 +25,12 @@ Indev::Indev(astra::Engine *engine)
             case SDLK_ESCAPE:
                 this->engine->shutdown();
                 break;
-            default:; // do nothing
+            default:;
             }
             break;
         default:
             std::unreachable();
         }
-    });
-
-    this->engine->messenger->subscribe<sdl3::MouseButtonEvent>(*callback_id_, [this](const auto e) {
-        if (e->type == sdl3::MouseButtonEventType::Down)
-            ASTRA_LOG_INFO("({:.0f}, {:.0f})", e->x, e->y);
     });
 }
 
@@ -58,6 +53,6 @@ int main(int, char *[]) {
     };
 
     astra::Engine(app_info, {1280, 720}, [](sdl3::WindowBuilder &window_builder) {
-        window_builder.icon("assets/icon/");
+        window_builder.icon("assets/icon/").fullscreen();
     }).mainloop<Indev>();
 }
