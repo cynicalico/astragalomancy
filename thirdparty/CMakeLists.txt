@@ -12,7 +12,7 @@ if (ASTRA_BUILD_DEPENDENCIES)
     FetchContent_Declare(
             glm
             GIT_REPOSITORY https://github.com/g-truc/glm
-            GIT_TAG 89d15b7c99e0bab4b12af8cd73613a6fc72097b5
+            GIT_TAG 1.0.1
             GIT_SHALLOW TRUE
     )
     FetchContent_MakeAvailable(glm)

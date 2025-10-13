@@ -3,6 +3,7 @@
 #include "astra/core/messenger.hpp"
 #include "astra/core/payloads.hpp"
 #include "astra/util/module/dear.hpp"
+#include "astra/util/time.hpp"
 #include "sdl3_raii/init.hpp"
 #include "sdl3_raii/window.hpp"
 
@@ -34,6 +35,8 @@ public:
     std::unique_ptr<Messenger> messenger;
     std::unique_ptr<sdl3::Window> window;
     std::unique_ptr<Dear> dear;
+
+    FrameCounter frame_counter;
 
     Engine(const sdl3::AppInfo &app_info,
            glm::ivec2 window_size,

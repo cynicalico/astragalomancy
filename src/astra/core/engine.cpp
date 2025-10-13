@@ -3,7 +3,6 @@
 #include "astra/core/color.hpp"
 #include "astra/core/log.hpp"
 #include "astra/util/platform.hpp"
-#include "astra/util/time.hpp"
 #include "gloo/gloo.hpp"
 #include "sdl3_raii/event_pump.hpp"
 #include "sdl3_raii/events/quit.hpp"
@@ -117,7 +116,7 @@ void astra::Engine::shutdown() {
     running_ = false;
 }
 
-void text_with_bg(
+float text_with_bg(
         ImDrawList *dl,
         ImVec2 pos,
         const astra::Color &bg_color,
@@ -130,6 +129,7 @@ void text_with_bg(
             {pos.x + text_size.x, pos.y + text_size.y + ImGui::GetStyle().ItemSpacing.y},
             bg_color.imgui_color_u32(alpha));
     dl->AddText(pos, fg_color.imgui_color_u32(alpha), text);
+    return text_size.x;
 }
 
 void astra::Engine::draw_debug_overlay_() {
@@ -144,12 +144,50 @@ void astra::Engine::draw_debug_overlay_() {
                         ImGuiWindowFlags_NoInputs)) {
         const auto draw_list = ImGui::GetWindowDrawList();
 
-        const auto fps_text = fmt::format("FPS {:.2f}", ImGui::GetIO().Framerate);
-        text_with_bg(draw_list, ImGui::GetStyle().WindowPadding, rgb(0x000000), rgb(0xffffff), 255, fps_text.c_str());
+        auto pos = ImGui::GetStyle().WindowPadding;
+        const auto lh = ImGui::GetTextLineHeightWithSpacing();
 
-        ImVec2 pos = {ImGui::GetStyle().WindowPadding.x, ImGui::GetWindowSize().y - ImGui::GetStyle().WindowPadding.y};
+        float max_w = 0;
+
+        auto fps_history = frame_counter.fps_history();
+
+        const auto max_fps = std::ranges::max_element(fps_history);
+        std::string max_fps_text;
+        if (max_fps != fps_history.end())
+            max_fps_text = fmt::format("MAX: {:.0f}", *max_fps);
+        else
+            max_fps_text = "MAX: -";
+        max_w = std::max(max_w, text_with_bg(draw_list, pos, rgb(0x000000), rgb(0xffffff), 255, max_fps_text.c_str()));
+        pos.y += lh;
+
+        const auto avg_fps_text = fmt::format("AVG: {:.0f}", frame_counter.fps());
+        max_w = std::max(max_w, text_with_bg(draw_list, pos, rgb(0x000000), rgb(0xffffff), 255, avg_fps_text.c_str()));
+        pos.y += lh;
+
+        const auto min_fps = std::ranges::min_element(fps_history);
+        std::string min_fps_text;
+        if (min_fps != fps_history.end())
+            min_fps_text = fmt::format("MIN: {:.0f}", *min_fps);
+        else
+            min_fps_text = "MIN: -";
+        max_w = std::max(max_w, text_with_bg(draw_list, pos, rgb(0x000000), rgb(0xffffff), 255, min_fps_text.c_str()));
+        pos.y += lh;
+
+        ImGui::SetCursorPos({ImGui::GetStyle().WindowPadding.x + max_w + 4.0f, ImGui::GetStyle().WindowPadding.y});
+        ImPlot::PushStyleVar(ImPlotStyleVar_PlotPadding, ImVec2(0.0f, 0.0f));
+        if (ImPlot::BeginPlot("latency", {300, lh * 3}, ImPlotFlags_NoTitle | ImPlotFlags_NoFrame)) {
+            ImPlot::SetupAxes(
+                    "",
+                    "",
+                    ImPlotAxisFlags_NoDecorations | ImPlotAxisFlags_AutoFit,
+                    ImPlotAxisFlags_NoDecorations | ImPlotAxisFlags_AutoFit);
+            ImPlot::PlotLine("", fps_history.data(), fps_history.size());
+            ImPlot::EndPlot();
+        }
+        ImPlot::PopStyleVar();
+
+        pos = {ImGui::GetStyle().WindowPadding.x, ImGui::GetWindowSize().y - ImGui::GetStyle().WindowPadding.y};
         for (auto &[level, text, acc]: log_flyouts_) {
-            const auto lh = ImGui::GetTextLineHeightWithSpacing();
             pos.y -= lh;
 
             RGB bg_color, fg_color;
@@ -200,16 +238,12 @@ void astra::Engine::draw_debug_overlay_() {
 void astra::Engine::mainloop_() {
     auto event_pump = sdl3::EventPump(messenger.get());
 
-    auto last_time = time_ns();
     while (running_) {
         event_pump.pump();
 
-        const auto now = time_ns();
-        const auto dt = (now - last_time) / 1e9;
-        last_time = now;
-        messenger->publish<PreUpdate>(dt);
-        messenger->publish<Update>(dt);
-        messenger->publish<PostUpdate>(dt);
+        messenger->publish<PreUpdate>(frame_counter.dt());
+        messenger->publish<Update>(frame_counter.dt());
+        messenger->publish<PostUpdate>(frame_counter.dt());
 
         messenger->publish<PreDraw>();
         messenger->publish<Draw>();
@@ -217,6 +251,8 @@ void astra::Engine::mainloop_() {
         messenger->publish<PostDraw>();
 
         window->swap();
+
+        frame_counter.update();
     }
 }
 

@@ -32,12 +32,14 @@ Indev::Indev(astra::Engine *engine)
             std::unreachable();
         }
     });
+
+    ASTRA_LOG_TRACE("Indev initialized");
 }
 
 void Indev::update(double dt) {}
 
 void Indev::draw() {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -53,6 +55,6 @@ int main(int, char *[]) {
     };
 
     astra::Engine(app_info, {1280, 720}, [](sdl3::WindowBuilder &window_builder) {
-        window_builder.icon("assets/icon/").fullscreen();
+        window_builder.icon("assets/icon/");
     }).mainloop<Indev>();
 }

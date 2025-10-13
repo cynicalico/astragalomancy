@@ -1,10 +1,13 @@
 #pragma once
 
+#include "astra/util/averagers.hpp"
+
 #include <fmt/chrono.h>
 #include <fmt/format.h>
 
 #include <chrono>
 #include <ctime>
+#include <deque>
 #include <string>
 
 namespace astra {
@@ -22,4 +25,21 @@ std::int64_t time_ns();
 std::int64_t time_us();
 std::int64_t time_ms();
 std::int64_t time_s();
+
+class FrameCounter {
+public:
+    FrameCounter();
+
+    void update();
+
+    double dt() const;
+    double fps() const;
+
+    std::vector<double> fps_history() const;
+
+private:
+    EMA averager_;
+    std::int64_t last_alpha_update_;
+    std::deque<std::int64_t> timestamps;
+};
 } // namespace astra

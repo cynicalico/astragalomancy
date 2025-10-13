@@ -1,13 +1,5 @@
 #pragma once
 
-#if !defined(SPDLOG_ACTIVE_LEVEL)
-#if !defined(NDEBUG)
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
-#else
-#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO
-#endif
-#endif
-
 #include "astra/core/types.hpp"
 
 #include <fmt/chrono.h> // Allow logging chrono types

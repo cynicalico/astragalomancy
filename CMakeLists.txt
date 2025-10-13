@@ -7,6 +7,7 @@ project(
 
 option(ASTRA_BUILD_EXAMPLES "Build astra examples" OFF)
 option(ASTRA_BUILD_DEPENDENCIES "Build astra dependencies (à la FetchContent)" OFF)
+option(ASTRA_SPDLOG_LOG_LEVEL "Log level for spdlog, see" NONE)
 
 add_library(astra
         src/astra/core/engine.cpp)
@@ -21,6 +22,7 @@ target_sources(
         src/astra/core/log.cpp
         src/astra/util/module/dear.cpp
         src/astra/util/module/timer_mgr.cpp
+        src/astra/util/averagers.cpp
         src/astra/util/io.cpp
         src/astra/util/math.cpp
         src/astra/util/platform.cpp
@@ -48,6 +50,7 @@ target_sources(
         include/astra/core/types.hpp
         include/astra/util/module/dear.hpp
         include/astra/util/module/timer_mgr.hpp
+        include/astra/util/averagers.hpp
         include/astra/util/constexpr_hash.hpp
         include/astra/util/enum_class_helpers.hpp
         include/astra/util/io.hpp
@@ -90,7 +93,10 @@ target_sources(
 
 target_compile_features(astra PRIVATE cxx_std_23)
 
-target_compile_definitions(astra PUBLIC SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
+if (NOT ${ASTRA_SPDLOG_LOG_LEVEL} STREQUAL "NONE")
+    target_compile_definitions(astra PUBLIC SPDLOG_ACTIVE_LEVEL=${ASTRA_SPDLOG_LOG_LEVEL})
+endif ()
+
 if (MSVC)
     target_compile_definitions(astra PUBLIC /utf-8)
 endif ()

@@ -9,39 +9,31 @@
   "configurePresets": [
     {
       "name": "debug",
-      "displayName": "debug",
+      "displayName": "Debug",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/.build/dbg",
+      "binaryDir": "${sourceDir}/.build/debug",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_BUILD_TYPE": "Debug",
         "BUILD_SHARED_LIBS": "OFF",
         "ASTRA_BUILD_EXAMPLES": "ON",
-        "ASTRA_BUILD_DEPENDENCIES": "ON"
+        "ASTRA_BUILD_DEPENDENCIES": "ON",
+        "ASTRA_SPDLOG_LOG_LEVEL": "SPDLOG_LEVEL_DEBUG"
       }
     },
     {
       "name": "release",
-      "displayName": "release",
+      "displayName": "Release",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/.build/rel",
+      "binaryDir": "${sourceDir}/.build/release",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_SHARED_LIBS": "OFF",
         "ASTRA_BUILD_EXAMPLES": "ON",
-        "ASTRA_BUILD_DEPENDENCIES": "ON"
+        "ASTRA_BUILD_DEPENDENCIES": "ON",
+        "ASTRA_SPDLOG_LOG_LEVEL": "SPDLOG_LEVEL_INFO"
       }
-    }
-  ],
-  "buildPresets": [
-    {
-      "name": "default",
-      "configurePreset": "debug"
-    },
-    {
-      "name": "release",
-      "configurePreset": "release"
     }
   ]
 }
