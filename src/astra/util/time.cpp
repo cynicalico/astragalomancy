@@ -62,6 +62,6 @@ std::vector<double> astra::FrameCounter::fps_history() const {
 
     std::vector<double> history;
     for (std::size_t i = 0; i < timestamps.size() - 2; ++i)
-        history.push_back(1.0 / ((timestamps[i + 1] - timestamps[i]) / 1e9));
+        history.push_back(1.0 / ((static_cast<double>(timestamps[i + 1]) - static_cast<double>(timestamps[i])) / 1e9));
     return history;
 }
