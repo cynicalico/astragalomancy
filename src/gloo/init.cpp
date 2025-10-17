@@ -14,7 +14,7 @@ bool gloo::init() {
 #if !defined(NDEBUG)
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(gl_debug_message_callback, nullptr);
+    glDebugMessageCallback(debug_message_callback, nullptr);
 #endif
 
     ASTRA_LOG_DEBUG(

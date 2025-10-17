@@ -188,8 +188,6 @@ void astra::Engine::draw_debug_overlay_() {
 
         pos = {ImGui::GetStyle().WindowPadding.x, ImGui::GetWindowSize().y - ImGui::GetStyle().WindowPadding.y};
         for (auto &[level, text, acc]: log_flyouts_) {
-            pos.y -= lh;
-
             RGB bg_color, fg_color;
             switch (level) {
             case spdlog::level::trace:
@@ -222,6 +220,7 @@ void astra::Engine::draw_debug_overlay_() {
                 break;
             }
 
+            pos.y -= lh;
             text_with_bg(
                     draw_list,
                     pos,

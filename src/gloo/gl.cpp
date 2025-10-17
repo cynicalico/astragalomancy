@@ -3,7 +3,7 @@
 #include "astra/core/log.hpp"
 
 #if !defined(NDEBUG)
-void gloo::gl_debug_message_callback(
+void gloo::debug_message_callback(
         GLenum source,
         GLenum type,
         GLuint id,

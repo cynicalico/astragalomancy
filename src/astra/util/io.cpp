@@ -60,3 +60,19 @@ SDL_Surface *astra::read_image_to_sdl_surface(const std::filesystem::path &path)
         ASTRA_LOG_ERROR("Failed to create surface from '{}': {}", path, SDL_GetError());
     return surf;
 }
+
+std::optional<std::string> astra::read_file_to_string(const std::filesystem::path &path) {
+    std::ifstream ifs(path);
+    if (!ifs.is_open()) {
+        ASTRA_LOG_ERROR("Failed to open file: '{}'", path);
+        return std::nullopt;
+    }
+
+    std::string contents;
+    ifs.seekg(0, std::ios::end);
+    contents.reserve(ifs.tellg());
+    ifs.seekg(0, std::ios::beg);
+    contents.assign(std::istreambuf_iterator(ifs), std::istreambuf_iterator<char>());
+
+    return contents;
+}
