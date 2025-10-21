@@ -16,7 +16,7 @@ namespace gloo {
 class Shader {
     friend class ShaderBuilder;
 
-    Shader(GLuint id);
+    explicit Shader(GLuint id);
 
 public:
     GLuint id;
@@ -27,48 +27,48 @@ public:
 
     std::optional<GLuint> try_get_attrib_location(const std::string &name);
 
-    void uniform(const std::string &name, float v0);
-    void uniform(const std::string &name, float v0, float v1);
-    void uniform(const std::string &name, float v0, float v1, float v2);
-    void uniform(const std::string &name, float v0, float v1, float v2, float v3);
+    void uniform_1f(const std::string &name, float v0);
+    void uniform_2f(const std::string &name, float v0, float v1);
+    void uniform_3f(const std::string &name, float v0, float v1, float v2);
+    void uniform_4f(const std::string &name, float v0, float v1, float v2, float v3);
 
-    void uniform(const std::string &name, int v0);
-    void uniform(const std::string &name, int v0, int v1);
-    void uniform(const std::string &name, int v0, int v1, int v2);
-    void uniform(const std::string &name, int v0, int v1, int v2, int v3);
+    void uniform_1i(const std::string &name, int v0);
+    void uniform_2i(const std::string &name, int v0, int v1);
+    void uniform_3i(const std::string &name, int v0, int v1, int v2);
+    void uniform_4i(const std::string &name, int v0, int v1, int v2, int v3);
 
-    void uniform(const std::string &name, unsigned int v0);
-    void uniform(const std::string &name, unsigned int v0, unsigned int v1);
-    void uniform(const std::string &name, unsigned int v0, unsigned int v1, unsigned int v2);
-    void uniform(const std::string &name, unsigned int v0, unsigned int v1, unsigned int v2, unsigned int v3);
+    void uniform_1u(const std::string &name, unsigned int v0);
+    void uniform_2u(const std::string &name, unsigned int v0, unsigned int v1);
+    void uniform_3u(const std::string &name, unsigned int v0, unsigned int v1, unsigned int v2);
+    void uniform_4u(const std::string &name, unsigned int v0, unsigned int v1, unsigned int v2, unsigned int v3);
 
-    void uniform(const std::string &name, const glm::vec1 &v);
-    void uniform(const std::string &name, const glm::vec2 &v);
-    void uniform(const std::string &name, const glm::vec3 &v);
-    void uniform(const std::string &name, const glm::vec4 &v);
+    void uniform_1f(const std::string &name, const glm::vec1 &v);
+    void uniform_2f(const std::string &name, const glm::vec2 &v);
+    void uniform_3f(const std::string &name, const glm::vec3 &v);
+    void uniform_4f(const std::string &name, const glm::vec4 &v);
 
-    void uniform(const std::string &name, const glm::ivec1 &v);
-    void uniform(const std::string &name, const glm::ivec2 &v);
-    void uniform(const std::string &name, const glm::ivec3 &v);
-    void uniform(const std::string &name, const glm::ivec4 &v);
+    void uniform_1i(const std::string &name, const glm::ivec1 &v);
+    void uniform_2i(const std::string &name, const glm::ivec2 &v);
+    void uniform_3i(const std::string &name, const glm::ivec3 &v);
+    void uniform_4i(const std::string &name, const glm::ivec4 &v);
 
-    void uniform(const std::string &name, const glm::uvec1 &v);
-    void uniform(const std::string &name, const glm::uvec2 &v);
-    void uniform(const std::string &name, const glm::uvec3 &v);
-    void uniform(const std::string &name, const glm::uvec4 &v);
+    void uniform_1u(const std::string &name, const glm::uvec1 &v);
+    void uniform_2u(const std::string &name, const glm::uvec2 &v);
+    void uniform_3u(const std::string &name, const glm::uvec3 &v);
+    void uniform_4u(const std::string &name, const glm::uvec4 &v);
 
-    void uniform(const std::string &name, const glm::mat2 &v);
-    void uniform(const std::string &name, const glm::mat3 &v);
-    void uniform(const std::string &name, const glm::mat4 &v);
+    void uniform_mat2(const std::string &name, const glm::mat2 &v);
+    void uniform_mat3(const std::string &name, const glm::mat3 &v);
+    void uniform_mat4(const std::string &name, const glm::mat4 &v);
 
-    void uniform(const std::string &name, const glm::mat2x3 &v);
-    void uniform(const std::string &name, const glm::mat3x2 &v);
+    void uniform_mat2x3(const std::string &name, const glm::mat2x3 &v);
+    void uniform_mat3x2(const std::string &name, const glm::mat3x2 &v);
 
-    void uniform(const std::string &name, const glm::mat2x4 &v);
-    void uniform(const std::string &name, const glm::mat4x2 &v);
+    void uniform_mat2x4(const std::string &name, const glm::mat2x4 &v);
+    void uniform_mat4x2(const std::string &name, const glm::mat4x2 &v);
 
-    void uniform(const std::string &name, const glm::mat3x4 &v);
-    void uniform(const std::string &name, const glm::mat4x3 &v);
+    void uniform_mat3x4(const std::string &name, const glm::mat3x4 &v);
+    void uniform_mat4x3(const std::string &name, const glm::mat4x3 &v);
 
     Shader(const Shader &other) = delete;
     Shader &operator=(const Shader &other) = delete;

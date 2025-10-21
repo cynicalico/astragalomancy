@@ -10,6 +10,12 @@ public:
 
     explicit Indev(astra::Engine *engine);
 
+    Indev(const Indev &other) = delete;
+    Indev &operator=(const Indev &other) = delete;
+
+    Indev(Indev &&other) noexcept = delete;
+    Indev &operator=(Indev &&other) noexcept = delete;
+
     void update(double dt) override;
 
     void draw() override;
@@ -25,32 +31,8 @@ Indev::Indev(astra::Engine *engine)
       timer_mgr(engine->messenger.get()),
       messenger_(engine->messenger.get()) {
     shader = gloo::ShaderBuilder()
-                     .add_stage_src(gloo::ShaderType::Vertex, R"glsl(
-#version 460 core
-
-in vec3 in_pos;
-in vec3 in_color;
-
-out vec3 color;
-
-uniform mat4 projection;
-
-void main() {
-    color = in_color;
-    gl_Position = projection * vec4(in_pos, 1.0);
-}
-)glsl")
-                     .add_stage_src(gloo::ShaderType::Fragment, R"glsl(
-#version 460 core
-
-in vec3 color;
-
-out vec4 FragColor;
-
-void main() {
-    FragColor = vec4(color, 1.0);
-}
-)glsl")
+                     .add_stage_path(gloo::ShaderType::Vertex, "assets/shader/triangles.vert")
+                     .add_stage_path(gloo::ShaderType::Fragment, "assets/shader/triangles.frag")
                      .build();
 
     messenger_->subscribe<sdl3::KeyboardEvent>(*callback_id_, [this](const auto e) { keyboard_event_callback_(e); });

@@ -56,63 +56,63 @@ std::optional<GLuint> gloo::Shader::try_get_attrib_location(const std::string &n
     return it->second;
 }
 
-void gloo::Shader::uniform(const std::string &name, const float v0) {
+void gloo::Shader::uniform_1f(const std::string &name, const float v0) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform1f(*loc, v0);
 }
 
-void gloo::Shader::uniform(const std::string &name, const float v0, const float v1) {
+void gloo::Shader::uniform_2f(const std::string &name, const float v0, const float v1) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform2f(*loc, v0, v1);
 }
 
-void gloo::Shader::uniform(const std::string &name, const float v0, const float v1, const float v2) {
+void gloo::Shader::uniform_3f(const std::string &name, const float v0, const float v1, const float v2) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform3f(*loc, v0, v1, v2);
 }
 
-void gloo::Shader::uniform(const std::string &name, const float v0, const float v1, const float v2, const float v3) {
+void gloo::Shader::uniform_4f(const std::string &name, const float v0, const float v1, const float v2, const float v3) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform4f(*loc, v0, v1, v2, v3);
 }
 
-void gloo::Shader::uniform(const std::string &name, const int v0) {
+void gloo::Shader::uniform_1i(const std::string &name, const int v0) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform1i(*loc, v0);
 }
 
-void gloo::Shader::uniform(const std::string &name, const int v0, const int v1) {
+void gloo::Shader::uniform_2i(const std::string &name, const int v0, const int v1) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform2i(*loc, v0, v1);
 }
 
-void gloo::Shader::uniform(const std::string &name, const int v0, const int v1, const int v2) {
+void gloo::Shader::uniform_3i(const std::string &name, const int v0, const int v1, const int v2) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform3i(*loc, v0, v1, v2);
 }
 
-void gloo::Shader::uniform(const std::string &name, const int v0, const int v1, const int v2, const int v3) {
+void gloo::Shader::uniform_4i(const std::string &name, const int v0, const int v1, const int v2, const int v3) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform4i(*loc, v0, v1, v2, v3);
 }
 
-void gloo::Shader::uniform(const std::string &name, const unsigned int v0) {
+void gloo::Shader::uniform_1u(const std::string &name, const unsigned int v0) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform1ui(*loc, v0);
 }
 
-void gloo::Shader::uniform(const std::string &name, const unsigned int v0, const unsigned int v1) {
+void gloo::Shader::uniform_2u(const std::string &name, const unsigned int v0, const unsigned int v1) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform2ui(*loc, v0, v1);
 }
 
-void gloo::Shader::uniform(
+void gloo::Shader::uniform_3u(
         const std::string &name, const unsigned int v0, const unsigned int v1, const unsigned int v2) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform3ui(*loc, v0, v1, v2);
 }
 
-void gloo::Shader::uniform(
+void gloo::Shader::uniform_4u(
         const std::string &name,
         const unsigned int v0,
         const unsigned int v1,
@@ -122,107 +122,107 @@ void gloo::Shader::uniform(
         glUniform4ui(*loc, v0, v1, v2, v3);
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::vec1 &v) {
+void gloo::Shader::uniform_1f(const std::string &name, const glm::vec1 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform1fv(*loc, 1, &v.x);
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::vec2 &v) {
+void gloo::Shader::uniform_2f(const std::string &name, const glm::vec2 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform2fv(*loc, 1, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::vec3 &v) {
+void gloo::Shader::uniform_3f(const std::string &name, const glm::vec3 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform3fv(*loc, 1, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::vec4 &v) {
+void gloo::Shader::uniform_4f(const std::string &name, const glm::vec4 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform4fv(*loc, 1, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::ivec1 &v) {
+void gloo::Shader::uniform_1i(const std::string &name, const glm::ivec1 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform1iv(*loc, 1, &v.x);
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::ivec2 &v) {
+void gloo::Shader::uniform_2i(const std::string &name, const glm::ivec2 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform2iv(*loc, 1, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::ivec3 &v) {
+void gloo::Shader::uniform_3i(const std::string &name, const glm::ivec3 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform3iv(*loc, 1, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::ivec4 &v) {
+void gloo::Shader::uniform_4i(const std::string &name, const glm::ivec4 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform4iv(*loc, 1, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::uvec1 &v) {
+void gloo::Shader::uniform_1u(const std::string &name, const glm::uvec1 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform1uiv(*loc, 1, &v.x);
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::uvec2 &v) {
+void gloo::Shader::uniform_2u(const std::string &name, const glm::uvec2 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform2uiv(*loc, 1, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::uvec3 &v) {
+void gloo::Shader::uniform_3u(const std::string &name, const glm::uvec3 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform3uiv(*loc, 1, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::uvec4 &v) {
+void gloo::Shader::uniform_4u(const std::string &name, const glm::uvec4 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniform4uiv(*loc, 1, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::mat2 &v) {
+void gloo::Shader::uniform_mat2(const std::string &name, const glm::mat2 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniformMatrix2fv(*loc, 1, GL_FALSE, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::mat3 &v) {
+void gloo::Shader::uniform_mat3(const std::string &name, const glm::mat3 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniformMatrix3fv(*loc, 1, GL_FALSE, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::mat4 &v) {
+void gloo::Shader::uniform_mat4(const std::string &name, const glm::mat4 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniformMatrix4fv(*loc, 1, GL_FALSE, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::mat2x3 &v) {
+void gloo::Shader::uniform_mat2x3(const std::string &name, const glm::mat2x3 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniformMatrix2x3fv(*loc, 1, GL_FALSE, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::mat3x2 &v) {
+void gloo::Shader::uniform_mat3x2(const std::string &name, const glm::mat3x2 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniformMatrix3x2fv(*loc, 1, GL_FALSE, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::mat2x4 &v) {
+void gloo::Shader::uniform_mat2x4(const std::string &name, const glm::mat2x4 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniformMatrix2x4fv(*loc, 1, GL_FALSE, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::mat4x2 &v) {
+void gloo::Shader::uniform_mat4x2(const std::string &name, const glm::mat4x2 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniformMatrix4x2fv(*loc, 1, GL_FALSE, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::mat3x4 &v) {
+void gloo::Shader::uniform_mat3x4(const std::string &name, const glm::mat3x4 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniformMatrix3x4fv(*loc, 1, GL_FALSE, glm::value_ptr(v));
 }
 
-void gloo::Shader::uniform(const std::string &name, const glm::mat4x3 &v) {
+void gloo::Shader::uniform_mat4x3(const std::string &name, const glm::mat4x3 &v) {
     if (const auto loc = try_get_uniform_location_(name))
         glUniformMatrix4x3fv(*loc, 1, GL_FALSE, glm::value_ptr(v));
 }

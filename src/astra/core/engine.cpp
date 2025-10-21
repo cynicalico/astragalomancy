@@ -8,9 +8,7 @@
 #include "sdl3_raii/events/quit.hpp"
 #include "sdl3_raii/gl_attr.hpp"
 
-#include <pcg_random.hpp>
 #include <spdlog/sinks/callback_sink.h>
-#include <string_view>
 
 astra::Application::Application(Engine *engine)
     : engine(engine) {
@@ -181,7 +179,7 @@ void astra::Engine::draw_debug_overlay_() {
                     "",
                     ImPlotAxisFlags_NoDecorations | ImPlotAxisFlags_AutoFit,
                     ImPlotAxisFlags_NoDecorations | ImPlotAxisFlags_AutoFit);
-            ImPlot::PlotLine("", fps_history.data(), fps_history.size());
+            ImPlot::PlotLine("", fps_history.data(), static_cast<int>(fps_history.size()));
             ImPlot::EndPlot();
         }
         ImPlot::PopStyleVar();
