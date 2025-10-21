@@ -27,7 +27,8 @@ public:
     virtual void draw();
 
 protected:
-    std::optional<Messenger::ID> callback_id_;
+    std::optional<Messenger::ID> callback_id;
+    Messenger *messenger;
 };
 
 class Engine {

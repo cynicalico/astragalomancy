@@ -2,11 +2,15 @@
 #include "gloo/gloo.hpp"
 #include "sdl3_raii/sdl3_raii.hpp"
 
+#include "glm/ext/matrix_clip_space.hpp"
+
 class Indev final : public astra::Application {
 public:
     astra::TimerMgr timer_mgr;
 
     std::unique_ptr<gloo::Shader> shader;
+    std::unique_ptr<gloo::Buffer<float>> vertices;
+    GLuint vao;
 
     explicit Indev(astra::Engine *engine);
 
@@ -21,27 +25,61 @@ public:
     void draw() override;
 
 private:
-    astra::Messenger *messenger_;
-
     void keyboard_event_callback_(const sdl3::KeyboardEvent *e);
+};
+
+struct Foo {
+    glm::vec3 position;
+    glm::vec3 color;
 };
 
 Indev::Indev(astra::Engine *engine)
     : Application(engine),
-      timer_mgr(engine->messenger.get()),
-      messenger_(engine->messenger.get()) {
+      timer_mgr(messenger) {
     shader = gloo::ShaderBuilder()
                      .add_stage_path(gloo::ShaderType::Vertex, "assets/shader/triangles.vert")
                      .add_stage_path(gloo::ShaderType::Fragment, "assets/shader/triangles.frag")
                      .build();
 
-    messenger_->subscribe<sdl3::KeyboardEvent>(*callback_id_, [this](const auto e) { keyboard_event_callback_(e); });
+    vertices = std::make_unique<gloo::Buffer<float>>(100);
+    // clang-format off
+    vertices->add({
+        100.0f, 100.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+        150.0f, 100.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+        100.0f, 150.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+    });
+    // clang-format on
+    vertices->sync();
+
+    glCreateVertexArrays(1, &vao);
+
+    const auto pos_loc = *shader->try_get_attrib_location("in_pos");
+    glEnableVertexArrayAttrib(vao, pos_loc);
+    glVertexArrayAttribFormat(vao, pos_loc, 3, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayAttribBinding(vao, pos_loc, 0);
+
+    const auto color_loc = *shader->try_get_attrib_location("in_color");
+    glEnableVertexArrayAttrib(vao, color_loc);
+    glVertexArrayAttribFormat(vao, color_loc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
+    glVertexArrayAttribBinding(vao, color_loc, 0);
+
+    messenger->subscribe<sdl3::KeyboardEvent>(*callback_id, [this](const auto e) { keyboard_event_callback_(e); });
 }
 
 void Indev::update(double dt) {}
 
 void Indev::draw() {
     gloo::clear(astra::rgb(0x0f0f0f), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    const auto projection = glm::ortho(
+            0.0f, static_cast<float>(engine->window->width()), static_cast<float>(engine->window->height()), 0.0f);
+
+    shader->use();
+    shader->uniform_mat4("projection", projection);
+    glBindVertexArray(vao);
+    glBindVertexBuffer(0, vertices->id, 0, sizeof(float) * 6);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
 }
 
 void Indev::keyboard_event_callback_(const sdl3::KeyboardEvent *e) {

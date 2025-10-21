@@ -28,10 +28,12 @@ target_sources(
         src/astra/util/platform.cpp
         src/astra/util/rng.cpp
         src/astra/util/time.cpp
+
         src/gloo/gl.cpp
         src/gloo/init.cpp
         src/gloo/shader.cpp
         src/gloo/wrap.cpp
+
         src/sdl3_raii/event_pump.cpp
         src/sdl3_raii/gl_attr.cpp
         src/sdl3_raii/gl_context_flags.cpp
@@ -62,11 +64,14 @@ target_sources(
         include/astra/util/rng.hpp
         include/astra/util/time.hpp
         include/astra/astra.hpp
+
+        include/gloo/buffer.hpp
         include/gloo/gl.hpp
         include/gloo/gloo.hpp
         include/gloo/init.hpp
         include/gloo/shader.hpp
         include/gloo/wrap.hpp
+
         include/sdl3_raii/events/audio.hpp
         include/sdl3_raii/events/camera.hpp
         include/sdl3_raii/events/clipboard.hpp

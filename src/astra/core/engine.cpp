@@ -11,13 +11,15 @@
 #include <spdlog/sinks/callback_sink.h>
 
 astra::Application::Application(Engine *engine)
-    : engine(engine) {
-    callback_id_ = engine->messenger->get_id();
+    : engine(engine),
+      messenger(engine->messenger.get()) {
+    callback_id = engine->messenger->get_id();
 }
 
 astra::Application::~Application() {
-    engine->messenger->release_id(*callback_id_);
-    callback_id_ = std::nullopt;
+    engine->messenger->release_id(*callback_id);
+    callback_id = std::nullopt;
+    messenger = nullptr;
 }
 
 void astra::Application::update(double dt) {}
