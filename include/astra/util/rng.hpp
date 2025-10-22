@@ -2,9 +2,11 @@
 
 #include "astra/util/is_any_of.hpp"
 
+#include <glm/vec2.hpp>
 #include <pcg_random.hpp>
 
 #include <cstdint>
+#include <numbers>
 #include <random>
 #include <string>
 
@@ -126,4 +128,6 @@ T get() {
  */
 
 std::string base58(std::size_t length);
+
+glm::vec2 get_circle(glm::vec2 center, double radius);
 } // namespace astra::rng

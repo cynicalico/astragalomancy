@@ -9,7 +9,7 @@ public:
     astra::TimerMgr timer_mgr;
 
     std::unique_ptr<gloo::Shader> shader;
-    std::unique_ptr<gloo::Buffer<float>> vertices;
+    std::unique_ptr<gloo::Buffer<float>> vbo;
     std::unique_ptr<gloo::VertexArray> vao;
 
     explicit Indev(astra::Engine *engine);
@@ -36,14 +36,7 @@ Indev::Indev(astra::Engine *engine)
                      .add_stage_path(gloo::ShaderType::Fragment, "assets/shader/triangles.frag")
                      .build();
 
-    vertices = std::make_unique<gloo::Buffer<float>>(6 * 3 * 10, gloo::BufferFillDirection::Forward);
-    // clang-format off
-    vertices->add({
-        100.0f, 100.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-        150.0f, 100.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-        100.0f, 150.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-    });
-    // clang-format on
+    vbo = std::make_unique<gloo::Buffer<float>>(6 * 3 * 10, gloo::BufferFillDirection::Backward);
 
     vao = gloo::VertexArrayBuilder()
                   .attrib(*shader->try_get_attrib_location("in_pos"), 3, GL_FLOAT, GL_FALSE, 0, 0)
@@ -51,10 +44,27 @@ Indev::Indev(astra::Engine *engine)
                   .build();
 
     messenger->subscribe<sdl3::KeyboardEvent>(*callback_id, [this](const auto e) { keyboard_event_callback_(e); });
+
+    messenger->subscribe<sdl3::MouseButtonEvent>(*callback_id, [this](const auto e) {
+        if (e->type == sdl3::MouseButtonEventType::Down && e->button == sdl3::MouseButtonFlags::Left) {
+            const auto p0 = astra::rng::get_circle({e->x, e->y}, 100.0);
+            const auto p1 = astra::rng::get_circle({e->x, e->y}, 100.0);
+            const auto p2 = astra::rng::get_circle({e->x, e->y}, 100.0);
+            // clang-format off
+            const auto success = vbo->add({
+                p0.x, p0.y, 0.0f, 1.0f, 1.0f, 1.0f,
+                p1.x, p1.y, 0.0f, 1.0f, 1.0f, 1.0f,
+                p2.x, p2.y, 0.0f, 1.0f, 1.0f, 1.0f,
+            });
+            // clang-format on
+            if (!success)
+                ASTRA_LOG_ERROR("Buffer is full!");
+        }
+    });
 }
 
 void Indev::update(double dt) {
-    vertices->sync();
+    vbo->sync();
 }
 
 void Indev::draw() {
@@ -66,9 +76,9 @@ void Indev::draw() {
     shader->use();
     shader->uniform_mat4("projection", projection);
     vao->bind();
-    vertices->bind(0, 0, sizeof(float) * 6);
-    glDrawArrays(GL_TRIANGLES, vertices->front() / 6, vertices->size() / 6);
-    vertices->unbind(0);
+    vbo->bind(0, 0, sizeof(float) * 6);
+    glDrawArrays(GL_TRIANGLES, vbo->front() / 6, vbo->size() / 6);
+    vbo->unbind(0);
     vao->unbind();
 }
 

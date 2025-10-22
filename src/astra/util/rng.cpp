@@ -77,9 +77,14 @@ std::string astra::rng::base58(const std::size_t length) {
     static constexpr char B58_ALPHABET[] = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
     std::string id(length, 0);
-    std::generate_n(id.begin(), length, [] {
-        return B58_ALPHABET[get<unsigned char>(0x00, 0xff) % 58];
-    });
+    std::generate_n(id.begin(), length, [] { return B58_ALPHABET[get<unsigned char>(0x00, 0xff) % 58]; });
 
     return id;
+}
+
+glm::vec2 astra::rng::get_circle(glm::vec2 center, double radius) {
+    const auto theta = get<double>(2 * std::numbers::pi);
+    const double ox = radius * std::sin(theta);
+    const double oy = radius * std::cos(theta);
+    return center + glm::vec2(ox, oy);
 }
