@@ -41,7 +41,7 @@ Indev::Indev(astra::Engine *engine)
                      .add_stage_path(gloo::ShaderType::Fragment, "assets/shader/triangles.frag")
                      .build();
 
-    vertices = std::make_unique<gloo::Buffer<float>>(100);
+    vertices = std::make_unique<gloo::Buffer<float>>(6 * 3 * 10, gloo::BufferFillDirection::Backward);
     // clang-format off
     vertices->add({
         100.0f, 100.0f, 0.0f, 1.0f, 1.0f, 1.0f,
@@ -78,7 +78,7 @@ void Indev::draw() {
     shader->uniform_mat4("projection", projection);
     glBindVertexArray(vao);
     glBindVertexBuffer(0, vertices->id, 0, sizeof(float) * 6);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, vertices->front() / 6, vertices->size() / 6);
     glBindVertexArray(0);
 }
 

@@ -15,7 +15,7 @@ enum class BufferFillDirection {
 template<typename T>
 class Buffer {
 public:
-    GLuint id;
+    GLuint id{0};
 
     explicit Buffer(std::size_t capacity, BufferFillDirection fill_direction = BufferFillDirection::Forward);
     ~Buffer();
@@ -27,12 +27,12 @@ public:
     Buffer &operator=(Buffer &&other) noexcept;
 
     void clear();
-
     bool has_capacity(std::size_t count) const;
-
     bool add(const std::vector<T> &data);
 
     void sync();
+    GLintptr front() const;
+    GLsizei size() const;
 
 private:
     std::vector<T> data_;
@@ -138,4 +138,28 @@ void gloo::Buffer<T>::sync() {
         std::unreachable();
     }
     buf_pos_ = data_pos_;
+}
+
+template<typename T>
+GLintptr gloo::Buffer<T>::front() const {
+    switch (fill_direction_) {
+    case BufferFillDirection::Forward:
+        return 0;
+    case BufferFillDirection::Backward:
+        return buf_pos_;
+    default:
+        std::unreachable();
+    }
+}
+
+template<typename T>
+GLsizei gloo::Buffer<T>::size() const {
+    switch (fill_direction_) {
+    case BufferFillDirection::Forward:
+        return buf_pos_;
+    case BufferFillDirection::Backward:
+        return data_.size() - buf_pos_;
+    default:
+        std::unreachable();
+    }
 }
