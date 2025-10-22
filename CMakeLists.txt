@@ -32,6 +32,7 @@ target_sources(
         src/gloo/gl.cpp
         src/gloo/init.cpp
         src/gloo/shader.cpp
+        src/gloo/vertex_array.cpp
         src/gloo/wrap.cpp
 
         src/sdl3_raii/event_pump.cpp
@@ -70,6 +71,7 @@ target_sources(
         include/gloo/gloo.hpp
         include/gloo/init.hpp
         include/gloo/shader.hpp
+        include/gloo/vertex_array.hpp
         include/gloo/wrap.hpp
 
         include/sdl3_raii/events/audio.hpp

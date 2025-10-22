@@ -19,9 +19,15 @@ class Shader {
     explicit Shader(GLuint id);
 
 public:
-    GLuint id;
+    GLuint id{0};
 
     ~Shader();
+
+    Shader(const Shader &other) = delete;
+    Shader &operator=(const Shader &other) = delete;
+
+    Shader(Shader &&other) noexcept;
+    Shader &operator=(Shader &&other) noexcept;
 
     void use() const;
 
@@ -69,12 +75,6 @@ public:
 
     void uniform_mat3x4(const std::string &name, const glm::mat3x4 &v);
     void uniform_mat4x3(const std::string &name, const glm::mat4x3 &v);
-
-    Shader(const Shader &other) = delete;
-    Shader &operator=(const Shader &other) = delete;
-
-    Shader(Shader &&other) noexcept;
-    Shader &operator=(Shader &&other) noexcept;
 
 private:
     std::unordered_map<std::string, GLint> uniform_locations_{};

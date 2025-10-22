@@ -10,7 +10,7 @@ public:
 
     std::unique_ptr<gloo::Shader> shader;
     std::unique_ptr<gloo::Buffer<float>> vertices;
-    GLuint vao;
+    std::unique_ptr<gloo::VertexArray> vao;
 
     explicit Indev(astra::Engine *engine);
 
@@ -28,11 +28,6 @@ private:
     void keyboard_event_callback_(const sdl3::KeyboardEvent *e);
 };
 
-struct Foo {
-    glm::vec3 position;
-    glm::vec3 color;
-};
-
 Indev::Indev(astra::Engine *engine)
     : Application(engine),
       timer_mgr(messenger) {
@@ -41,7 +36,7 @@ Indev::Indev(astra::Engine *engine)
                      .add_stage_path(gloo::ShaderType::Fragment, "assets/shader/triangles.frag")
                      .build();
 
-    vertices = std::make_unique<gloo::Buffer<float>>(6 * 3 * 10, gloo::BufferFillDirection::Backward);
+    vertices = std::make_unique<gloo::Buffer<float>>(6 * 3 * 10, gloo::BufferFillDirection::Forward);
     // clang-format off
     vertices->add({
         100.0f, 100.0f, 0.0f, 1.0f, 1.0f, 1.0f,
@@ -49,24 +44,18 @@ Indev::Indev(astra::Engine *engine)
         100.0f, 150.0f, 0.0f, 1.0f, 1.0f, 1.0f,
     });
     // clang-format on
-    vertices->sync();
 
-    glCreateVertexArrays(1, &vao);
-
-    const auto pos_loc = *shader->try_get_attrib_location("in_pos");
-    glEnableVertexArrayAttrib(vao, pos_loc);
-    glVertexArrayAttribFormat(vao, pos_loc, 3, GL_FLOAT, GL_FALSE, 0);
-    glVertexArrayAttribBinding(vao, pos_loc, 0);
-
-    const auto color_loc = *shader->try_get_attrib_location("in_color");
-    glEnableVertexArrayAttrib(vao, color_loc);
-    glVertexArrayAttribFormat(vao, color_loc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
-    glVertexArrayAttribBinding(vao, color_loc, 0);
+    vao = gloo::VertexArrayBuilder()
+                  .attrib(*shader->try_get_attrib_location("in_pos"), 3, GL_FLOAT, GL_FALSE, 0, 0)
+                  .attrib(*shader->try_get_attrib_location("in_color"), 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0)
+                  .build();
 
     messenger->subscribe<sdl3::KeyboardEvent>(*callback_id, [this](const auto e) { keyboard_event_callback_(e); });
 }
 
-void Indev::update(double dt) {}
+void Indev::update(double dt) {
+    vertices->sync();
+}
 
 void Indev::draw() {
     gloo::clear(astra::rgb(0x0f0f0f), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -76,10 +65,11 @@ void Indev::draw() {
 
     shader->use();
     shader->uniform_mat4("projection", projection);
-    glBindVertexArray(vao);
-    glBindVertexBuffer(0, vertices->id, 0, sizeof(float) * 6);
+    vao->bind();
+    vertices->bind(0, 0, sizeof(float) * 6);
     glDrawArrays(GL_TRIANGLES, vertices->front() / 6, vertices->size() / 6);
-    glBindVertexArray(0);
+    vertices->unbind(0);
+    vao->unbind();
 }
 
 void Indev::keyboard_event_callback_(const sdl3::KeyboardEvent *e) {
@@ -89,7 +79,7 @@ void Indev::keyboard_event_callback_(const sdl3::KeyboardEvent *e) {
     case sdl3::KeyboardEventType::Up:
         switch (e->key) {
         case SDLK_ESCAPE:
-            this->engine->shutdown();
+            engine->shutdown();
             break;
         default:;
         }

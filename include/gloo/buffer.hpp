@@ -34,6 +34,9 @@ public:
     GLintptr front() const;
     GLsizei size() const;
 
+    void bind(GLuint binding_index, GLintptr offset, GLsizei stride) const;
+    void unbind(GLuint binding_index) const;
+
 private:
     std::vector<T> data_;
     std::size_t data_pos_;
@@ -162,4 +165,14 @@ GLsizei gloo::Buffer<T>::size() const {
     default:
         std::unreachable();
     }
+}
+
+template<typename T>
+void gloo::Buffer<T>::bind(const GLuint binding_index, const GLintptr offset, const GLsizei stride) const {
+    glBindVertexBuffer(binding_index, id, offset, stride);
+}
+
+template<typename T>
+void gloo::Buffer<T>::unbind(GLuint binding_index) const {
+    glBindVertexBuffer(binding_index, 0, 0, 0);
 }
