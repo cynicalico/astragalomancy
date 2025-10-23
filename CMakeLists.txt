@@ -20,6 +20,7 @@ target_sources(
         src/astra/core/color.cpp
         src/astra/core/engine.cpp
         src/astra/core/log.cpp
+        src/astra/gfx/2d/module/painter.cpp
         src/astra/util/module/dear.cpp
         src/astra/util/module/timer_mgr.cpp
         src/astra/util/averagers.cpp
@@ -53,6 +54,7 @@ target_sources(
         include/astra/core/messenger.hpp
         include/astra/core/payloads.hpp
         include/astra/core/types.hpp
+        include/astra/gfx/2d/module/painter.hpp
         include/astra/util/module/dear.hpp
         include/astra/util/module/timer_mgr.hpp
         include/astra/util/averagers.hpp
