@@ -7,7 +7,7 @@
 
 struct Vertex {
     glm::vec3 pos;
-    glm::vec3 circle;
+    glm::vec4 circle;
 };
 
 class Indev final : public astra::Application {
@@ -18,6 +18,9 @@ public:
     std::unique_ptr<gloo::Shader> shader;
     std::unique_ptr<gloo::Buffer<Vertex>> vbo;
     std::unique_ptr<gloo::VertexArray> vao;
+
+    float radius{25.0f};
+    float thickness{1.0f};
 
     explicit Indev(astra::Engine *engine);
 
@@ -44,59 +47,17 @@ Indev::Indev(astra::Engine *engine)
     messenger->subscribe<sdl3::MouseButtonEvent>(*callback_id, [this](const auto e) { mouse_event_callback_(e); });
 
     shader = gloo::ShaderBuilder()
-                     .add_stage_src(gloo::ShaderType::Vertex, R"(
-#version 460 core
-in vec3 in_pos;
-in vec3 in_circle;
-
-out vec3 circle;
-
-uniform mat4 projection;
-
-void main() {
-    circle = in_circle;
-    gl_Position = projection * vec4(in_pos, 1.0);
-}
-)")
-                     .add_stage_src(gloo::ShaderType::Fragment, R"(
-#version 460 core
-in vec3 circle;
-
-out vec4 FragColor;
-
-float sdf_circle(vec2 p, float r) {
-    return length(p) - r;
-}
-
-void main() {
-    vec2 sdf_p = vec2(gl_FragCoord.x - circle.x, gl_FragCoord.y - circle.y);
-    float distance = sdf_circle(sdf_p, circle.z);
-    if (distance > 0) {
-        discard;
-    }
-    FragColor = vec4(0.0, 0.0, 1.0, 1.0);
-}
-)")
+                     .add_stage_path(gloo::ShaderType::Vertex, "assets/shader/sdf_circle.vert")
+                     .add_stage_path(gloo::ShaderType::Fragment, "assets/shader/sdf_circle.frag")
                      .build();
 
     vbo = std::make_unique<gloo::Buffer<Vertex>>(6);
-    const auto center = engine->window->size() / 2;
-    const auto radius = 25;
-    vbo->add({
-            {{center.x - radius, center.y - radius, 0}, {center.x, center.y, radius}},
-            {{center.x + radius, center.y - radius, 0}, {center.x, center.y, radius}},
-            {{center.x - radius, center.y + radius, 0}, {center.x, center.y, radius}},
-            {{center.x + radius, center.y - radius, 0}, {center.x, center.y, radius}},
-            {{center.x + radius, center.y + radius, 0}, {center.x, center.y, radius}},
-            {{center.x - radius, center.y + radius, 0}, {center.x, center.y, radius}},
-    });
-    vbo->sync();
 
     const auto pos_loc = shader->try_get_attrib_location("in_pos");
     const auto circle_loc = shader->try_get_attrib_location("in_circle");
     vao = gloo::VertexArrayBuilder()
                   .attrib(*pos_loc, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, pos), 0)
-                  .attrib(*circle_loc, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, circle), 0)
+                  .attrib(*circle_loc, 4, GL_FLOAT, GL_FALSE, offsetof(Vertex, circle), 0)
                   .build();
 }
 
@@ -105,6 +66,30 @@ void Indev::update(double dt) {}
 void Indev::draw() {
     gloo::clear(astra::rgb(0x0f0f0f), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    if (ImGui::Begin("Controls")) {
+        ImGui::SliderFloat("radius", &radius, 1.0f, 250.0f, "%.0f");
+        ImGui::SliderFloat("thickness", &thickness, 0.0f, 10.0f, "%.0f");
+    }
+    ImGui::End();
+
+    const auto center = engine->window->size() / 2;
+    const auto p0 = glm::vec3{center.x - radius - thickness, center.y - radius - thickness, 0};
+    const auto p1 = glm::vec3{center.x + radius + thickness, center.y - radius - thickness, 0};
+    const auto p2 = glm::vec3{center.x - radius - thickness, center.y + radius + thickness, 0};
+    const auto p3 = glm::vec3{center.x + radius + thickness, center.y + radius + thickness, 0};
+    vbo->clear();
+    vbo->add({
+            {p0, {center.x, center.y, radius, thickness}},
+            {p1, {center.x, center.y, radius, thickness}},
+            {p2, {center.x, center.y, radius, thickness}},
+            {p1, {center.x, center.y, radius, thickness}},
+            {p3, {center.x, center.y, radius, thickness}},
+            {p2, {center.x, center.y, radius, thickness}},
+    });
+    vbo->sync();
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     shader->use();
     shader->uniform_mat4(
             "projection",
@@ -117,6 +102,9 @@ void Indev::draw() {
     vao->bind();
     vbo->bind(0, vbo->front() * sizeof(Vertex), sizeof(Vertex));
     glDrawArrays(GL_TRIANGLES, 0, vbo->size());
+    vbo->unbind(0);
+    vao->unbind();
+    glDisable(GL_BLEND);
 }
 
 void Indev::keyboard_event_callback_(const sdl3::KeyboardEvent *e) {
