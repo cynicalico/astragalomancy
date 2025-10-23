@@ -55,7 +55,7 @@ void gloo::debug_message_callback(
         }
     });
 
-    const auto text = fmt::format("OpenGL: source={} type={} id={} msg={}", source_str, type_str, id, message);
+    const auto text = fmt::format("OpenGL [{}] [{}] [{}] {}", source_str, type_str, id, message);
     switch (severity) {
     case GL_DEBUG_SEVERITY_HIGH:
         ASTRA_LOG_ERROR(text);

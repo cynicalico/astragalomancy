@@ -53,10 +53,14 @@ void Indev::update(double dt) {
 }
 
 void Indev::draw() {
+    glViewport(0, 0, engine->window->width(), engine->window->height());
+
     gloo::clear(astra::rgb(0x0f0f0f), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     const auto projection = glm::ortho(
             0.0f, static_cast<float>(engine->window->width()), static_cast<float>(engine->window->height()), 0.0f);
+
+    glEnable(GL_DEPTH_TEST);
 
     shader->use();
     shader->uniform_mat4("projection", projection);
@@ -65,6 +69,8 @@ void Indev::draw() {
     glDrawArrays(GL_TRIANGLES, vbo->front() / 6, vbo->size() / 6);
     vbo->unbind(0);
     vao->unbind();
+
+    glDisable(GL_DEPTH_TEST);
 }
 
 void Indev::keyboard_event_callback_(const sdl3::KeyboardEvent *e) {
@@ -130,6 +136,6 @@ int main(int, char *[]) {
     };
 
     astra::Engine(app_info, {1280, 720}, [](sdl3::WindowBuilder &window_builder) {
-        window_builder.icon("assets/icon/png").fullscreen();
+        window_builder.icon("assets/icon/png");
     }).mainloop<Indev>();
 }
