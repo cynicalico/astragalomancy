@@ -276,3 +276,28 @@ astra::HSV astra::hsva_f(float h, float s, float v, float a) {
 astra::HSV astra::hsv(float h, float s, float v) {
     return {std::fmodf(h, 360.0f), std::clamp(s, 0.0f, 1.0f), std::clamp(v, 0.0f, 1.0f), 255};
 }
+
+astra::RGB astra::rng::rgb() {
+    return rgba({0, 255}, {0, 255}, {0, 255}, {255, 255});
+}
+
+astra::RGB astra::rng::rgba() {
+    return rgba({0, 255}, {0, 255}, {0, 255}, {0, 255});
+}
+
+astra::RGB
+astra::rng::rgb(glm::tvec2<std::uint8_t> r_range, glm::tvec2<std::uint8_t> g_range, glm::tvec2<std::uint8_t> b_range) {
+    return rgba(r_range, g_range, b_range, {255, 255});
+}
+
+astra::RGB astra::rng::rgba(
+        glm::tvec2<std::uint8_t> r_range,
+        glm::tvec2<std::uint8_t> g_range,
+        glm::tvec2<std::uint8_t> b_range,
+        glm::tvec2<std::uint8_t> a_range) {
+    const auto r = rng::get<std::uint8_t>(r_range);
+    const auto g = rng::get<std::uint8_t>(g_range);
+    const auto b = rng::get<std::uint8_t>(b_range);
+    const auto a = rng::get<std::uint8_t>(a_range);
+    return astra::rgba(r, g, b, a);
+}

@@ -3,6 +3,7 @@
 #include "astra/core/color.hpp"
 #include "astra/core/log.hpp"
 #include "astra/util/platform.hpp"
+#include "astra/util/rng.hpp"
 #include "gloo/gloo.hpp"
 #include "sdl3_raii/event_pump.hpp"
 #include "sdl3_raii/events/quit.hpp"
@@ -59,6 +60,7 @@ astra::Engine::Engine(
     sinks()->add_sink(callback_sink);
 
     log_platform();
+    rng::log_seed();
 
     if (!sdl3::init(app_info))
         throw std::runtime_error("Failed to initialize SDL3");

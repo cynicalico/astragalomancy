@@ -26,6 +26,7 @@ public:
 
 private:
     void keyboard_event_callback_(const sdl3::KeyboardEvent *e);
+    void mouse_event_callback_(const sdl3::MouseButtonEvent *e);
 };
 
 Indev::Indev(astra::Engine *engine)
@@ -44,23 +45,7 @@ Indev::Indev(astra::Engine *engine)
                   .build();
 
     messenger->subscribe<sdl3::KeyboardEvent>(*callback_id, [this](const auto e) { keyboard_event_callback_(e); });
-
-    messenger->subscribe<sdl3::MouseButtonEvent>(*callback_id, [this](const auto e) {
-        if (e->type == sdl3::MouseButtonEventType::Down && e->button == sdl3::MouseButtonFlags::Left) {
-            const auto p0 = astra::rng::get_circle({e->x, e->y}, 100.0);
-            const auto p1 = astra::rng::get_circle({e->x, e->y}, 100.0);
-            const auto p2 = astra::rng::get_circle({e->x, e->y}, 100.0);
-            // clang-format off
-            const auto success = vbo->add({
-                p0.x, p0.y, 0.0f, 1.0f, 1.0f, 1.0f,
-                p1.x, p1.y, 0.0f, 1.0f, 1.0f, 1.0f,
-                p2.x, p2.y, 0.0f, 1.0f, 1.0f, 1.0f,
-            });
-            // clang-format on
-            if (!success)
-                ASTRA_LOG_ERROR("Buffer is full!");
-        }
-    });
+    messenger->subscribe<sdl3::MouseButtonEvent>(*callback_id, [this](const auto e) { mouse_event_callback_(e); });
 }
 
 void Indev::update(double dt) {
@@ -91,7 +76,41 @@ void Indev::keyboard_event_callback_(const sdl3::KeyboardEvent *e) {
         case SDLK_ESCAPE:
             engine->shutdown();
             break;
+        case SDLK_R:
+            vbo->clear();
+            break;
         default:;
+        }
+        break;
+    default:
+        std::unreachable();
+    }
+}
+
+void Indev::mouse_event_callback_(const sdl3::MouseButtonEvent *e) {
+    switch (e->type) {
+    case sdl3::MouseButtonEventType::Down:
+        break;
+    case sdl3::MouseButtonEventType::Up:
+        if (e->button == sdl3::MouseButtonFlags::Left) {
+            const auto offset = astra::rng::get<float>(360.0f);
+            const auto radius = astra::rng::get<float>(50.0f, 100.0f);
+            const auto a0 = glm::radians(offset);
+            const auto a1 = glm::radians(offset + 120.0f);
+            const auto a2 = glm::radians(offset + 240.0f);
+            const auto p0 = glm::vec2(radius * std::cos(a0), radius * std::sin(a0));
+            const auto p1 = glm::vec2(radius * std::cos(a1), radius * std::sin(a1));
+            const auto p2 = glm::vec2(radius * std::cos(a2), radius * std::sin(a2));
+            const auto color = astra::rng::rgb().gl_color();
+            // clang-format off
+            const auto success = vbo->add({
+                e->x + p0.x, e->y + p0.y, 0.0f, color.r, color.g, color.b,
+                e->x + p1.x, e->y + p1.y, 0.0f, color.r, color.g, color.b,
+                e->x + p2.x, e->y + p2.y, 0.0f, color.r, color.g, color.b
+            });
+            // clang-format on
+            if (!success)
+                ASTRA_LOG_ERROR("Buffer is full!");
         }
         break;
     default:

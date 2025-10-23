@@ -21,8 +21,7 @@ seed_data &seed_info();
 
 void reseed();
 void seed128(std::uint64_t seed_hi, std::uint64_t seed_lo, std::uint64_t stream_hi = 0, std::uint64_t stream_lo = 0);
-void seed(std::uint64_t seed, std::uint64_t stream = 0);
-void debug_show_seed();
+void log_seed();
 
 /***********
  * INTEGERS
@@ -40,6 +39,11 @@ T get(T low, T high) {
     if (low > high)
         return IntDist<T>(high, low)(generator());
     return IntDist<T>(low, high)(generator());
+}
+
+template<IntDistCompatible T>
+T get(glm::tvec2<T> v) {
+    return get(v.x, v.y);
 }
 
 template<IntDistCompatible T>
@@ -62,6 +66,11 @@ concept IntDistCompatibleButChar = IsAnyOf<T, char, char8_t, char16_t, char32_t,
 template<IntDistCompatibleButChar T>
 T get(T low, T high) {
     return static_cast<T>(get<int>(static_cast<int>(low), static_cast<int>(high)));
+}
+
+template<IntDistCompatibleButChar T>
+T get(glm::tvec2<T> v) {
+    return get(v.x, v.y);
 }
 
 template<IntDistCompatibleButChar T>
@@ -90,6 +99,11 @@ T get(T low, T high) {
     if (low > high)
         return RealDist<T>(high, low)(generator());
     return RealDist<T>(low, high)(generator());
+}
+
+template<RealDistCompatible T>
+T get(glm::tvec2<T> v) {
+    return get(v.x, v.y);
 }
 
 template<RealDistCompatible T>
@@ -129,5 +143,5 @@ T get() {
 
 std::string base58(std::size_t length);
 
-glm::vec2 get_circle(glm::vec2 center, double radius);
+glm::vec2 area_circle(glm::vec2 center, double radius);
 } // namespace astra::rng

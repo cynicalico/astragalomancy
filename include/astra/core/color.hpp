@@ -1,5 +1,7 @@
 #pragma once
 
+#include "astra/util/rng.hpp"
+
 #include <fmt/format.h>
 #include <glm/vec4.hpp>
 #include <imgui.h>
@@ -111,6 +113,18 @@ HSV hsva(float h, float s, float v, std::uint8_t a);
 HSV hsva_f(float h, float s, float v, float a);
 
 HSV hsv(float h, float s, float v);
+
+namespace rng {
+RGB rgb();
+RGB rgba();
+
+RGB rgb(glm::tvec2<std::uint8_t> r_range, glm::tvec2<std::uint8_t> g_range, glm::tvec2<std::uint8_t> b_range);
+RGB rgba(
+        glm::tvec2<std::uint8_t> r_range,
+        glm::tvec2<std::uint8_t> g_range,
+        glm::tvec2<std::uint8_t> b_range,
+        glm::tvec2<std::uint8_t> a_range);
+} // namespace rng
 } // namespace astra
 
 template<>
