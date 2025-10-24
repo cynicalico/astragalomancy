@@ -90,6 +90,7 @@ void Indev::draw() {
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     shader->use();
     shader->uniform_mat4(
             "projection",
@@ -101,9 +102,12 @@ void Indev::draw() {
 
     vao->bind();
     vbo->bind(0, vbo->front() * sizeof(Vertex), sizeof(Vertex));
+
     glDrawArrays(GL_TRIANGLES, 0, vbo->size());
+
     vbo->unbind(0);
     vao->unbind();
+
     glDisable(GL_BLEND);
 }
 
