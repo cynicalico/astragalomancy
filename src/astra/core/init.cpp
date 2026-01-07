@@ -5,7 +5,7 @@
 #include "astra/core/payloads.hpp"
 #include "astra/util/platform.hpp"
 #include "astra/util/rng.hpp"
-#include "gloo/gloo.hpp"
+#include "gloo/init.hpp"
 #include "sdl3_raii/event_pump.hpp"
 #include "sdl3_raii/events/quit.hpp"
 #include "sdl3_raii/gl_attr.hpp"
@@ -40,7 +40,10 @@ void astra::init(const sdl3::AppInfo &app_info, const std::function<sdl3::Window
     log_platform();
     rng::log_seed();
 
-    if (!sdl3::init(app_info)) throw std::runtime_error("Failed to initialize SDL3");
+    if (!sdl3::init(app_info)) {
+        ASTRA_LOG_CRITICAL("Failed to initialize SDL3");
+        throw std::runtime_error("Failed to initialize SDL3");
+    }
 
     sdl3::GlAttr::set_context_version(4, 6);
     sdl3::GlAttr::set_context_profile(sdl3::GlProfile::Core);
@@ -49,7 +52,10 @@ void astra::init(const sdl3::AppInfo &app_info, const std::function<sdl3::Window
 #endif
 
     g.window = window_builder_f().opengl().build();
-    if (!g.window) throw std::runtime_error("Failed to build SDL3 window");
+    if (!g.window) {
+        ASTRA_LOG_CRITICAL("Failed to build SDL3 window");
+        throw std::runtime_error("Failed to build SDL3 window");
+    }
     gloo::init();
 
     g.dear = std::make_unique<Dear>(*g.window);

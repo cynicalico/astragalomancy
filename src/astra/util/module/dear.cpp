@@ -20,10 +20,15 @@ astra::Dear::Dear(const sdl3::Window &window) {
 
     (void)ImGui::GetIO();
 
-    if (!ImGui_ImplSDL3_InitForOpenGL(window.handle(), window.gl_context()))
-        ASTRA_LOG_ERROR("Failed to initialize ImGui/SDL3 backend");
+    if (!ImGui_ImplSDL3_InitForOpenGL(window.handle(), window.gl_context())) {
+        ASTRA_LOG_CRITICAL("Failed to initialize ImGui/SDL3 backend");
+        throw std::runtime_error("Failed to initialize ImGui");
+    }
 
-    if (!ImGui_ImplOpenGL3_Init("#version 130")) ASTRA_LOG_ERROR("Failed to initialize ImGui/OpenGL backend");
+    if (!ImGui_ImplOpenGL3_Init("#version 130")) {
+        ASTRA_LOG_CRITICAL("Failed to initialize ImGui/OpenGL backend");
+        throw std::runtime_error("Failed to initialize ImGui");
+    }
 
     register_callbacks_();
 }

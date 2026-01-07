@@ -20,18 +20,17 @@
 #include "sdl3_raii/events/window.hpp"
 
 #include "astra/core/globals.hpp"
-#include "astra/core/messenger.hpp"
 
-void publish_event_(const SDL_Event &e);
+void publish_event(const SDL_Event &e);
 
 namespace sdl3 {
 void pump_events() {
     SDL_Event e;
-    while (SDL_PollEvent(&e)) publish_event_(e);
+    while (SDL_PollEvent(&e)) publish_event(e);
 }
 } // namespace sdl3
 
-void publish_event_(const SDL_Event &e) {
+void publish_event(const SDL_Event &e) {
     astra::g.msg->publish<sdl3::RawEvent>(e);
 
     switch (e.type) {
