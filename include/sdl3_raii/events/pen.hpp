@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/payloads.hpp"
+#include "astra/core/messenger.hpp"
 #include "astra/util/enum_class_helpers.hpp"
 
 #include <SDL3/SDL_events.h>
@@ -109,24 +109,15 @@ template<>
 struct fmt::formatter<sdl3::PenInputFlags> : formatter<std::string_view> {
     auto format(const sdl3::PenInputFlags &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::PenInputFlags::None:
-            return formatter<std::string_view>::format("None", ctx);
-        case sdl3::PenInputFlags::Down:
-            return formatter<std::string_view>::format("Down", ctx);
-        case sdl3::PenInputFlags::Button1:
-            return formatter<std::string_view>::format("Button1", ctx);
-        case sdl3::PenInputFlags::Button2:
-            return formatter<std::string_view>::format("Button2", ctx);
-        case sdl3::PenInputFlags::Button3:
-            return formatter<std::string_view>::format("Button3", ctx);
-        case sdl3::PenInputFlags::Button4:
-            return formatter<std::string_view>::format("Button4", ctx);
-        case sdl3::PenInputFlags::Button5:
-            return formatter<std::string_view>::format("Button5", ctx);
-        case sdl3::PenInputFlags::EraserTip:
-            return formatter<std::string_view>::format("EraserTip", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::PenInputFlags::None: return formatter<std::string_view>::format("None", ctx);
+        case sdl3::PenInputFlags::Down: return formatter<std::string_view>::format("Down", ctx);
+        case sdl3::PenInputFlags::Button1: return formatter<std::string_view>::format("Button1", ctx);
+        case sdl3::PenInputFlags::Button2: return formatter<std::string_view>::format("Button2", ctx);
+        case sdl3::PenInputFlags::Button3: return formatter<std::string_view>::format("Button3", ctx);
+        case sdl3::PenInputFlags::Button4: return formatter<std::string_view>::format("Button4", ctx);
+        case sdl3::PenInputFlags::Button5: return formatter<std::string_view>::format("Button5", ctx);
+        case sdl3::PenInputFlags::EraserTip: return formatter<std::string_view>::format("EraserTip", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };
@@ -135,22 +126,14 @@ template<>
 struct fmt::formatter<sdl3::PenAxis> : formatter<std::string_view> {
     auto format(const sdl3::PenAxis &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::PenAxis::Pressure:
-            return formatter<std::string_view>::format("Pressure", ctx);
-        case sdl3::PenAxis::XTilt:
-            return formatter<std::string_view>::format("XTilt", ctx);
-        case sdl3::PenAxis::YTilt:
-            return formatter<std::string_view>::format("YTilt", ctx);
-        case sdl3::PenAxis::Distance:
-            return formatter<std::string_view>::format("Distance", ctx);
-        case sdl3::PenAxis::Rotation:
-            return formatter<std::string_view>::format("Rotation", ctx);
-        case sdl3::PenAxis::Slider:
-            return formatter<std::string_view>::format("Slider", ctx);
-        case sdl3::PenAxis::TangentialPressure:
-            return formatter<std::string_view>::format("TangentialPressure", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::PenAxis::Pressure: return formatter<std::string_view>::format("Pressure", ctx);
+        case sdl3::PenAxis::XTilt: return formatter<std::string_view>::format("XTilt", ctx);
+        case sdl3::PenAxis::YTilt: return formatter<std::string_view>::format("YTilt", ctx);
+        case sdl3::PenAxis::Distance: return formatter<std::string_view>::format("Distance", ctx);
+        case sdl3::PenAxis::Rotation: return formatter<std::string_view>::format("Rotation", ctx);
+        case sdl3::PenAxis::Slider: return formatter<std::string_view>::format("Slider", ctx);
+        case sdl3::PenAxis::TangentialPressure: return formatter<std::string_view>::format("TangentialPressure", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };
@@ -176,12 +159,9 @@ template<>
 struct fmt::formatter<sdl3::PenButtonEventType> : formatter<std::string_view> {
     auto format(const sdl3::PenButtonEventType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::PenButtonEventType::Down:
-            return formatter<std::string_view>::format("Down", ctx);
-        case sdl3::PenButtonEventType::Up:
-            return formatter<std::string_view>::format("Up", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::PenButtonEventType::Down: return formatter<std::string_view>::format("Down", ctx);
+        case sdl3::PenButtonEventType::Up: return formatter<std::string_view>::format("Up", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };
@@ -224,12 +204,9 @@ template<>
 struct fmt::formatter<sdl3::PenProximityEventType> : formatter<std::string_view> {
     auto format(const sdl3::PenProximityEventType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::PenProximityEventType::In:
-            return formatter<std::string_view>::format("In", ctx);
-        case sdl3::PenProximityEventType::Out:
-            return formatter<std::string_view>::format("Out", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::PenProximityEventType::In: return formatter<std::string_view>::format("In", ctx);
+        case sdl3::PenProximityEventType::Out: return formatter<std::string_view>::format("Out", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };
@@ -251,12 +228,9 @@ template<>
 struct fmt::formatter<sdl3::PenTouchEventType> : formatter<std::string_view> {
     auto format(const sdl3::PenTouchEventType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::PenTouchEventType::Down:
-            return formatter<std::string_view>::format("Down", ctx);
-        case sdl3::PenTouchEventType::Up:
-            return formatter<std::string_view>::format("Up", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::PenTouchEventType::Down: return formatter<std::string_view>::format("Down", ctx);
+        case sdl3::PenTouchEventType::Up: return formatter<std::string_view>::format("Up", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };

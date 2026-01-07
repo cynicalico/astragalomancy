@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/payloads.hpp"
+#include "astra/core/messenger.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -103,12 +103,9 @@ template<>
 struct fmt::formatter<sdl3::GamepadButtonEventType> : formatter<std::string_view> {
     auto format(const sdl3::GamepadButtonEventType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::GamepadButtonEventType::Down:
-            return format_to(ctx.out(), "Down");
-        case sdl3::GamepadButtonEventType::Up:
-            return format_to(ctx.out(), "Up");
-        default:
-            return format_to(ctx.out(), "Unknown");
+        case sdl3::GamepadButtonEventType::Down: return format_to(ctx.out(), "Down");
+        case sdl3::GamepadButtonEventType::Up: return format_to(ctx.out(), "Up");
+        default: return format_to(ctx.out(), "Unknown");
         }
     }
 };
@@ -131,18 +128,14 @@ template<>
 struct fmt::formatter<sdl3::GamepadDeviceEventType> : formatter<std::string_view> {
     auto format(const sdl3::GamepadDeviceEventType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::GamepadDeviceEventType::Added:
-            return formatter<std::string_view>::format("Added", ctx);
-        case sdl3::GamepadDeviceEventType::Removed:
-            return formatter<std::string_view>::format("Removed", ctx);
-        case sdl3::GamepadDeviceEventType::Remapped:
-            return formatter<std::string_view>::format("Remapped", ctx);
+        case sdl3::GamepadDeviceEventType::Added: return formatter<std::string_view>::format("Added", ctx);
+        case sdl3::GamepadDeviceEventType::Removed: return formatter<std::string_view>::format("Removed", ctx);
+        case sdl3::GamepadDeviceEventType::Remapped: return formatter<std::string_view>::format("Remapped", ctx);
         case sdl3::GamepadDeviceEventType::UpdateComplete:
             return formatter<std::string_view>::format("UpdateComplete", ctx);
         case sdl3::GamepadDeviceEventType::SteamHandleUpdated:
             return formatter<std::string_view>::format("SteamHandleUpdated", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };
@@ -159,24 +152,15 @@ template<>
 struct fmt::formatter<sdl3::GamepadSensorType> : formatter<std::string_view> {
     auto format(const sdl3::GamepadSensorType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::GamepadSensorType::Invalid:
-            return formatter<std::string_view>::format("Invalid", ctx);
-        case sdl3::GamepadSensorType::Unknown:
-            return formatter<std::string_view>::format("Unknown", ctx);
-        case sdl3::GamepadSensorType::Accelerometer:
-            return formatter<std::string_view>::format("Accelerometer", ctx);
-        case sdl3::GamepadSensorType::Gyroscope:
-            return formatter<std::string_view>::format("Gyroscope", ctx);
-        case sdl3::GamepadSensorType::AccelerometerL:
-            return formatter<std::string_view>::format("AccelerometerL", ctx);
-        case sdl3::GamepadSensorType::GyroscopeL:
-            return formatter<std::string_view>::format("GyroscopeL", ctx);
-        case sdl3::GamepadSensorType::AccelerometerR:
-            return formatter<std::string_view>::format("AccelerometerR", ctx);
-        case sdl3::GamepadSensorType::GyroscopeR:
-            return formatter<std::string_view>::format("GyroscopeR", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::GamepadSensorType::Invalid: return formatter<std::string_view>::format("Invalid", ctx);
+        case sdl3::GamepadSensorType::Unknown: return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::GamepadSensorType::Accelerometer: return formatter<std::string_view>::format("Accelerometer", ctx);
+        case sdl3::GamepadSensorType::Gyroscope: return formatter<std::string_view>::format("Gyroscope", ctx);
+        case sdl3::GamepadSensorType::AccelerometerL: return formatter<std::string_view>::format("AccelerometerL", ctx);
+        case sdl3::GamepadSensorType::GyroscopeL: return formatter<std::string_view>::format("GyroscopeL", ctx);
+        case sdl3::GamepadSensorType::AccelerometerR: return formatter<std::string_view>::format("AccelerometerR", ctx);
+        case sdl3::GamepadSensorType::GyroscopeR: return formatter<std::string_view>::format("GyroscopeR", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };
@@ -201,14 +185,10 @@ template<>
 struct fmt::formatter<sdl3::GamepadTouchpadEventType> : formatter<std::string_view> {
     auto format(const sdl3::GamepadTouchpadEventType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::GamepadTouchpadEventType::Down:
-            return formatter<std::string_view>::format("Down", ctx);
-        case sdl3::GamepadTouchpadEventType::Motion:
-            return formatter<std::string_view>::format("Motion", ctx);
-        case sdl3::GamepadTouchpadEventType::Up:
-            return formatter<std::string_view>::format("Up", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::GamepadTouchpadEventType::Down: return formatter<std::string_view>::format("Down", ctx);
+        case sdl3::GamepadTouchpadEventType::Motion: return formatter<std::string_view>::format("Motion", ctx);
+        case sdl3::GamepadTouchpadEventType::Up: return formatter<std::string_view>::format("Up", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };

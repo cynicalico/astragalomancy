@@ -12,14 +12,14 @@
 #include <windows.h>
 #endif
 
-std::shared_ptr<spdlog::sinks::dist_sink_mt> astra::sinks() {
+std::shared_ptr<spdlog::sinks::dist_sink_mt> astra::logger_sinks() {
     static auto s = std::make_shared<spdlog::sinks::dist_sink_mt>();
     return s;
 }
 
 std::shared_ptr<spdlog::logger> astra::logger() {
     static auto logger = std::invoke([&] {
-        auto s = sinks();
+        auto s = logger_sinks();
 
         auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         console_sink->set_color_mode(spdlog::color_mode::always);

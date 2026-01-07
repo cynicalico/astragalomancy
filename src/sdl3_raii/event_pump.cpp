@@ -26,8 +26,7 @@ void publish_event_(const SDL_Event &e);
 namespace sdl3 {
 void pump_events() {
     SDL_Event e;
-    while (SDL_PollEvent(&e))
-        publish_event_(e);
+    while (SDL_PollEvent(&e)) publish_event_(e);
 }
 } // namespace sdl3
 
@@ -52,8 +51,7 @@ void publish_event_(const SDL_Event &e) {
 
     case SDL_EVENT_CLIPBOARD_UPDATE: {
         std::vector<std::string> mime_types;
-        for (std::size_t i = 0; i < e.clipboard.num_mime_types; ++i)
-            mime_types.emplace_back(e.clipboard.mime_types[i]);
+        for (std::size_t i = 0; i < e.clipboard.num_mime_types; ++i) mime_types.emplace_back(e.clipboard.mime_types[i]);
         astra::Messenger::instance().publish<sdl3::ClipboardEvent>(
                 e.clipboard.timestamp, e.clipboard.owner, mime_types);
     } break;
@@ -301,9 +299,7 @@ void publish_event_(const SDL_Event &e) {
                 e.ptouch.down);
         break;
 
-    case SDL_EVENT_QUIT:
-        astra::Messenger::instance().publish<sdl3::QuitEvent>(e.quit.timestamp);
-        break;
+    case SDL_EVENT_QUIT: astra::Messenger::instance().publish<sdl3::QuitEvent>(e.quit.timestamp); break;
 
     case SDL_EVENT_RENDER_TARGETS_RESET:
     case SDL_EVENT_RENDER_DEVICE_RESET:
@@ -321,8 +317,7 @@ void publish_event_(const SDL_Event &e) {
 
     case SDL_EVENT_TEXT_EDITING_CANDIDATES: {
         std::vector<std::string> candidates;
-        for (std::size_t i = 0; i < e.edit_candidates.num_candidates; ++i)
-            candidates.emplace_back(e.edit.text);
+        for (std::size_t i = 0; i < e.edit_candidates.num_candidates; ++i) candidates.emplace_back(e.edit.text);
         astra::Messenger::instance().publish<sdl3::TextEditingCandidatesEvent>(
                 e.edit_candidates.timestamp,
                 e.edit_candidates.windowID,

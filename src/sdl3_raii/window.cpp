@@ -43,12 +43,10 @@ void sdl3::Window::set_icon(const std::filesystem::path &path) {
 
     if (std::filesystem::is_directory(path)) {
         for (const auto &e: std::filesystem::directory_iterator(path)) {
-            if (!e.is_regular_file())
-                continue;
+            if (!e.is_regular_file()) continue;
 
             const auto e_surf = astra::read_image_to_sdl_surface(e.path());
-            if (!e_surf)
-                continue;
+            if (!e_surf) continue;
 
             if (surf) {
                 if (!SDL_AddSurfaceAlternateImage(surf, e_surf))
@@ -66,40 +64,33 @@ void sdl3::Window::set_icon(const std::filesystem::path &path) {
         ASTRA_LOG_ERROR("'{}' must be a directory or regular file", path);
     }
 
-    if (!surf)
-        ASTRA_LOG_ERROR("Failed to set window icon");
-    else if (!SDL_SetWindowIcon(handle_, surf))
-        ASTRA_LOG_ERROR("Failed to set window icon: {}", SDL_GetError());
+    if (!surf) ASTRA_LOG_ERROR("Failed to set window icon");
+    else if (!SDL_SetWindowIcon(handle_, surf)) ASTRA_LOG_ERROR("Failed to set window icon: {}", SDL_GetError());
 }
 
 void sdl3::Window::hide() {
-    if (!SDL_HideWindow(handle_))
-        ASTRA_LOG_ERROR("Failed to hide window: {}", SDL_GetError());
+    if (!SDL_HideWindow(handle_)) ASTRA_LOG_ERROR("Failed to hide window: {}", SDL_GetError());
 }
 
 void sdl3::Window::show() {
-    if (!SDL_ShowWindow(handle_))
-        ASTRA_LOG_ERROR("Failed to show window: {}", SDL_GetError());
+    if (!SDL_ShowWindow(handle_)) ASTRA_LOG_ERROR("Failed to show window: {}", SDL_GetError());
 }
 
 glm::ivec2 sdl3::Window::size() const {
     glm::ivec2 s;
-    if (!SDL_GetWindowSize(handle_, &s.x, &s.y))
-        ASTRA_LOG_ERROR("Failed to get window size: {}", SDL_GetError());
+    if (!SDL_GetWindowSize(handle_, &s.x, &s.y)) ASTRA_LOG_ERROR("Failed to get window size: {}", SDL_GetError());
     return s;
 }
 
 int sdl3::Window::width() const {
     int w;
-    if (!SDL_GetWindowSize(handle_, &w, nullptr))
-        ASTRA_LOG_ERROR("Failed to get window size: {}", SDL_GetError());
+    if (!SDL_GetWindowSize(handle_, &w, nullptr)) ASTRA_LOG_ERROR("Failed to get window size: {}", SDL_GetError());
     return w;
 }
 
 int sdl3::Window::height() const {
     int h;
-    if (!SDL_GetWindowSize(handle_, nullptr, &h))
-        ASTRA_LOG_ERROR("Failed to get window size: {}", SDL_GetError());
+    if (!SDL_GetWindowSize(handle_, nullptr, &h)) ASTRA_LOG_ERROR("Failed to get window size: {}", SDL_GetError());
     return h;
 }
 
@@ -129,15 +120,14 @@ float sdl3::Window::aspect_ratio() const {
 }
 
 void sdl3::Window::swap() {
-    if (!SDL_GL_SwapWindow(handle_))
-        ASTRA_LOG_ERROR("Failed to swap window: {}", SDL_GetError());
+    if (!SDL_GL_SwapWindow(handle_)) ASTRA_LOG_ERROR("Failed to swap window: {}", SDL_GetError());
 }
 
-sdl3::Window::Window(SDL_Window *handle, SDL_GLContext gl_context, std::optional<std::filesystem::path> icon_path)
+sdl3::Window::Window(
+        SDL_Window *handle, SDL_GLContext gl_context, const std::optional<std::filesystem::path> &icon_path)
     : handle_(handle),
       gl_context_(gl_context) {
-    if (icon_path)
-        set_icon(*icon_path);
+    if (icon_path) set_icon(*icon_path);
 }
 
 sdl3::WindowBuilder::WindowBuilder(const std::string_view title, const glm::ivec2 size)
@@ -145,6 +135,34 @@ sdl3::WindowBuilder::WindowBuilder(const std::string_view title, const glm::ivec
       location_(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, size.x, size.y) {
     if (!SDL_SetStringProperty(props_, SDL_PROP_WINDOW_CREATE_TITLE_STRING, title.data()))
         ASTRA_LOG_ERROR("Failed to set property, window title: {}", SDL_GetError());
+}
+
+sdl3::WindowBuilder::WindowBuilder(const std::string_view title)
+    : WindowBuilder(title, {0, 0}) {}
+
+sdl3::WindowBuilder::WindowBuilder(WindowBuilder &&other) noexcept
+    : props_(other.props_),
+      location_(other.location_),
+      display_idx_(other.display_idx_),
+      icon_path_(other.icon_path_) {
+    other.props_ = 0;
+    other.location_ = {0, 0, 0, 0};
+    other.display_idx_ = 0;
+    other.icon_path_ = std::nullopt;
+}
+
+sdl3::WindowBuilder &sdl3::WindowBuilder::operator=(WindowBuilder &&other) noexcept {
+    if (this != &other) {
+        props_ = other.props_;
+        location_ = other.location_;
+        display_idx_ = other.display_idx_;
+        icon_path_ = other.icon_path_;
+        other.props_ = 0;
+        other.location_ = {0, 0, 0, 0};
+        other.display_idx_ = 0;
+        other.icon_path_ = std::nullopt;
+    }
+    return *this;
 }
 
 sdl3::WindowBuilder &sdl3::WindowBuilder::fullscreen() {
@@ -311,8 +329,7 @@ std::unique_ptr<sdl3::Window> sdl3::WindowBuilder::build() {
 std::expected<SDL_DisplayID, std::string> sdl3::WindowBuilder::get_display_id() {
     int display_count;
     auto displays = SDL_GetDisplays(&display_count);
-    if (!displays)
-        return std::unexpected(std::string(SDL_GetError()));
+    if (!displays) return std::unexpected(std::string(SDL_GetError()));
 
     if (display_count <= display_idx_) {
         SPDLOG_WARN("Requested display out of bounds ({} <= {}), using display 0", display_count, display_idx_);
@@ -327,16 +344,13 @@ std::expected<SDL_DisplayID, std::string> sdl3::WindowBuilder::get_display_id() 
 
 std::expected<SDL_Rect, std::string> sdl3::WindowBuilder::get_window_size_rect() {
     auto display_id_result = get_display_id();
-    if (!display_id_result)
-        return std::unexpected(display_id_result.error());
+    if (!display_id_result) return std::unexpected(display_id_result.error());
     auto display_id = display_id_result.value();
 
     SDL_Rect display_bounds;
-    if (!SDL_GetDisplayBounds(display_id, &display_bounds))
-        return std::unexpected(std::string(SDL_GetError()));
+    if (!SDL_GetDisplayBounds(display_id, &display_bounds)) return std::unexpected(std::string(SDL_GetError()));
 
-    if (SDL_GetBooleanProperty(props_, SDL_PROP_WINDOW_CREATE_FULLSCREEN_BOOLEAN, false))
-        return display_bounds;
+    if (SDL_GetBooleanProperty(props_, SDL_PROP_WINDOW_CREATE_FULLSCREEN_BOOLEAN, false)) return display_bounds;
 
     if (location_.x == SDL_WINDOWPOS_CENTERED && location_.y == SDL_WINDOWPOS_CENTERED) {
         location_.x = SDL_WINDOWPOS_CENTERED_DISPLAY(display_id);

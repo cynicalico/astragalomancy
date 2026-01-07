@@ -36,8 +36,7 @@ void astra::FrameCounter::update() {
     const auto now = time_ns();
 
     timestamps.push_back(now);
-    while (timestamps.size() >= 2 && timestamps.back() - timestamps.front() > 1e9)
-        timestamps.pop_front();
+    while (timestamps.size() >= 2 && timestamps.back() - timestamps.front() > 1e9) timestamps.pop_front();
     averager_.update(timestamps.size());
 
     if (now - last_alpha_update_ >= 1e9) {
@@ -47,8 +46,7 @@ void astra::FrameCounter::update() {
 }
 
 double astra::FrameCounter::dt() const {
-    if (timestamps.size() < 2)
-        return 0.0;
+    if (timestamps.size() < 2) return 0.0;
     return (timestamps[timestamps.size() - 1] - timestamps[timestamps.size() - 2]) / 1e9;
 }
 
@@ -57,8 +55,7 @@ double astra::FrameCounter::fps() const {
 }
 
 std::vector<double> astra::FrameCounter::fps_history() const {
-    if (timestamps.size() < 2)
-        return {};
+    if (timestamps.size() < 2) return {};
 
     std::vector<double> history;
     for (std::size_t i = 0; i < timestamps.size() - 2; ++i)

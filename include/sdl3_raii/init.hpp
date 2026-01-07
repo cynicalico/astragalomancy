@@ -66,7 +66,7 @@ struct AppInfo {
     AppType type;
 };
 
-bool init(const AppInfo& app_info);
+bool init(const AppInfo &app_info);
 
 void exit();
 } // namespace sdl3

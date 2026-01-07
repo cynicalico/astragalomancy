@@ -27,32 +27,26 @@ void astra::Application::draw() {}
 
 class MessengerSink final : public spdlog::sinks::base_sink<spdlog::details::null_mutex> {
 protected:
-    void sink_it_(const spdlog::details::log_msg &msg) override;
+    void sink_it_(const spdlog::details::log_msg &msg) override {
+        spdlog::memory_buf_t formatted;
+        formatter_->format(msg, formatted);
+        astra::Messenger::instance().publish<astra::LogMessage>(msg.level, fmt::to_string(formatted));
+    }
     void flush_() override { /* do nothing */ }
 };
 
-void MessengerSink::sink_it_(const spdlog::details::log_msg &msg) {
-    spdlog::memory_buf_t formatted;
-    formatter_->format(msg, formatted);
-    astra::Messenger::instance().publish<astra::LogMessage>(msg.level, fmt::to_string(formatted));
-}
-
-astra::Engine::Engine(
-        const sdl3::AppInfo &app_info,
-        const glm::ivec2 window_size,
-        const std::function<void(sdl3::WindowBuilder &)> &window_build_f) {
+astra::Engine::Engine(const sdl3::AppInfo &app_info, const std::function<sdl3::WindowBuilder()> &window_builder_f) {
     register_callbacks_();
 
     const auto callback_sink = std::make_shared<MessengerSink>();
     callback_sink->set_pattern("[%H:%M:%S] [%L] %v");
     callback_sink->set_level(spdlog::level::trace);
-    sinks()->add_sink(callback_sink);
+    logger_sinks()->add_sink(callback_sink);
 
     log_platform();
     rng::log_seed();
 
-    if (!sdl3::init(app_info))
-        throw std::runtime_error("Failed to initialize SDL3");
+    if (!sdl3::init(app_info)) throw std::runtime_error("Failed to initialize SDL3");
 
     sdl3::GlAttr::set_context_version(4, 6);
     sdl3::GlAttr::set_context_profile(sdl3::GlProfile::Core);
@@ -60,44 +54,18 @@ astra::Engine::Engine(
     sdl3::GlAttr::set_context_flags().debug().set();
 #endif
 
-    auto window_builder = sdl3::WindowBuilder(app_info.name, window_size);
-    window_build_f(window_builder);
-    window = window_builder.opengl().build();
-    if (!window)
-        throw std::runtime_error("Failed to build SDL3 window");
+    window = window_builder_f().opengl().build();
+    if (!window) throw std::runtime_error("Failed to build SDL3 window");
     gloo::init();
 
     dear = std::make_unique<Dear>(window.get());
 }
 
 astra::Engine::~Engine() {
-    if (callback_id_) {
-        unregister_callbacks_();
-
-        dear.reset();
-        window.reset();
-
-        sdl3::exit();
-    }
-}
-
-astra::Engine::Engine(Engine &&other) noexcept
-    : window(std::move(other.window)),
-      dear(std::move(other.dear)) {
-    other.unregister_callbacks_();
-    register_callbacks_();
-}
-
-astra::Engine &astra::Engine::operator=(Engine &&other) noexcept {
-    if (this != &other) {
-        window = std::move(other.window);
-        dear = std::move(other.dear);
-
-        unregister_callbacks_();
-        other.unregister_callbacks_();
-        register_callbacks_();
-    }
-    return *this;
+    unregister_callbacks_();
+    dear.reset();
+    window.reset();
+    sdl3::exit();
 }
 
 void astra::Engine::shutdown() {
@@ -141,10 +109,8 @@ void astra::Engine::draw_debug_overlay_() {
 
         const auto max_fps = std::ranges::max_element(fps_history);
         std::string max_fps_text;
-        if (max_fps != fps_history.end())
-            max_fps_text = fmt::format("MAX: {:.0f}", *max_fps);
-        else
-            max_fps_text = "MAX: -";
+        if (max_fps != fps_history.end()) max_fps_text = fmt::format("MAX: {:.0f}", *max_fps);
+        else max_fps_text = "MAX: -";
         max_w = std::max(max_w, text_with_bg(draw_list, pos, rgb(0x000000), rgb(0xffffff), 255, max_fps_text.c_str()));
         pos.y += lh;
 
@@ -154,10 +120,8 @@ void astra::Engine::draw_debug_overlay_() {
 
         const auto min_fps = std::ranges::min_element(fps_history);
         std::string min_fps_text;
-        if (min_fps != fps_history.end())
-            min_fps_text = fmt::format("MIN: {:.0f}", *min_fps);
-        else
-            min_fps_text = "MIN: -";
+        if (min_fps != fps_history.end()) min_fps_text = fmt::format("MIN: {:.0f}", *min_fps);
+        else min_fps_text = "MIN: -";
         max_w = std::max(max_w, text_with_bg(draw_list, pos, rgb(0x000000), rgb(0xffffff), 255, min_fps_text.c_str()));
         pos.y += lh;
 
@@ -247,10 +211,8 @@ void astra::Engine::register_callbacks_() {
     Messenger::instance().subscribe<sdl3::QuitEvent>(*callback_id_, [this](auto) { shutdown(); });
 
     Messenger::instance().subscribe<PreUpdate>(*callback_id_, [this](const auto *p) {
-        for (auto &[level, text, acc]: log_flyouts_)
-            acc -= p->dt;
-        while (!log_flyouts_.empty() && log_flyouts_.back().acc <= 0)
-            log_flyouts_.pop_back();
+        for (auto &[level, text, acc]: log_flyouts_) acc -= p->dt;
+        while (!log_flyouts_.empty() && log_flyouts_.back().acc <= 0) log_flyouts_.pop_back();
     });
 
     Messenger::instance().subscribe<LogMessage>(*callback_id_, [this](const auto *p) {

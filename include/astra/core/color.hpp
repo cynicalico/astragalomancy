@@ -148,8 +148,7 @@ struct fmt::formatter<astra::RGB> {
             }
         }
 
-        if (it != ctx.end() && *it != '}')
-            throw format_error("invalid format specifier");
+        if (it != ctx.end() && *it != '}') throw format_error("invalid format specifier");
 
         return it;
     }
@@ -190,8 +189,7 @@ struct fmt::formatter<astra::HSL> {
             }
         }
 
-        if (it != ctx.end() && *it != '}')
-            throw format_error("invalid format specifier");
+        if (it != ctx.end() && *it != '}') throw format_error("invalid format specifier");
 
         return it;
     }
@@ -226,8 +224,7 @@ struct fmt::formatter<astra::HSV> {
             }
         }
 
-        if (it != ctx.end() && *it != '}')
-            throw format_error("invalid format specifier");
+        if (it != ctx.end() && *it != '}') throw format_error("invalid format specifier");
 
         return it;
     }

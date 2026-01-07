@@ -13,7 +13,7 @@
 #include <memory>
 
 namespace astra {
-std::shared_ptr<spdlog::sinks::dist_sink_mt> sinks();
+std::shared_ptr<spdlog::sinks::dist_sink_mt> logger_sinks();
 
 std::shared_ptr<spdlog::logger> logger();
 } // namespace astra

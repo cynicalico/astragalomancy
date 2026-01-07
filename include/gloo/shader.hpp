@@ -128,12 +128,9 @@ struct fmt::formatter<gloo::ShaderType> : formatter<std::string_view> {
     template<typename FormatContext>
     auto format(gloo::ShaderType type, FormatContext &ctx) const {
         switch (type) {
-        case gloo::ShaderType::Vertex:
-            return formatter<std::string_view>::format("vertex", ctx);
-        case gloo::ShaderType::Fragment:
-            return formatter<std::string_view>::format("fragment", ctx);
-        default:
-            std::unreachable();
+        case gloo::ShaderType::Vertex: return formatter<std::string_view>::format("vertex", ctx);
+        case gloo::ShaderType::Fragment: return formatter<std::string_view>::format("fragment", ctx);
+        default: std::unreachable();
         }
     }
 };

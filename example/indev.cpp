@@ -7,7 +7,7 @@
 
 struct Vertex {
     glm::vec3 pos;
-    glm::vec4 circle;
+    glm::vec4 color;
 };
 
 class Indev final : public astra::Application {
@@ -54,14 +54,20 @@ Indev::Indev(astra::Engine *engine)
                      .add_stage_path(gloo::ShaderType::Vertex, "assets/shader/sdf_circle.vert")
                      .add_stage_path(gloo::ShaderType::Fragment, "assets/shader/sdf_circle.frag")
                      .build();
+    if (!shader) throw std::runtime_error("Failed to build shader");
 
     vbo = std::make_unique<gloo::Buffer<Vertex>>(6);
 
     const auto pos_loc = shader->try_get_attrib_location("in_pos");
     const auto circle_loc = shader->try_get_attrib_location("in_circle");
     vao = gloo::VertexArrayBuilder()
-                  .attrib(*pos_loc, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, pos), 0)
-                  .attrib(*circle_loc, 4, GL_FLOAT, GL_FALSE, offsetof(Vertex, circle), 0)
+                  .attrib(*pos_loc, decltype(Vertex::pos)::length(), GL_FLOAT, GL_FALSE, offsetof(Vertex, pos), 0)
+                  .attrib(*circle_loc,
+                          decltype(Vertex::color)::length(),
+                          GL_FLOAT,
+                          GL_FALSE,
+                          offsetof(Vertex, color),
+                          0)
                   .build();
 }
 
@@ -117,29 +123,22 @@ void Indev::draw() {
 
 void Indev::keyboard_event_callback_(const sdl3::KeyboardEvent *e) {
     switch (e->type) {
-    case sdl3::KeyboardEventType::Down:
-        break;
+    case sdl3::KeyboardEventType::Down: break;
     case sdl3::KeyboardEventType::Up:
         switch (e->key) {
-        case SDLK_ESCAPE:
-            engine->shutdown();
-            break;
+        case SDLK_ESCAPE: engine->shutdown(); break;
         default:;
         }
         break;
-    default:
-        std::unreachable();
+    default: std::unreachable();
     }
 }
 
 void Indev::mouse_event_callback_(const sdl3::MouseButtonEvent *e) {
     switch (e->type) {
-    case sdl3::MouseButtonEventType::Down:
-        break;
-    case sdl3::MouseButtonEventType::Up:
-        break;
-    default:
-        std::unreachable();
+    case sdl3::MouseButtonEventType::Down: break;
+    case sdl3::MouseButtonEventType::Up: break;
+    default: std::unreachable();
     }
 }
 
@@ -154,7 +153,15 @@ int main(int, char *[]) {
             .type = sdl3::AppType::Game,
     };
 
-    astra::Engine(app_info, {1280, 720}, [](sdl3::WindowBuilder &window_builder) {
-        window_builder.icon("assets/icon/png");
-    }).mainloop<Indev>();
+    try {
+        auto engine = astra::Engine(app_info, [&] {
+            return std::move(sdl3::WindowBuilder(app_info.name).fullscreen().icon("assets/icon/png"));
+        });
+        engine.mainloop<Indev>();
+    } catch (const std::exception &e) {
+        fmt::println(stderr, "Exception: {}", e);
+        return 1;
+    }
+
+    return 0;
 }

@@ -22,8 +22,7 @@ bool astra::TimerMgr::EveryTimer::fire() {
     callback();
     if (count) {
         count = count.transform([](auto c) { return c > 0 ? c - 1 : c; });
-        if (*count == 0)
-            return false;
+        if (*count == 0) return false;
     }
     return true;
 }
@@ -47,8 +46,7 @@ bool astra::TimerMgr::UntilTimer::fire() {
     bool should_continue = callback();
     if (count) {
         count = count.transform([](auto c) { return c > 0 ? c - 1 : c; });
-        if (*count == 0)
-            return false;
+        if (*count == 0) return false;
     }
     return should_continue;
 }
@@ -81,8 +79,7 @@ bool astra::TimerMgr::DuringTimer::update(double dt) {
 bool astra::TimerMgr::DuringTimer::fire() {
     callback();
     if (acc <= 0.0) {
-        if (after_callback)
-            after_callback();
+        if (after_callback) after_callback();
         return false;
     }
     return true;
@@ -93,8 +90,7 @@ astra::TimerMgr::TimerMgr() {
 }
 
 astra::TimerMgr::~TimerMgr() {
-    if (callback_id_)
-        unregister_callbacks_();
+    if (callback_id_) unregister_callbacks_();
 }
 
 astra::TimerMgr::TimerMgr(TimerMgr &&other) noexcept {
@@ -112,8 +108,7 @@ astra::TimerMgr &astra::TimerMgr::operator=(TimerMgr &&other) noexcept {
 }
 
 void astra::TimerMgr::cancel(const std::string &id) {
-    if (auto it = timers_.find(id); it != timers_.end())
-        timers_.erase(it);
+    if (auto it = timers_.find(id); it != timers_.end()) timers_.erase(it);
 }
 
 void astra::TimerMgr::clear() {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/payloads.hpp"
+#include "astra/core/messenger.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -50,56 +50,35 @@ template<>
 struct fmt::formatter<sdl3::WindowEventType> : formatter<std::string_view> {
     auto format(const sdl3::WindowEventType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::WindowEventType::Shown:
-            return formatter<std::string_view>::format("Shown", ctx);
-        case sdl3::WindowEventType::Hidden:
-            return formatter<std::string_view>::format("Hidden", ctx);
-        case sdl3::WindowEventType::Exposed:
-            return formatter<std::string_view>::format("Exposed", ctx);
-        case sdl3::WindowEventType::Moved:
-            return formatter<std::string_view>::format("Moved", ctx);
-        case sdl3::WindowEventType::Resized:
-            return formatter<std::string_view>::format("Resized", ctx);
+        case sdl3::WindowEventType::Shown: return formatter<std::string_view>::format("Shown", ctx);
+        case sdl3::WindowEventType::Hidden: return formatter<std::string_view>::format("Hidden", ctx);
+        case sdl3::WindowEventType::Exposed: return formatter<std::string_view>::format("Exposed", ctx);
+        case sdl3::WindowEventType::Moved: return formatter<std::string_view>::format("Moved", ctx);
+        case sdl3::WindowEventType::Resized: return formatter<std::string_view>::format("Resized", ctx);
         case sdl3::WindowEventType::PixelSizeChanged:
             return formatter<std::string_view>::format("PixelSizeChanged", ctx);
         case sdl3::WindowEventType::MetalViewResized:
             return formatter<std::string_view>::format("MetalViewResized", ctx);
-        case sdl3::WindowEventType::Minimized:
-            return formatter<std::string_view>::format("Minimized", ctx);
-        case sdl3::WindowEventType::Maximized:
-            return formatter<std::string_view>::format("Maximized", ctx);
-        case sdl3::WindowEventType::Restored:
-            return formatter<std::string_view>::format("Restored", ctx);
-        case sdl3::WindowEventType::MouseEnter:
-            return formatter<std::string_view>::format("MouseEnter", ctx);
-        case sdl3::WindowEventType::MouseLeave:
-            return formatter<std::string_view>::format("MouseLeave", ctx);
-        case sdl3::WindowEventType::FocusGained:
-            return formatter<std::string_view>::format("FocusGained", ctx);
-        case sdl3::WindowEventType::FocusLost:
-            return formatter<std::string_view>::format("FocusLost", ctx);
-        case sdl3::WindowEventType::CloseRequested:
-            return formatter<std::string_view>::format("CloseRequested", ctx);
-        case sdl3::WindowEventType::HitTest:
-            return formatter<std::string_view>::format("HitTest", ctx);
+        case sdl3::WindowEventType::Minimized: return formatter<std::string_view>::format("Minimized", ctx);
+        case sdl3::WindowEventType::Maximized: return formatter<std::string_view>::format("Maximized", ctx);
+        case sdl3::WindowEventType::Restored: return formatter<std::string_view>::format("Restored", ctx);
+        case sdl3::WindowEventType::MouseEnter: return formatter<std::string_view>::format("MouseEnter", ctx);
+        case sdl3::WindowEventType::MouseLeave: return formatter<std::string_view>::format("MouseLeave", ctx);
+        case sdl3::WindowEventType::FocusGained: return formatter<std::string_view>::format("FocusGained", ctx);
+        case sdl3::WindowEventType::FocusLost: return formatter<std::string_view>::format("FocusLost", ctx);
+        case sdl3::WindowEventType::CloseRequested: return formatter<std::string_view>::format("CloseRequested", ctx);
+        case sdl3::WindowEventType::HitTest: return formatter<std::string_view>::format("HitTest", ctx);
         case sdl3::WindowEventType::IccProfileChanged:
             return formatter<std::string_view>::format("IccProfileChanged", ctx);
-        case sdl3::WindowEventType::DisplayChanged:
-            return formatter<std::string_view>::format("DisplayChanged", ctx);
+        case sdl3::WindowEventType::DisplayChanged: return formatter<std::string_view>::format("DisplayChanged", ctx);
         case sdl3::WindowEventType::DisplayScaleChanged:
             return formatter<std::string_view>::format("DisplayScaleChanged", ctx);
-        case sdl3::WindowEventType::SafeAreaChanged:
-            return formatter<std::string_view>::format("SafeAreaChanged", ctx);
-        case sdl3::WindowEventType::OccludedChanged:
-            return formatter<std::string_view>::format("OccludedChanged", ctx);
-        case sdl3::WindowEventType::EnterFullscreen:
-            return formatter<std::string_view>::format("EnterFullscreen", ctx);
-        case sdl3::WindowEventType::LeaveFullscreen:
-            return formatter<std::string_view>::format("LeaveFullscreen", ctx);
-        case sdl3::WindowEventType::Destroyed:
-            return formatter<std::string_view>::format("Destroyed", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::WindowEventType::SafeAreaChanged: return formatter<std::string_view>::format("SafeAreaChanged", ctx);
+        case sdl3::WindowEventType::OccludedChanged: return formatter<std::string_view>::format("OccludedChanged", ctx);
+        case sdl3::WindowEventType::EnterFullscreen: return formatter<std::string_view>::format("EnterFullscreen", ctx);
+        case sdl3::WindowEventType::LeaveFullscreen: return formatter<std::string_view>::format("LeaveFullscreen", ctx);
+        case sdl3::WindowEventType::Destroyed: return formatter<std::string_view>::format("Destroyed", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };

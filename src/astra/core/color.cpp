@@ -166,14 +166,10 @@ astra::HSL::HSL(const RGB &rgb)
     const auto x_min = std::min(rgb_f.r, std::min(rgb_f.g, rgb_f.b));
     const auto delta = x_max - x_min;
 
-    if (delta == 0.0f)
-        h = 0.0f;
-    else if (x_max == rgb_f.r)
-        h = 60.0f * std::fmodf((rgb_f.g - rgb_f.b) / delta, 6.0f);
-    else if (x_max == rgb_f.g)
-        h = 60.0f * ((rgb_f.b - rgb_f.r) / delta + 2.0f);
-    else
-        h = 60.0f * ((rgb_f.r - rgb_f.g) / delta + 4.0f);
+    if (delta == 0.0f) h = 0.0f;
+    else if (x_max == rgb_f.r) h = 60.0f * std::fmodf((rgb_f.g - rgb_f.b) / delta, 6.0f);
+    else if (x_max == rgb_f.g) h = 60.0f * ((rgb_f.b - rgb_f.r) / delta + 2.0f);
+    else h = 60.0f * ((rgb_f.r - rgb_f.g) / delta + 4.0f);
 
     l = (x_max + x_min) / 2.0f;
 
@@ -227,14 +223,10 @@ astra::HSV::HSV(const RGB &rgb)
     const auto x_min = std::min(rgb_f.r, std::min(rgb_f.g, rgb_f.b));
     const auto delta = x_max - x_min;
 
-    if (delta == 0.0f)
-        h = 0.0f;
-    else if (x_max == rgb_f.r)
-        h = 60.0f * std::fmodf((rgb_f.g - rgb_f.b) / delta, 6.0f);
-    else if (x_max == rgb_f.g)
-        h = 60.0f * ((rgb_f.b - rgb_f.r) / delta + 2.0f);
-    else
-        h = 60.0f * ((rgb_f.r - rgb_f.g) / delta + 4.0f);
+    if (delta == 0.0f) h = 0.0f;
+    else if (x_max == rgb_f.r) h = 60.0f * std::fmodf((rgb_f.g - rgb_f.b) / delta, 6.0f);
+    else if (x_max == rgb_f.g) h = 60.0f * ((rgb_f.b - rgb_f.r) / delta + 2.0f);
+    else h = 60.0f * ((rgb_f.r - rgb_f.g) / delta + 4.0f);
 
     s = x_max == 0.0f ? 0.0f : delta / x_max;
 

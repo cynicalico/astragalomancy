@@ -1,6 +1,7 @@
 #pragma once
 
-#include "astra/core/payloads.hpp"
+#include "astra/core/messenger.hpp"
+
 #include "sdl3_raii/keycode.hpp"
 #include "sdl3_raii/scancode.hpp"
 
@@ -46,12 +47,9 @@ template<>
 struct fmt::formatter<sdl3::KeyboardDeviceEventType> : formatter<std::string_view> {
     auto format(const sdl3::KeyboardDeviceEventType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::KeyboardDeviceEventType::Added:
-            return formatter<std::string_view>::format("Added", ctx);
-        case sdl3::KeyboardDeviceEventType::Removed:
-            return formatter<std::string_view>::format("Removed", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::KeyboardDeviceEventType::Added: return formatter<std::string_view>::format("Added", ctx);
+        case sdl3::KeyboardDeviceEventType::Removed: return formatter<std::string_view>::format("Removed", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };
@@ -68,12 +66,9 @@ template<>
 struct fmt::formatter<sdl3::KeyboardEventType> : formatter<std::string_view> {
     auto format(const sdl3::KeyboardEventType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::KeyboardEventType::Down:
-            return formatter<std::string_view>::format("Down", ctx);
-        case sdl3::KeyboardEventType::Up:
-            return formatter<std::string_view>::format("Up", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::KeyboardEventType::Down: return formatter<std::string_view>::format("Down", ctx);
+        case sdl3::KeyboardEventType::Up: return formatter<std::string_view>::format("Up", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };

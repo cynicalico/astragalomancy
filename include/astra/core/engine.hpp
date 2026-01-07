@@ -4,6 +4,7 @@
 #include "astra/core/payloads.hpp"
 #include "astra/util/module/dear.hpp"
 #include "astra/util/time.hpp"
+
 #include "sdl3_raii/init.hpp"
 #include "sdl3_raii/window.hpp"
 
@@ -37,21 +38,18 @@ public:
 
     FrameCounter frame_counter;
 
-    Engine(const sdl3::AppInfo &app_info,
-           glm::ivec2 window_size,
-           const std::function<void(sdl3::WindowBuilder &)> &window_build_f);
-
+    Engine(const sdl3::AppInfo &app_info, const std::function<sdl3::WindowBuilder()> &window_builder_f);
     ~Engine();
 
     Engine(const Engine &other) = delete;
     Engine &operator=(const Engine &other) = delete;
 
-    Engine(Engine &&other) noexcept;
-    Engine &operator=(Engine &&other) noexcept;
+    Engine(Engine &&other) = delete;
+    Engine &operator=(Engine &&other) = delete;
 
-    template<typename T>
+    template<typename T, typename... Args>
         requires std::derived_from<T, Application>
-    void mainloop();
+    void mainloop(Args &&...args);
 
     void shutdown();
 
@@ -73,10 +71,10 @@ private:
     void unregister_callbacks_();
 };
 
-template<typename T>
+template<typename T, typename... Args>
     requires std::derived_from<T, Application>
-void Engine::mainloop() {
-    auto app = T(this);
+void Engine::mainloop(Args &&...args) {
+    auto app = T(this, std::forward<Args>(args)...);
 
     Messenger::instance().subscribe<Update>(*callback_id_, [&app](const Update *p) { app.update(p->dt); });
     Messenger::instance().subscribe<Draw>(*callback_id_, [&app](const Draw *) { app.draw(); });

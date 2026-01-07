@@ -24,8 +24,7 @@ using ap_int = boost::multiprecision::cpp_int;
 template<typename T, uint64_t N>
 constexpr T constant(const char (&s)[N]) {
     auto i = static_cast<T>(0);
-    for (int64_t j = 0; j < N - 1; ++j)
-        i = i * 10 + s[j] - '0';
+    for (int64_t j = 0; j < N - 1; ++j) i = i * 10 + s[j] - '0';
     return i;
 }
 
@@ -146,17 +145,14 @@ struct fmt::formatter<T> {
                 uppercase = true;
                 break;
             default:
-                if (*it != '}')
-                    throw format_error("invalid format");
+                if (*it != '}') throw format_error("invalid format");
                 --it; // Step back since we'll increment at the end
                 break;
             }
-            if (*it != '}')
-                ++it;
+            if (*it != '}') ++it;
         }
 
-        if (it != ctx.end() && *it != '}')
-            throw format_error("invalid format");
+        if (it != ctx.end() && *it != '}') throw format_error("invalid format");
         return it;
     }
 
@@ -165,28 +161,23 @@ struct fmt::formatter<T> {
 
         if (arg_id >= 0) {
             ctx.arg(arg_id).visit([&actual_width](auto arg) {
-                if constexpr (std::is_integral_v<std::decay_t<decltype(arg)>>)
-                    actual_width = static_cast<int>(arg);
-                else
-                    throw format_error("invalid format");
+                if constexpr (std::is_integral_v<std::decay_t<decltype(arg)>>) actual_width = static_cast<int>(arg);
+                else throw format_error("invalid format");
             });
         }
 
         std::ostringstream oss;
         switch (type) {
         case presentation_type::hex:
-            if (alternative)
-                oss << (uppercase ? "0X" : "0x");
+            if (alternative) oss << (uppercase ? "0X" : "0x");
             oss << std::hex << (uppercase ? std::uppercase : std::nouppercase) << value;
             break;
         case presentation_type::oct:
-            if (alternative)
-                oss << "0o";
+            if (alternative) oss << "0o";
             oss << std::oct << value;
             break;
         case presentation_type::bin:
-            if (alternative)
-                oss << (uppercase ? "0B" : "0b");
+            if (alternative) oss << (uppercase ? "0B" : "0b");
             oss << format_binary(value);
             break;
         default:
@@ -195,16 +186,14 @@ struct fmt::formatter<T> {
 
         std::string result = oss.str();
         result = apply_sign(result, value);
-        if (actual_width > 0)
-            result = apply_alignment_with_width(result, actual_width);
+        if (actual_width > 0) result = apply_alignment_with_width(result, actual_width);
 
         return fmt::format_to(ctx.out(), "{}", result);
     }
 
 private:
     std::string format_binary(const T &value) const {
-        if (value == 0)
-            return "0";
+        if (value == 0) return "0";
 
         std::string binary;
         T n = abs(value);
@@ -212,8 +201,7 @@ private:
             binary += "01"[static_cast<std::size_t>(n % 2)];
             n /= 2;
         }
-        if (value < 0)
-            binary += '-';
+        if (value < 0) binary += '-';
 
         std::ranges::reverse(binary);
         return binary;
@@ -222,12 +210,10 @@ private:
     std::string apply_sign(const std::string &str, const T &value) const {
         switch (sign_option) {
         case sign::plus:
-            if (value >= 0 && !str.starts_with('+') && !str.starts_with('-'))
-                return '+' + str;
+            if (value >= 0 && !str.starts_with('+') && !str.starts_with('-')) return '+' + str;
             return str;
         case sign::space:
-            if (value >= 0 && !str.starts_with('+') && !str.starts_with('-'))
-                return ' ' + str;
+            if (value >= 0 && !str.starts_with('+') && !str.starts_with('-')) return ' ' + str;
             return str;
         case sign::minus:
         case sign::none: return str;
@@ -236,16 +222,14 @@ private:
     }
 
     std::string apply_alignment_with_width(const std::string &str, int actual_width) const {
-        if (actual_width <= static_cast<int>(str.length()))
-            return str;
+        if (actual_width <= static_cast<int>(str.length())) return str;
 
         const int padding = actual_width - static_cast<int>(str.length());
 
         if (zero_padding && align_option == align::none) {
             size_t insert_pos = 0;
 
-            if (!str.empty() && (str[0] == '+' || str[0] == '-' || str[0] == ' '))
-                insert_pos = 1;
+            if (!str.empty() && (str[0] == '+' || str[0] == '-' || str[0] == ' ')) insert_pos = 1;
 
             if (alternative && str.length() > insert_pos + 1) {
                 if (str.substr(insert_pos, 2) == "0x" || str.substr(insert_pos, 2) == "0X" ||

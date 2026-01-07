@@ -1,5 +1,7 @@
 #pragma once
 
+#include "astra/util/constexpr_hash.hpp"
+
 #include <cstdint>
 #include <functional>
 #include <optional>
@@ -7,6 +9,8 @@
 #include <span>
 #include <unordered_map>
 #include <vector>
+
+#define ASTRA_TAG_MEMBER(name) constexpr static std::uint32_t ASTRA_MESSENGER_TAG{astra::murmur_x86_32(#name, 0)};
 
 namespace astra {
 template<typename T>
@@ -62,8 +66,7 @@ inline astra::Messenger &astra::Messenger::instance() {
 }
 
 inline astra::Messenger::ID astra::Messenger::get_id() {
-    if (recycled_ids_.empty())
-        return next_id_++;
+    if (recycled_ids_.empty()) return next_id_++;
 
     const auto id = recycled_ids_.back();
     recycled_ids_.pop_back();
@@ -72,12 +75,10 @@ inline astra::Messenger::ID astra::Messenger::get_id() {
 
 inline void astra::Messenger::release_id(const ID id) {
     for (auto &receivers: receivers_ | std::views::values)
-        if (receivers.size() > id)
-            receivers[id] = nullptr;
+        if (receivers.size() > id) receivers[id] = nullptr;
 
     for (auto &capture: captures_ | std::views::values)
-        if (capture && *capture == id)
-            capture.reset();
+        if (capture && *capture == id) capture.reset();
 
     recycled_ids_.push_back(id);
 }
@@ -86,8 +87,7 @@ template<typename T, typename Func>
     requires astra::HasAstraTag<T> and std::invocable<Func, const T *>
 void astra::Messenger::subscribe(ID id, Func &&f) {
     auto &receivers = receivers_[T::ASTRA_MESSENGER_TAG];
-    if (receivers.size() <= id)
-        receivers.resize(id + 1);
+    if (receivers.size() <= id) receivers.resize(id + 1);
     receivers[id] = [f = std::forward<Func>(f)](const Payload buffer) {
         f(reinterpret_cast<const T *>(buffer.data()));
     };
@@ -97,8 +97,7 @@ template<typename T>
     requires astra::HasAstraTag<T>
 void astra::Messenger::unsubscribe(ID id) {
     auto &receivers = receivers_[T::ASTRA_MESSENGER_TAG];
-    if (receivers.size() > id)
-        receivers[id] = nullptr;
+    if (receivers.size() > id) receivers[id] = nullptr;
 }
 
 template<typename T, typename... Args>
@@ -107,13 +106,11 @@ void astra::Messenger::publish(Args &&...args) {
     const auto payload = make_payload_<T>(std::forward<Args>(args)...);
     if (auto cap_id_opt = captures_[T::ASTRA_MESSENGER_TAG]; cap_id_opt) {
         if (receivers_[T::ASTRA_MESSENGER_TAG].size() > *cap_id_opt) {
-            if (auto &r = receivers_[T::ASTRA_MESSENGER_TAG][*cap_id_opt]; r)
-                r(payload);
+            if (auto &r = receivers_[T::ASTRA_MESSENGER_TAG][*cap_id_opt]; r) r(payload);
         }
     } else {
         for (auto &r: receivers_[T::ASTRA_MESSENGER_TAG])
-            if (r)
-                r(payload);
+            if (r) r(payload);
     }
     operator delete(payload.data(), payload.size());
 }

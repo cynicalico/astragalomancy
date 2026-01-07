@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/payloads.hpp"
+#include "astra/core/messenger.hpp"
 #include "astra/util/enum_class_helpers.hpp"
 
 #include <SDL3/SDL_events.h>
@@ -86,12 +86,9 @@ template<>
 struct fmt::formatter<sdl3::MouseButtonEventType> : formatter<std::string_view> {
     auto format(const sdl3::MouseButtonEventType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::MouseButtonEventType::Down:
-            return formatter<std::string_view>::format("Down", ctx);
-        case sdl3::MouseButtonEventType::Up:
-            return formatter<std::string_view>::format("Up", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::MouseButtonEventType::Down: return formatter<std::string_view>::format("Down", ctx);
+        case sdl3::MouseButtonEventType::Up: return formatter<std::string_view>::format("Up", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };
@@ -100,18 +97,12 @@ template<>
 struct fmt::formatter<sdl3::MouseButtonFlags> : formatter<std::string_view> {
     auto format(const sdl3::MouseButtonFlags &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::MouseButtonFlags::Left:
-            return formatter<std::string_view>::format("Left", ctx);
-        case sdl3::MouseButtonFlags::Middle:
-            return formatter<std::string_view>::format("Middle", ctx);
-        case sdl3::MouseButtonFlags::Right:
-            return formatter<std::string_view>::format("Right", ctx);
-        case sdl3::MouseButtonFlags::X1:
-            return formatter<std::string_view>::format("X1", ctx);
-        case sdl3::MouseButtonFlags::X2:
-            return formatter<std::string_view>::format("X2", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::MouseButtonFlags::Left: return formatter<std::string_view>::format("Left", ctx);
+        case sdl3::MouseButtonFlags::Middle: return formatter<std::string_view>::format("Middle", ctx);
+        case sdl3::MouseButtonFlags::Right: return formatter<std::string_view>::format("Right", ctx);
+        case sdl3::MouseButtonFlags::X1: return formatter<std::string_view>::format("X1", ctx);
+        case sdl3::MouseButtonFlags::X2: return formatter<std::string_view>::format("X2", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };
@@ -140,12 +131,9 @@ template<>
 struct fmt::formatter<sdl3::MouseDeviceEventType> : formatter<std::string_view> {
     auto format(const sdl3::MouseDeviceEventType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::MouseDeviceEventType::Added:
-            return formatter<std::string_view>::format("Added", ctx);
-        case sdl3::MouseDeviceEventType::Removed:
-            return formatter<std::string_view>::format("Removed", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::MouseDeviceEventType::Added: return formatter<std::string_view>::format("Added", ctx);
+        case sdl3::MouseDeviceEventType::Removed: return formatter<std::string_view>::format("Removed", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };
@@ -178,12 +166,9 @@ template<>
 struct fmt::formatter<sdl3::MouseWheelDirection> : formatter<std::string_view> {
     auto format(const sdl3::MouseWheelDirection &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::MouseWheelDirection::Normal:
-            return formatter<std::string_view>::format("Normal", ctx);
-        case sdl3::MouseWheelDirection::Flipped:
-            return formatter<std::string_view>::format("Flipped", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::MouseWheelDirection::Normal: return formatter<std::string_view>::format("Normal", ctx);
+        case sdl3::MouseWheelDirection::Flipped: return formatter<std::string_view>::format("Flipped", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };

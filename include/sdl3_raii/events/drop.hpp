@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/payloads.hpp"
+#include "astra/core/messenger.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -35,18 +35,12 @@ template<>
 struct fmt::formatter<sdl3::DropEventType> : formatter<std::string_view> {
     auto format(const sdl3::DropEventType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::DropEventType::File:
-            return formatter<std::string_view>::format("File", ctx);
-        case sdl3::DropEventType::Text:
-            return formatter<std::string_view>::format("Text", ctx);
-        case sdl3::DropEventType::Begin:
-            return formatter<std::string_view>::format("Begin", ctx);
-        case sdl3::DropEventType::Complete:
-            return formatter<std::string_view>::format("Complete", ctx);
-        case sdl3::DropEventType::Position:
-            return formatter<std::string_view>::format("Position", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::DropEventType::File: return formatter<std::string_view>::format("File", ctx);
+        case sdl3::DropEventType::Text: return formatter<std::string_view>::format("Text", ctx);
+        case sdl3::DropEventType::Begin: return formatter<std::string_view>::format("Begin", ctx);
+        case sdl3::DropEventType::Complete: return formatter<std::string_view>::format("Complete", ctx);
+        case sdl3::DropEventType::Position: return formatter<std::string_view>::format("Position", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };

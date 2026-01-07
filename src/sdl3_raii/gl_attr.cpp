@@ -283,8 +283,7 @@ void sdl3::GlAttr::set_accum_alpha_bits(int min_size) {
 }
 
 void sdl3::GlAttr::set_stereo_3d(bool v) {
-    if (!SDL_GL_SetAttribute(SDL_GL_STEREO, v ? 1 : 0))
-        ASTRA_LOG_ERROR("Failed to set stereo 3D: {}", SDL_GetError());
+    if (!SDL_GL_SetAttribute(SDL_GL_STEREO, v ? 1 : 0)) ASTRA_LOG_ERROR("Failed to set stereo 3D: {}", SDL_GetError());
 }
 
 void sdl3::GlAttr::set_multisample_buffers(int buffer_count) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/payloads.hpp"
+#include "astra/core/messenger.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -35,16 +35,11 @@ template<>
 struct fmt::formatter<sdl3::TouchFingerEventType> : formatter<std::string_view> {
     auto format(const sdl3::TouchFingerEventType &e, format_context &ctx) const {
         switch (e) {
-        case sdl3::TouchFingerEventType::Down:
-            return formatter<std::string_view>::format("Down", ctx);
-        case sdl3::TouchFingerEventType::Up:
-            return formatter<std::string_view>::format("Up", ctx);
-        case sdl3::TouchFingerEventType::Motion:
-            return formatter<std::string_view>::format("Motion", ctx);
-        case sdl3::TouchFingerEventType::Canceled:
-            return formatter<std::string_view>::format("Canceled", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::TouchFingerEventType::Down: return formatter<std::string_view>::format("Down", ctx);
+        case sdl3::TouchFingerEventType::Up: return formatter<std::string_view>::format("Up", ctx);
+        case sdl3::TouchFingerEventType::Motion: return formatter<std::string_view>::format("Motion", ctx);
+        case sdl3::TouchFingerEventType::Canceled: return formatter<std::string_view>::format("Canceled", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };

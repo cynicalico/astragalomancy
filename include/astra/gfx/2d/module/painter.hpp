@@ -2,6 +2,7 @@
 
 #include "astra/core/color.hpp"
 #include "astra/core/messenger.hpp"
+
 #include "sdl3_raii/window.hpp"
 
 namespace astra {

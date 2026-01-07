@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/payloads.hpp"
+#include "astra/core/messenger.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -28,14 +28,10 @@ template<>
 struct fmt::formatter<sdl3::AudioEventType> : formatter<std::string_view> {
     auto format(const sdl3::AudioEventType e, format_context &ctx) const {
         switch (e) {
-        case sdl3::AudioEventType::Added:
-            return formatter<std::string_view>::format("Added", ctx);
-        case sdl3::AudioEventType::Removed:
-            return formatter<std::string_view>::format("Removed", ctx);
-        case sdl3::AudioEventType::FormatChanged:
-            return formatter<std::string_view>::format("FormatChanged", ctx);
-        default:
-            return formatter<std::string_view>::format("Unknown", ctx);
+        case sdl3::AudioEventType::Added: return formatter<std::string_view>::format("Added", ctx);
+        case sdl3::AudioEventType::Removed: return formatter<std::string_view>::format("Removed", ctx);
+        case sdl3::AudioEventType::FormatChanged: return formatter<std::string_view>::format("FormatChanged", ctx);
+        default: return formatter<std::string_view>::format("Unknown", ctx);
         }
     }
 };

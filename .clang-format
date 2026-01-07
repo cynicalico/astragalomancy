@@ -3,12 +3,12 @@ BasedOnStyle: clang-format
 AccessModifierOffset: -4
 AllowShortCaseExpressionOnASingleLine: true
 AllowShortBlocksOnASingleLine: Always
-#AllowShortCaseLabelsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortCompoundRequirementOnASingleLine: true
 AllowShortEnumsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Inline
-#AllowShortIfStatementsOnASingleLine: AllIfsAndElse
-#AllowShortLoopsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
+AllowShortLoopsOnASingleLine: true
 AllowShortLambdasOnASingleLine: Inline
 AlignAfterOpenBracket: AlwaysBreak
 AlignConsecutiveAssignments: false

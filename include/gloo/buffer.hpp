@@ -96,12 +96,9 @@ void gloo::Buffer<T>::clear() {
 template<typename T>
 bool gloo::Buffer<T>::has_capacity(std::size_t count) const {
     switch (fill_direction_) {
-    case BufferFillDirection::Forward:
-        return data_pos_ + count <= data_.size();
-    case BufferFillDirection::Backward:
-        return data_pos_ >= count;
-    default:
-        std::unreachable();
+    case BufferFillDirection::Forward: return data_pos_ + count <= data_.size();
+    case BufferFillDirection::Backward: return data_pos_ >= count;
+    default: std::unreachable();
     }
 }
 
@@ -109,26 +106,22 @@ template<typename T>
 bool gloo::Buffer<T>::add(const std::vector<T> &data) {
     switch (fill_direction_) {
     case BufferFillDirection::Forward:
-        if (!has_capacity(data.size()))
-            return false;
+        if (!has_capacity(data.size())) return false;
         std::copy(data.begin(), data.end(), data_.begin() + data_pos_);
         data_pos_ += data.size();
         return true;
     case BufferFillDirection::Backward:
-        if (!has_capacity(data.size()))
-            return false;
+        if (!has_capacity(data.size())) return false;
         data_pos_ -= data.size();
         std::copy(data.begin(), data.end(), data_.begin() + data_pos_);
         return true;
-    default:
-        std::unreachable();
+    default: std::unreachable();
     }
 }
 
 template<typename T>
 void gloo::Buffer<T>::sync() {
-    if (buf_pos_ == data_pos_)
-        return;
+    if (buf_pos_ == data_pos_) return;
 
     switch (fill_direction_) {
     case BufferFillDirection::Forward:
@@ -137,8 +130,7 @@ void gloo::Buffer<T>::sync() {
     case BufferFillDirection::Backward:
         glNamedBufferSubData(id, data_pos_ * sizeof(T), (buf_pos_ - data_pos_) * sizeof(T), data_.data() + data_pos_);
         break;
-    default:
-        std::unreachable();
+    default: std::unreachable();
     }
     buf_pos_ = data_pos_;
 }
@@ -146,24 +138,18 @@ void gloo::Buffer<T>::sync() {
 template<typename T>
 GLintptr gloo::Buffer<T>::front() const {
     switch (fill_direction_) {
-    case BufferFillDirection::Forward:
-        return 0;
-    case BufferFillDirection::Backward:
-        return buf_pos_;
-    default:
-        std::unreachable();
+    case BufferFillDirection::Forward: return 0;
+    case BufferFillDirection::Backward: return buf_pos_;
+    default: std::unreachable();
     }
 }
 
 template<typename T>
 GLsizei gloo::Buffer<T>::size() const {
     switch (fill_direction_) {
-    case BufferFillDirection::Forward:
-        return buf_pos_;
-    case BufferFillDirection::Backward:
-        return data_.size() - buf_pos_;
-    default:
-        std::unreachable();
+    case BufferFillDirection::Forward: return buf_pos_;
+    case BufferFillDirection::Backward: return data_.size() - buf_pos_;
+    default: std::unreachable();
     }
 }
 

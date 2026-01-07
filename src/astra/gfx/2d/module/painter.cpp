@@ -1,7 +1,7 @@
 #include "astra/gfx/2d/module/painter.hpp"
 
-astra::Painter::Painter(sdl3::Window *window) :
-      window_(window) {}
+astra::Painter::Painter(sdl3::Window *window)
+    : window_(window) {}
 
 void astra::Painter::point(glm::vec2 p, const Color &color) {}
 

@@ -7,12 +7,9 @@
 
 const char *app_type_str(const sdl3::AppType &t) {
     switch (t) {
-    case sdl3::AppType::Game:
-        return "game";
-    case sdl3::AppType::MediaPlayer:
-        return "mediaplayer";
-    case sdl3::AppType::Application:
-        return "application";
+    case sdl3::AppType::Game: return "game";
+    case sdl3::AppType::MediaPlayer: return "mediaplayer";
+    case sdl3::AppType::Application: return "application";
     }
     std::unreachable();
 }

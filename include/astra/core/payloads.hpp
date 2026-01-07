@@ -1,10 +1,8 @@
 #pragma once
 
-#include "astra/util/constexpr_hash.hpp"
+#include "astra/core/messenger.hpp"
 
 #include <spdlog/details/log_msg.h>
-
-#define ASTRA_TAG_MEMBER(name) constexpr static std::uint32_t ASTRA_MESSENGER_TAG{astra::murmur_x86_32(#name, 0)};
 
 namespace astra {
 struct PreUpdate {

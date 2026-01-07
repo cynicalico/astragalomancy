@@ -46,21 +46,21 @@ private:
     SDL_Window *handle_;
     SDL_GLContext gl_context_;
 
-    explicit Window(SDL_Window *handle, SDL_GLContext gl_context, std::optional<std::filesystem::path> icon_path);
+    explicit Window(
+            SDL_Window *handle, SDL_GLContext gl_context, const std::optional<std::filesystem::path> &icon_path);
 };
 
 class WindowBuilder {
-    friend class Context;
-
 public:
     WindowBuilder(std::string_view title, glm::ivec2 size);
+    explicit WindowBuilder(std::string_view title);
     ~WindowBuilder() = default;
 
     WindowBuilder(const WindowBuilder &other) = delete;
     WindowBuilder &operator=(const WindowBuilder &other) = delete;
 
-    WindowBuilder(WindowBuilder &&other) noexcept = delete;
-    WindowBuilder &operator=(WindowBuilder &&other) noexcept = delete;
+    WindowBuilder(WindowBuilder &&other) noexcept;
+    WindowBuilder &operator=(WindowBuilder &&other) noexcept;
 
     WindowBuilder &fullscreen();
     WindowBuilder &opengl();

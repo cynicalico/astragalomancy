@@ -21,17 +21,14 @@ SDL_Surface *astra::read_image_to_sdl_surface(const std::filesystem::path &path)
         case ERROR_INSUFFICIENT_BUFFER:
             ASTRA_LOG_ERROR("Failed to convert '{}' to UTF-8: Insufficient buffer", path);
             break;
-        case ERROR_INVALID_FLAGS:
-            ASTRA_LOG_ERROR("Failed to convert '{}' to UTF-8: Invalid flags", path);
-            break;
+        case ERROR_INVALID_FLAGS: ASTRA_LOG_ERROR("Failed to convert '{}' to UTF-8: Invalid flags", path); break;
         case ERROR_INVALID_PARAMETER:
             ASTRA_LOG_ERROR("Failed to convert '{}' to UTF-8: Invalid parameter", path);
             break;
         case ERROR_NO_UNICODE_TRANSLATION:
             ASTRA_LOG_ERROR("Failed to convert '{}' to UTF-8: No unicode translation", path);
             break;
-        default:
-            std::unreachable();
+        default: std::unreachable();
         }
         return nullptr;
     }
@@ -56,8 +53,7 @@ SDL_Surface *astra::read_image_to_sdl_surface(const std::filesystem::path &path)
     }
 
     const auto surf = SDL_CreateSurfaceFrom(w, h, SDL_PIXELFORMAT_RGBA32, bytes, w * STBI_rgb_alpha);
-    if (!surf)
-        ASTRA_LOG_ERROR("Failed to create surface from '{}': {}", path, SDL_GetError());
+    if (!surf) ASTRA_LOG_ERROR("Failed to create surface from '{}': {}", path, SDL_GetError());
     return surf;
 }
 

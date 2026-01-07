@@ -22,15 +22,13 @@ astra::Dear::Dear(sdl3::Window *window) {
     if (!ImGui_ImplSDL3_InitForOpenGL(window->handle(), window->gl_context()))
         ASTRA_LOG_ERROR("Failed to initialize ImGui/SDL3 backend");
 
-    if (!ImGui_ImplOpenGL3_Init("#version 130"))
-        ASTRA_LOG_ERROR("Failed to initialize ImGui/OpenGL backend");
+    if (!ImGui_ImplOpenGL3_Init("#version 130")) ASTRA_LOG_ERROR("Failed to initialize ImGui/OpenGL backend");
 
     register_callbacks_();
 }
 
 astra::Dear::~Dear() {
-    if (implot_ctx_)
-        ImPlot::DestroyContext(implot_ctx_);
+    if (implot_ctx_) ImPlot::DestroyContext(implot_ctx_);
 
     if (imgui_ctx_) {
         ImGui_ImplOpenGL3_Shutdown();
@@ -38,8 +36,7 @@ astra::Dear::~Dear() {
         ImGui::DestroyContext(imgui_ctx_);
     }
 
-    if (callback_id_)
-        unregister_callbacks_();
+    if (callback_id_) unregister_callbacks_();
 }
 
 astra::Dear::Dear(Dear &&other) noexcept
