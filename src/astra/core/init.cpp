@@ -1,5 +1,6 @@
-#include "astra/core/engine.hpp"
+#include "astra/core/init.hpp"
 #include "astra/core/color.hpp"
+#include "astra/core/globals.hpp"
 #include "astra/core/log.hpp"
 #include "astra/core/payloads.hpp"
 #include "astra/util/platform.hpp"
@@ -13,8 +14,6 @@
 
 #include <deque>
 #include <string>
-
-astra::detail::Globals astra::g;
 
 class MessengerSink final : public spdlog::sinks::base_sink<spdlog::details::null_mutex> {
 protected:
@@ -113,6 +112,96 @@ float text_with_bg(
     return text_size.x;
 }
 
+void draw_fps_and_latency(ImDrawList *dl) {
+    auto pos = ImGui::GetStyle().WindowPadding;
+    float max_w = 0;
+
+    auto fps_history = astra::g.frame_counter.fps_history();
+
+    const auto max_fps = std::ranges::max_element(fps_history);
+    std::string max_fps_text;
+    if (max_fps != fps_history.end()) max_fps_text = fmt::format("MAX: {:.0f}", *max_fps);
+    else max_fps_text = "MAX: -";
+    max_w = std::max(
+            max_w, text_with_bg(dl, pos, astra::rgb(0x000000), astra::rgb(0xffffff), 255, max_fps_text.c_str()));
+    pos.y += ImGui::GetTextLineHeightWithSpacing();
+
+    const auto avg_fps_text = fmt::format("AVG: {:.0f}", astra::g.frame_counter.fps());
+    max_w = std::max(
+            max_w, text_with_bg(dl, pos, astra::rgb(0x000000), astra::rgb(0xffffff), 255, avg_fps_text.c_str()));
+    pos.y += ImGui::GetTextLineHeightWithSpacing();
+
+    const auto min_fps = std::ranges::min_element(fps_history);
+    std::string min_fps_text;
+    if (min_fps != fps_history.end()) min_fps_text = fmt::format("MIN: {:.0f}", *min_fps);
+    else min_fps_text = "MIN: -";
+    max_w = std::max(
+            max_w, text_with_bg(dl, pos, astra::rgb(0x000000), astra::rgb(0xffffff), 255, min_fps_text.c_str()));
+    pos.y += ImGui::GetTextLineHeightWithSpacing();
+
+    ImGui::SetCursorPos({ImGui::GetStyle().WindowPadding.x + max_w + 4.0f, ImGui::GetStyle().WindowPadding.y});
+    ImPlot::PushStyleVar(ImPlotStyleVar_PlotPadding, ImVec2(0.0f, 0.0f));
+    if (ImPlot::BeginPlot(
+                "latency",
+                {300, ImGui::GetTextLineHeightWithSpacing() * 3},
+                ImPlotFlags_NoTitle | ImPlotFlags_NoFrame)) {
+        ImPlot::SetupAxes(
+                "",
+                "",
+                ImPlotAxisFlags_NoDecorations | ImPlotAxisFlags_AutoFit,
+                ImPlotAxisFlags_NoDecorations | ImPlotAxisFlags_AutoFit);
+        ImPlot::PlotLine("", fps_history.data(), static_cast<int>(fps_history.size()));
+        ImPlot::EndPlot();
+    }
+    ImPlot::PopStyleVar();
+}
+
+void draw_log_flyouts(ImDrawList *dl) {
+    auto pos = ImVec2{ImGui::GetStyle().WindowPadding.x, ImGui::GetWindowSize().y - ImGui::GetStyle().WindowPadding.y};
+    for (auto &[level, text, acc]: log_flyouts()) {
+        astra::RGB bg_color, fg_color;
+        switch (level) {
+        case spdlog::level::trace:
+            bg_color = astra::rgb(0x000000);
+            fg_color = astra::rgb(0x7f7f7f);
+            break;
+        case spdlog::level::debug:
+            bg_color = astra::rgb(0x000000);
+            fg_color = astra::rgb(0x5c5cff);
+            break;
+        case spdlog::level::info:
+            bg_color = astra::rgb(0x000000);
+            fg_color = astra::rgb(0x00ff00);
+            break;
+        case spdlog::level::warn:
+            bg_color = astra::rgb(0x000000);
+            fg_color = astra::rgb(0xffff00);
+            break;
+        case spdlog::level::err:
+            bg_color = astra::rgb(0x000000);
+            fg_color = astra::rgb(0xff0000);
+            break;
+        case spdlog::level::critical:
+            bg_color = astra::rgb(0xcd0000);
+            fg_color = astra::rgb(0xffffff);
+            break;
+        default:
+            bg_color = astra::rgb(0x000000);
+            fg_color = astra::rgb(0xffffff);
+            break;
+        }
+
+        pos.y -= ImGui::GetTextLineHeightWithSpacing();
+        text_with_bg(
+                dl,
+                pos,
+                bg_color,
+                fg_color,
+                static_cast<std::uint8_t>(255.0 * std::clamp(acc, 0.0, 1.0)),
+                text.c_str());
+    }
+}
+
 void draw_debug_overlay() {
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(glm::vec2(astra::g.window->pixel_size()));
@@ -124,94 +213,8 @@ void draw_debug_overlay() {
                 ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove |
                         ImGuiWindowFlags_NoInputs)) {
         const auto draw_list = ImGui::GetWindowDrawList();
-
-        auto pos = ImGui::GetStyle().WindowPadding;
-        const auto lh = ImGui::GetTextLineHeightWithSpacing();
-
-        float max_w = 0;
-
-        auto fps_history = astra::g.frame_counter.fps_history();
-
-        const auto max_fps = std::ranges::max_element(fps_history);
-        std::string max_fps_text;
-        if (max_fps != fps_history.end()) max_fps_text = fmt::format("MAX: {:.0f}", *max_fps);
-        else max_fps_text = "MAX: -";
-        max_w = std::max(
-                max_w,
-                text_with_bg(draw_list, pos, astra::rgb(0x000000), astra::rgb(0xffffff), 255, max_fps_text.c_str()));
-        pos.y += lh;
-
-        const auto avg_fps_text = fmt::format("AVG: {:.0f}", astra::g.frame_counter.fps());
-        max_w = std::max(
-                max_w,
-                text_with_bg(draw_list, pos, astra::rgb(0x000000), astra::rgb(0xffffff), 255, avg_fps_text.c_str()));
-        pos.y += lh;
-
-        const auto min_fps = std::ranges::min_element(fps_history);
-        std::string min_fps_text;
-        if (min_fps != fps_history.end()) min_fps_text = fmt::format("MIN: {:.0f}", *min_fps);
-        else min_fps_text = "MIN: -";
-        max_w = std::max(
-                max_w,
-                text_with_bg(draw_list, pos, astra::rgb(0x000000), astra::rgb(0xffffff), 255, min_fps_text.c_str()));
-        pos.y += lh;
-
-        ImGui::SetCursorPos({ImGui::GetStyle().WindowPadding.x + max_w + 4.0f, ImGui::GetStyle().WindowPadding.y});
-        ImPlot::PushStyleVar(ImPlotStyleVar_PlotPadding, ImVec2(0.0f, 0.0f));
-        if (ImPlot::BeginPlot("latency", {300, lh * 3}, ImPlotFlags_NoTitle | ImPlotFlags_NoFrame)) {
-            ImPlot::SetupAxes(
-                    "",
-                    "",
-                    ImPlotAxisFlags_NoDecorations | ImPlotAxisFlags_AutoFit,
-                    ImPlotAxisFlags_NoDecorations | ImPlotAxisFlags_AutoFit);
-            ImPlot::PlotLine("", fps_history.data(), static_cast<int>(fps_history.size()));
-            ImPlot::EndPlot();
-        }
-        ImPlot::PopStyleVar();
-
-        pos = {ImGui::GetStyle().WindowPadding.x, ImGui::GetWindowSize().y - ImGui::GetStyle().WindowPadding.y};
-        for (auto &[level, text, acc]: log_flyouts()) {
-            astra::RGB bg_color, fg_color;
-            switch (level) {
-            case spdlog::level::trace:
-                bg_color = astra::rgb(0x000000);
-                fg_color = astra::rgb(0x7f7f7f);
-                break;
-            case spdlog::level::debug:
-                bg_color = astra::rgb(0x000000);
-                fg_color = astra::rgb(0x5c5cff);
-                break;
-            case spdlog::level::info:
-                bg_color = astra::rgb(0x000000);
-                fg_color = astra::rgb(0x00ff00);
-                break;
-            case spdlog::level::warn:
-                bg_color = astra::rgb(0x000000);
-                fg_color = astra::rgb(0xffff00);
-                break;
-            case spdlog::level::err:
-                bg_color = astra::rgb(0x000000);
-                fg_color = astra::rgb(0xff0000);
-                break;
-            case spdlog::level::critical:
-                bg_color = astra::rgb(0xcd0000);
-                fg_color = astra::rgb(0xffffff);
-                break;
-            default:
-                bg_color = astra::rgb(0x000000);
-                fg_color = astra::rgb(0xffffff);
-                break;
-            }
-
-            pos.y -= lh;
-            text_with_bg(
-                    draw_list,
-                    pos,
-                    bg_color,
-                    fg_color,
-                    static_cast<std::uint8_t>(255.0 * std::clamp(acc, 0.0, 1.0)),
-                    text.c_str());
-        }
+        draw_fps_and_latency(draw_list);
+        draw_log_flyouts(draw_list);
     }
     ImGui::End();
     ImGui::PopStyleVar(2);

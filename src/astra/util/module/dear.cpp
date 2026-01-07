@@ -1,12 +1,13 @@
 #include "astra/util/module/dear.hpp"
-#include "astra/core/engine.hpp"
+#include "astra/core/globals.hpp"
 #include "astra/core/log.hpp"
 #include "astra/core/payloads.hpp"
-#include "imgui_impl_opengl3.h"
-#include "imgui_impl_sdl3.h"
 #include "sdl3_raii/events/keyboard.hpp"
 #include "sdl3_raii/events/mouse.hpp"
 #include "sdl3_raii/events/raw.hpp"
+
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_sdl3.h"
 
 astra::Dear::Dear(const sdl3::Window &window) {
     IMGUI_CHECKVERSION();

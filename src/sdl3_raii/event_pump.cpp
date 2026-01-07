@@ -19,7 +19,7 @@
 #include "sdl3_raii/events/user.hpp"
 #include "sdl3_raii/events/window.hpp"
 
-#include "astra/core/engine.hpp"
+#include "astra/core/globals.hpp"
 #include "astra/core/messenger.hpp"
 
 void publish_event_(const SDL_Event &e);

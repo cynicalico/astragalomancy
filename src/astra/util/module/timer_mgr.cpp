@@ -1,5 +1,5 @@
 #include "astra/util/module/timer_mgr.hpp"
-#include "astra/core/engine.hpp"
+#include "astra/core/globals.hpp"
 #include "astra/core/payloads.hpp"
 #include "astra/util/rng.hpp"
 
