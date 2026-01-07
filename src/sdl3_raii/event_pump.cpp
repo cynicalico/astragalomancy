@@ -15,11 +15,13 @@
 #include "sdl3_raii/events/render.hpp"
 #include "sdl3_raii/events/sensor.hpp"
 #include "sdl3_raii/events/text.hpp"
+#include "sdl3_raii/events/theme.hpp"
 #include "sdl3_raii/events/touch.hpp"
 #include "sdl3_raii/events/user.hpp"
 #include "sdl3_raii/events/window.hpp"
 
 #include "astra/core/globals.hpp"
+#include "astra/core/log.hpp"
 
 void publish_event(const SDL_Event &e);
 
@@ -34,6 +36,10 @@ void publish_event(const SDL_Event &e) {
     astra::g.msg->publish<sdl3::RawEvent>(e);
 
     switch (e.type) {
+    case SDL_EVENT_SYSTEM_THEME_CHANGED:
+        astra::g.msg->publish<sdl3::SystemThemeChangedEvent>(e.common.timestamp);
+        break;
+
     case SDL_EVENT_AUDIO_DEVICE_ADDED:
     case SDL_EVENT_AUDIO_DEVICE_REMOVED:
     case SDL_EVENT_AUDIO_DEVICE_FORMAT_CHANGED:
@@ -390,6 +396,8 @@ void publish_event(const SDL_Event &e) {
         if (e.type >= SDL_EVENT_USER && e.type < SDL_EVENT_LAST) {
             astra::g.msg->publish<sdl3::UserEvent>(
                     e.type, e.user.timestamp, e.user.windowID, e.user.code, e.user.data1, e.user.data2);
+        } else {
+            ASTRA_LOG_DEBUG("Unhandled event type: {}", e.type);
         }
         break;
     }

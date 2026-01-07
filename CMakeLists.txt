@@ -106,6 +106,7 @@ target_sources(
         "include/sdl3_raii/events/render.hpp"
         "include/sdl3_raii/events/sensor.hpp"
         "include/sdl3_raii/events/text.hpp"
+        "include/sdl3_raii/events/theme.hpp"
         "include/sdl3_raii/events/touch.hpp"
         "include/sdl3_raii/events/user.hpp"
         "include/sdl3_raii/events/window.hpp"
