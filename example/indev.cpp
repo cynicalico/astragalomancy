@@ -1,6 +1,4 @@
 #include "astra/astra.hpp"
-#include "gloo/gloo.hpp"
-#include "sdl3_raii/sdl3_raii.hpp"
 
 class Indev {
 public:

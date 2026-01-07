@@ -5,7 +5,6 @@
 #include "astra/core/messenger.hpp"
 #include "astra/util/module/dear.hpp"
 #include "astra/util/time.hpp"
-
 #include "sdl3_raii/init.hpp"
 #include "sdl3_raii/window.hpp"
 
@@ -20,6 +19,8 @@ struct Globals {
 
     bool running{false};
     FrameCounter frame_counter;
+
+    Messenger::ID engine_callback_id; /// INTERNAL ENGINE USE ONLY
 };
 } // namespace detail
 

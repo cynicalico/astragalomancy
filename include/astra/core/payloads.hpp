@@ -32,6 +32,18 @@ struct PostDraw {
     ASTRA_TAG_MEMBER(astra::PostDraw);
 };
 
+struct PreDrawOverlay {
+    ASTRA_TAG_MEMBER(astra::PreDrawOverlay);
+};
+
+struct DrawOverlay {
+    ASTRA_TAG_MEMBER(astra::DrawOverlay);
+};
+
+struct PostDrawOverlay {
+    ASTRA_TAG_MEMBER(astra::PostDrawOverlay);
+};
+
 struct LogMessage {
     ASTRA_TAG_MEMBER(astra::LogMessage);
     spdlog::level::level_enum level;

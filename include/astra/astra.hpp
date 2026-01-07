@@ -16,3 +16,7 @@
 
 #include "astra/util/module/dear.hpp"
 #include "astra/util/module/timer_mgr.hpp"
+
+#include "gloo/gloo.hpp"
+
+#include "sdl3_raii/sdl3_raii.hpp"
