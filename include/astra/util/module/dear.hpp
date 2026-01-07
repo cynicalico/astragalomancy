@@ -11,7 +11,7 @@
 namespace astra {
 class Dear {
 public:
-    explicit Dear(Messenger *messenger, sdl3::Window *window);
+    explicit Dear(sdl3::Window *window);
     ~Dear();
 
     Dear(const Dear &other) = delete;
@@ -26,7 +26,6 @@ private:
     bool keyboard_captured_{false};
     bool mouse_captured_{false};
 
-    Messenger *messenger_;
     std::optional<Messenger::ID> callback_id_;
     void register_callbacks_();
     void unregister_callbacks_();

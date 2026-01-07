@@ -28,12 +28,10 @@ public:
 
 protected:
     std::optional<Messenger::ID> callback_id;
-    Messenger *messenger;
 };
 
 class Engine {
 public:
-    std::unique_ptr<Messenger> messenger;
     std::unique_ptr<sdl3::Window> window;
     std::unique_ptr<Dear> dear;
 
@@ -80,12 +78,12 @@ template<typename T>
 void Engine::mainloop() {
     auto app = T(this);
 
-    messenger->subscribe<Update>(*callback_id_, [&app](const Update *p) { app.update(p->dt); });
-    messenger->subscribe<Draw>(*callback_id_, [&app](const Draw *) { app.draw(); });
+    Messenger::instance().subscribe<Update>(*callback_id_, [&app](const Update *p) { app.update(p->dt); });
+    Messenger::instance().subscribe<Draw>(*callback_id_, [&app](const Draw *) { app.draw(); });
 
     mainloop_();
 
-    messenger->unsubscribe<Draw>(*callback_id_);
-    messenger->unsubscribe<Update>(*callback_id_);
+    Messenger::instance().unsubscribe<Draw>(*callback_id_);
+    Messenger::instance().unsubscribe<Update>(*callback_id_);
 }
 } // namespace astra

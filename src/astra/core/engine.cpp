@@ -12,15 +12,13 @@
 #include <spdlog/sinks/callback_sink.h>
 
 astra::Application::Application(Engine *engine)
-    : engine(engine),
-      messenger(engine->messenger.get()) {
-    callback_id = engine->messenger->get_id();
+    : engine(engine) {
+    callback_id = Messenger::instance().get_id();
 }
 
 astra::Application::~Application() {
-    engine->messenger->release_id(*callback_id);
+    Messenger::instance().release_id(*callback_id);
     callback_id = std::nullopt;
-    messenger = nullptr;
 }
 
 void astra::Application::update(double dt) {}
@@ -28,33 +26,24 @@ void astra::Application::update(double dt) {}
 void astra::Application::draw() {}
 
 class MessengerSink final : public spdlog::sinks::base_sink<spdlog::details::null_mutex> {
-public:
-    // FIXME: Time bomb of a lifetime problem
-    astra::Messenger *messenger;
-
-    explicit MessengerSink(astra::Messenger *messenger)
-        : messenger(messenger) {}
-
 protected:
     void sink_it_(const spdlog::details::log_msg &msg) override;
-
     void flush_() override { /* do nothing */ }
 };
 
 void MessengerSink::sink_it_(const spdlog::details::log_msg &msg) {
     spdlog::memory_buf_t formatted;
     formatter_->format(msg, formatted);
-    messenger->publish<astra::LogMessage>(msg.level, fmt::to_string(formatted));
+    astra::Messenger::instance().publish<astra::LogMessage>(msg.level, fmt::to_string(formatted));
 }
 
 astra::Engine::Engine(
         const sdl3::AppInfo &app_info,
         const glm::ivec2 window_size,
         const std::function<void(sdl3::WindowBuilder &)> &window_build_f) {
-    messenger = std::make_unique<Messenger>();
     register_callbacks_();
 
-    const auto callback_sink = std::make_shared<MessengerSink>(messenger.get());
+    const auto callback_sink = std::make_shared<MessengerSink>();
     callback_sink->set_pattern("[%H:%M:%S] [%L] %v");
     callback_sink->set_level(spdlog::level::trace);
     sinks()->add_sink(callback_sink);
@@ -78,7 +67,7 @@ astra::Engine::Engine(
         throw std::runtime_error("Failed to build SDL3 window");
     gloo::init();
 
-    dear = std::make_unique<Dear>(messenger.get(), window.get());
+    dear = std::make_unique<Dear>(window.get());
 }
 
 astra::Engine::~Engine() {
@@ -87,7 +76,6 @@ astra::Engine::~Engine() {
 
         dear.reset();
         window.reset();
-        messenger.reset();
 
         sdl3::exit();
     }
@@ -97,7 +85,6 @@ astra::Engine::Engine(Engine &&other) noexcept
     : window(std::move(other.window)),
       dear(std::move(other.dear)) {
     other.unregister_callbacks_();
-    messenger = std::move(other.messenger);
     register_callbacks_();
 }
 
@@ -108,7 +95,6 @@ astra::Engine &astra::Engine::operator=(Engine &&other) noexcept {
 
         unregister_callbacks_();
         other.unregister_callbacks_();
-        messenger = std::move(other.messenger);
         register_callbacks_();
     }
     return *this;
@@ -237,19 +223,17 @@ void astra::Engine::draw_debug_overlay_() {
 }
 
 void astra::Engine::mainloop_() {
-    auto event_pump = sdl3::EventPump(messenger.get());
-
     while (running_) {
-        event_pump.pump();
+        sdl3::pump_events();
 
-        messenger->publish<PreUpdate>(frame_counter.dt());
-        messenger->publish<Update>(frame_counter.dt());
-        messenger->publish<PostUpdate>(frame_counter.dt());
+        Messenger::instance().publish<PreUpdate>(frame_counter.dt());
+        Messenger::instance().publish<Update>(frame_counter.dt());
+        Messenger::instance().publish<PostUpdate>(frame_counter.dt());
 
-        messenger->publish<PreDraw>();
-        messenger->publish<Draw>();
+        Messenger::instance().publish<PreDraw>();
+        Messenger::instance().publish<Draw>();
         draw_debug_overlay_();
-        messenger->publish<PostDraw>();
+        Messenger::instance().publish<PostDraw>();
 
         window->swap();
 
@@ -258,23 +242,23 @@ void astra::Engine::mainloop_() {
 }
 
 void astra::Engine::register_callbacks_() {
-    callback_id_ = messenger->get_id();
+    callback_id_ = Messenger::instance().get_id();
 
-    messenger->subscribe<sdl3::QuitEvent>(*callback_id_, [this](auto) { shutdown(); });
+    Messenger::instance().subscribe<sdl3::QuitEvent>(*callback_id_, [this](auto) { shutdown(); });
 
-    messenger->subscribe<PreUpdate>(*callback_id_, [this](const auto *p) {
+    Messenger::instance().subscribe<PreUpdate>(*callback_id_, [this](const auto *p) {
         for (auto &[level, text, acc]: log_flyouts_)
             acc -= p->dt;
         while (!log_flyouts_.empty() && log_flyouts_.back().acc <= 0)
             log_flyouts_.pop_back();
     });
 
-    messenger->subscribe<LogMessage>(*callback_id_, [this](const auto *p) {
+    Messenger::instance().subscribe<LogMessage>(*callback_id_, [this](const auto *p) {
         log_flyouts_.emplace_front(p->level, p->text, 5.0);
     });
 }
 
 void astra::Engine::unregister_callbacks_() {
-    messenger->release_id(*callback_id_);
+    Messenger::instance().release_id(*callback_id_);
     callback_id_ = std::nullopt;
 }

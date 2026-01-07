@@ -19,6 +19,8 @@ class Messenger {
 public:
     using ID = std::size_t;
 
+    static Messenger &instance();
+
     ID get_id();
     void release_id(ID id);
 
@@ -53,6 +55,11 @@ private:
     std::span<std::byte> make_payload_(Args &&...args);
 };
 } // namespace astra
+
+inline astra::Messenger &astra::Messenger::instance() {
+    static Messenger instance;
+    return instance;
+}
 
 inline astra::Messenger::ID astra::Messenger::get_id() {
     if (recycled_ids_.empty())

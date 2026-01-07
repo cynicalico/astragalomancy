@@ -64,7 +64,7 @@ class TimerMgr {
     };
 
 public:
-    explicit TimerMgr(Messenger *messenger);
+    TimerMgr();
     ~TimerMgr();
 
     TimerMgr(const TimerMgr &other) = delete;
@@ -125,7 +125,6 @@ private:
 
     void update_(double dt);
 
-    Messenger *messenger_;
     std::optional<Messenger::ID> callback_id_;
     void register_callbacks_();
     void unregister_callbacks_();

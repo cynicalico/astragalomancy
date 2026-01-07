@@ -68,7 +68,6 @@ endif ()
 FetchContent_Declare(
         imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui
-        GIT_TAG v1.92.2
         GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(imgui)
@@ -76,7 +75,6 @@ FetchContent_MakeAvailable(imgui)
 FetchContent_Declare(
         implot
         GIT_REPOSITORY https://github.com/epezent/implot
-        GIT_TAG 3da8bd34299965d3b0ab124df743fe3e076fa222
         GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(implot)
@@ -92,7 +90,6 @@ FetchContent_MakeAvailable(pcg)
 FetchContent_Declare(
         stb
         GIT_REPOSITORY https://github.com/nothings/stb
-        GIT_TAG fede005abaf93d9d7f3a679d1999b2db341b360f
         GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(stb)

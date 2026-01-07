@@ -41,10 +41,14 @@ private:
 
 Indev::Indev(astra::Engine *engine)
     : Application(engine),
-      timer_mgr(messenger),
-      painter(messenger, engine->window.get()) {
-    messenger->subscribe<sdl3::KeyboardEvent>(*callback_id, [this](const auto e) { keyboard_event_callback_(e); });
-    messenger->subscribe<sdl3::MouseButtonEvent>(*callback_id, [this](const auto e) { mouse_event_callback_(e); });
+      timer_mgr(),
+      painter(engine->window.get()) {
+    astra::Messenger::instance().subscribe<sdl3::KeyboardEvent>(*callback_id, [this](const auto e) {
+        keyboard_event_callback_(e);
+    });
+    astra::Messenger::instance().subscribe<sdl3::MouseButtonEvent>(*callback_id, [this](const auto e) {
+        mouse_event_callback_(e);
+    });
 
     shader = gloo::ShaderBuilder()
                      .add_stage_path(gloo::ShaderType::Vertex, "assets/shader/sdf_circle.vert")

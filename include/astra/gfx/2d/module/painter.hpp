@@ -7,7 +7,7 @@
 namespace astra {
 class Painter {
 public:
-    Painter(Messenger *messenger, sdl3::Window *window);
+    Painter(sdl3::Window *window);
 
     void point(glm::vec2 p, const Color &color);
 
@@ -20,7 +20,6 @@ public:
     void ellipse(glm::vec2 p, glm::vec2 size, const Color &color);
 
 private:
-    Messenger *messenger_;
     sdl3::Window *window_;
 };
 } // namespace astra
