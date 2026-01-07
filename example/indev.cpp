@@ -15,36 +15,6 @@ private:
     void mouse_event_callback_(const sdl3::MouseButtonEvent *e);
 };
 
-int main(int, char *[]) {
-    try {
-        const auto app_info = sdl3::AppInfo{
-                .name = "Indev",
-                .version = "0.0.1",
-                .identifier = "gay.cynicalico.indev",
-                .creator = "cynicalico",
-                .copyright = "This is free and unencumbered software released into the public domain.",
-                .url = "https://github.com/cynicalico/astragalomancy",
-                .type = sdl3::AppType::Game,
-        };
-        astra::init(app_info, [&] {
-            return std::move(sdl3::WindowBuilder(app_info.name, {1920, 1080}).resizable().icon("assets/icon/png"));
-        });
-
-        { // scope to destroy Indev before shutdown
-            const auto app = Indev();
-            astra::mainloop();
-        }
-
-        astra::shutdown();
-    } catch (const std::exception &e) {
-        fmt::println("");
-        fmt::println(stderr, "Exception: {}", e);
-        return 1;
-    }
-
-    return 0;
-}
-
 Indev::Indev() {
     callback_id = astra::g.msg->get_id();
     astra::g.msg->subscribe<astra::Update>(*callback_id, [this](const auto e) { update(e->dt); });
@@ -83,4 +53,35 @@ void Indev::mouse_event_callback_(const sdl3::MouseButtonEvent *e) {
     case sdl3::MouseButtonEventType::Up: break;
     default: std::unreachable();
     }
+}
+
+int main(int, char *[]) {
+    try {
+        const auto app_info = sdl3::AppInfo{
+                .name = "Indev",
+                .version = "0.0.1",
+                .identifier = "gay.cynicalico.indev",
+                .creator = "cynicalico",
+                .copyright = "This is free and unencumbered software released into the public domain.",
+                .url = "https://github.com/cynicalico/astragalomancy",
+                .type = sdl3::AppType::Game,
+        };
+        astra::init(app_info, [&] {
+            return std::move(
+                    sdl3::WindowBuilder(app_info.name, {1920, 1080}).resizable().icon("assets/icon/light/png"));
+        });
+
+        { // scope to destroy Indev before shutdown
+            const auto app = Indev();
+            astra::mainloop();
+        }
+
+        astra::shutdown();
+    } catch (const std::exception &e) {
+        fmt::println("");
+        fmt::println(stderr, "Exception: {}", e);
+        return 1;
+    }
+
+    return 0;
 }
