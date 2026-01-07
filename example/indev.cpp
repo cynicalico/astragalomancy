@@ -2,123 +2,68 @@
 #include "gloo/gloo.hpp"
 #include "sdl3_raii/sdl3_raii.hpp"
 
-#include "astra/gfx/2d/module/painter.hpp"
-#include "glm/ext/matrix_clip_space.hpp"
-
-struct Vertex {
-    glm::vec3 pos;
-    glm::vec4 color;
-};
-
-class Indev final : public astra::Application {
+class Indev {
 public:
-    astra::TimerMgr timer_mgr;
-    astra::Painter painter;
+    std::optional<astra::Messenger::ID> callback_id;
 
-    std::unique_ptr<gloo::Shader> shader;
-    std::unique_ptr<gloo::Buffer<Vertex>> vbo;
-    std::unique_ptr<gloo::VertexArray> vao;
+    Indev();
+    ~Indev();
 
-    float radius{25.0f};
-    float thickness{1.0f};
-
-    explicit Indev(astra::Engine *engine);
-
-    Indev(const Indev &other) = delete;
-    Indev &operator=(const Indev &other) = delete;
-
-    Indev(Indev &&other) noexcept = delete;
-    Indev &operator=(Indev &&other) noexcept = delete;
-
-    void update(double dt) override;
-
-    void draw() override;
+    void update(double dt);
+    void draw();
 
 private:
     void keyboard_event_callback_(const sdl3::KeyboardEvent *e);
     void mouse_event_callback_(const sdl3::MouseButtonEvent *e);
 };
 
-Indev::Indev(astra::Engine *engine)
-    : Application(engine),
-      timer_mgr(),
-      painter(engine->window.get()) {
-    astra::Messenger::instance().subscribe<sdl3::KeyboardEvent>(*callback_id, [this](const auto e) {
-        keyboard_event_callback_(e);
-    });
-    astra::Messenger::instance().subscribe<sdl3::MouseButtonEvent>(*callback_id, [this](const auto e) {
-        mouse_event_callback_(e);
-    });
+int main(int, char *[]) {
+    try {
+        const auto app_info = sdl3::AppInfo{
+                .name = "Indev",
+                .version = "0.0.1",
+                .identifier = "gay.cynicalico.indev",
+                .creator = "cynicalico",
+                .copyright = "This is free and unencumbered software released into the public domain.",
+                .url = "https://github.com/cynicalico/astragalomancy",
+                .type = sdl3::AppType::Game,
+        };
+        astra::init(app_info, [&] {
+            return std::move(sdl3::WindowBuilder(app_info.name, {1920, 1080}).resizable().icon("assets/icon/png"));
+        });
 
-    shader = gloo::ShaderBuilder()
-                     .add_stage_path(gloo::ShaderType::Vertex, "assets/shader/sdf_circle.vert")
-                     .add_stage_path(gloo::ShaderType::Fragment, "assets/shader/sdf_circle.frag")
-                     .build();
-    if (!shader) throw std::runtime_error("Failed to build shader");
+        { // scope to destroy Indev before shutdown
+            const auto app = Indev();
+            astra::mainloop();
+        }
 
-    vbo = std::make_unique<gloo::Buffer<Vertex>>(6);
+        astra::shutdown();
+    } catch (const std::exception &e) {
+        fmt::println("");
+        fmt::println(stderr, "Exception: {}", e);
+        return 1;
+    }
 
-    const auto pos_loc = shader->try_get_attrib_location("in_pos");
-    const auto circle_loc = shader->try_get_attrib_location("in_circle");
-    vao = gloo::VertexArrayBuilder()
-                  .attrib(*pos_loc, decltype(Vertex::pos)::length(), GL_FLOAT, GL_FALSE, offsetof(Vertex, pos), 0)
-                  .attrib(*circle_loc,
-                          decltype(Vertex::color)::length(),
-                          GL_FLOAT,
-                          GL_FALSE,
-                          offsetof(Vertex, color),
-                          0)
-                  .build();
+    return 0;
+}
+
+Indev::Indev() {
+    callback_id = astra::g.msg->get_id();
+    astra::g.msg->subscribe<astra::Update>(*callback_id, [this](const auto e) { update(e->dt); });
+    astra::g.msg->subscribe<astra::Draw>(*callback_id, [this](const auto) { draw(); });
+    astra::g.msg->subscribe<sdl3::KeyboardEvent>(*callback_id, [this](const auto e) { keyboard_event_callback_(e); });
+    astra::g.msg->subscribe<sdl3::MouseButtonEvent>(*callback_id, [this](const auto e) { mouse_event_callback_(e); });
+}
+
+Indev::~Indev() {
+    astra::g.msg->release_id(*callback_id);
+    callback_id = std::nullopt;
 }
 
 void Indev::update(double dt) {}
 
 void Indev::draw() {
     gloo::clear(astra::rgb(0x0f0f0f), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    if (ImGui::Begin("Controls")) {
-        ImGui::SliderFloat("radius", &radius, 1.0f, 250.0f, "%.0f");
-        ImGui::SliderFloat("thickness", &thickness, 0.0f, 10.0f, "%.0f");
-    }
-    ImGui::End();
-
-    const auto center = engine->window->size() / 2;
-    const auto p0 = glm::vec3{center.x - radius - thickness, center.y - radius - thickness, 0};
-    const auto p1 = glm::vec3{center.x + radius + thickness, center.y - radius - thickness, 0};
-    const auto p2 = glm::vec3{center.x - radius - thickness, center.y + radius + thickness, 0};
-    const auto p3 = glm::vec3{center.x + radius + thickness, center.y + radius + thickness, 0};
-    vbo->clear();
-    vbo->add({
-            {p0, {center.x, center.y, radius, thickness}},
-            {p1, {center.x, center.y, radius, thickness}},
-            {p2, {center.x, center.y, radius, thickness}},
-            {p1, {center.x, center.y, radius, thickness}},
-            {p3, {center.x, center.y, radius, thickness}},
-            {p2, {center.x, center.y, radius, thickness}},
-    });
-    vbo->sync();
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    shader->use();
-    shader->uniform_mat4(
-            "projection",
-            glm::ortho(
-                    0.0f,
-                    static_cast<float>(engine->window->width()),
-                    0.0f,
-                    static_cast<float>(engine->window->height())));
-
-    vao->bind();
-    vbo->bind(0, vbo->front() * sizeof(Vertex), sizeof(Vertex));
-
-    glDrawArrays(GL_TRIANGLES, 0, vbo->size());
-
-    vbo->unbind(0);
-    vao->unbind();
-
-    glDisable(GL_BLEND);
 }
 
 void Indev::keyboard_event_callback_(const sdl3::KeyboardEvent *e) {
@@ -126,7 +71,7 @@ void Indev::keyboard_event_callback_(const sdl3::KeyboardEvent *e) {
     case sdl3::KeyboardEventType::Down: break;
     case sdl3::KeyboardEventType::Up:
         switch (e->key) {
-        case SDLK_ESCAPE: engine->shutdown(); break;
+        case SDLK_ESCAPE: astra::g.running = false; break;
         default:;
         }
         break;
@@ -140,28 +85,4 @@ void Indev::mouse_event_callback_(const sdl3::MouseButtonEvent *e) {
     case sdl3::MouseButtonEventType::Up: break;
     default: std::unreachable();
     }
-}
-
-int main(int, char *[]) {
-    const auto app_info = sdl3::AppInfo{
-            .name = "Indev",
-            .version = "0.0.1",
-            .identifier = "gay.cynicalico.indev",
-            .creator = "cynicalico",
-            .copyright = "This is free and unencumbered software released into the public domain.",
-            .url = "https://github.com/cynicalico/astragalomancy",
-            .type = sdl3::AppType::Game,
-    };
-
-    try {
-        auto engine = astra::Engine(app_info, [&] {
-            return std::move(sdl3::WindowBuilder(app_info.name).fullscreen().icon("assets/icon/png"));
-        });
-        engine.mainloop<Indev>();
-    } catch (const std::exception &e) {
-        fmt::println(stderr, "Exception: {}", e);
-        return 1;
-    }
-
-    return 0;
 }

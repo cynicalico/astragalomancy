@@ -1,5 +1,5 @@
 #include "astra/util/module/timer_mgr.hpp"
-
+#include "astra/core/engine.hpp"
 #include "astra/core/payloads.hpp"
 #include "astra/util/rng.hpp"
 
@@ -160,11 +160,11 @@ void astra::TimerMgr::update_(double dt) {
 }
 
 void astra::TimerMgr::register_callbacks_() {
-    callback_id_ = Messenger::instance().get_id();
-    Messenger::instance().subscribe<PreUpdate>(*callback_id_, [&](const auto *p) { update_(p->dt); });
+    callback_id_ = g.msg->get_id();
+    g.msg->subscribe<PreUpdate>(*callback_id_, [&](const auto *p) { update_(p->dt); });
 }
 
 void astra::TimerMgr::unregister_callbacks_() {
-    Messenger::instance().release_id(*callback_id_);
+    g.msg->release_id(*callback_id_);
     callback_id_ = std::nullopt;
 }

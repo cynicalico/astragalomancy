@@ -11,7 +11,7 @@
 namespace astra {
 class Dear {
 public:
-    explicit Dear(sdl3::Window *window);
+    explicit Dear(const sdl3::Window &window);
     ~Dear();
 
     Dear(const Dear &other) = delete;

@@ -1,7 +1,7 @@
 #include "astra/core/engine.hpp"
-
 #include "astra/core/color.hpp"
 #include "astra/core/log.hpp"
+#include "astra/core/payloads.hpp"
 #include "astra/util/platform.hpp"
 #include "astra/util/rng.hpp"
 #include "gloo/gloo.hpp"
@@ -11,32 +11,20 @@
 
 #include <spdlog/sinks/callback_sink.h>
 
-astra::Application::Application(Engine *engine)
-    : engine(engine) {
-    callback_id = Messenger::instance().get_id();
-}
-
-astra::Application::~Application() {
-    Messenger::instance().release_id(*callback_id);
-    callback_id = std::nullopt;
-}
-
-void astra::Application::update(double dt) {}
-
-void astra::Application::draw() {}
+astra::detail::Globals astra::g;
 
 class MessengerSink final : public spdlog::sinks::base_sink<spdlog::details::null_mutex> {
 protected:
     void sink_it_(const spdlog::details::log_msg &msg) override {
         spdlog::memory_buf_t formatted;
         formatter_->format(msg, formatted);
-        astra::Messenger::instance().publish<astra::LogMessage>(msg.level, fmt::to_string(formatted));
+        astra::g.msg->publish<astra::LogMessage>(msg.level, fmt::to_string(formatted));
     }
     void flush_() override { /* do nothing */ }
 };
 
-astra::Engine::Engine(const sdl3::AppInfo &app_info, const std::function<sdl3::WindowBuilder()> &window_builder_f) {
-    register_callbacks_();
+void astra::init(const sdl3::AppInfo &app_info, const std::function<sdl3::WindowBuilder()> &window_builder_f) {
+    g.msg = std::make_unique<Messenger>();
 
     const auto callback_sink = std::make_shared<MessengerSink>();
     callback_sink->set_pattern("[%H:%M:%S] [%L] %v");
@@ -54,173 +42,41 @@ astra::Engine::Engine(const sdl3::AppInfo &app_info, const std::function<sdl3::W
     sdl3::GlAttr::set_context_flags().debug().set();
 #endif
 
-    window = window_builder_f().opengl().build();
-    if (!window) throw std::runtime_error("Failed to build SDL3 window");
+    g.window = window_builder_f().opengl().build();
+    if (!g.window) throw std::runtime_error("Failed to build SDL3 window");
     gloo::init();
 
-    dear = std::make_unique<Dear>(window.get());
+    g.dear = std::make_unique<Dear>(*g.window);
 }
 
-astra::Engine::~Engine() {
-    unregister_callbacks_();
-    dear.reset();
-    window.reset();
+void astra::shutdown() {
+    g.dear.reset();
+    g.window.reset();
+    g.msg.reset();
+
     sdl3::exit();
 }
 
-void astra::Engine::shutdown() {
-    running_ = false;
-}
+void astra::mainloop() {
+    const auto callback_id = g.msg->get_id();
+    g.msg->subscribe<sdl3::QuitEvent>(callback_id, [&](auto) { g.running = false; });
 
-float text_with_bg(
-        ImDrawList *dl,
-        ImVec2 pos,
-        const astra::Color &bg_color,
-        const astra::Color &fg_color,
-        std::uint8_t alpha,
-        const char *text) {
-    const ImVec2 text_size = ImGui::CalcTextSize(text);
-    dl->AddRectFilled(
-            pos,
-            {pos.x + text_size.x, pos.y + text_size.y + ImGui::GetStyle().ItemSpacing.y},
-            bg_color.imgui_color_u32(alpha));
-    dl->AddText(pos, fg_color.imgui_color_u32(alpha), text);
-    return text_size.x;
-}
+    g.running = true;
 
-void astra::Engine::draw_debug_overlay_() {
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(glm::vec2(window->pixel_size()));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2.0f, 2.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 2.0f));
-    if (ImGui::Begin(
-                "##overlay",
-                nullptr,
-                ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove |
-                        ImGuiWindowFlags_NoInputs)) {
-        const auto draw_list = ImGui::GetWindowDrawList();
-
-        auto pos = ImGui::GetStyle().WindowPadding;
-        const auto lh = ImGui::GetTextLineHeightWithSpacing();
-
-        float max_w = 0;
-
-        auto fps_history = frame_counter.fps_history();
-
-        const auto max_fps = std::ranges::max_element(fps_history);
-        std::string max_fps_text;
-        if (max_fps != fps_history.end()) max_fps_text = fmt::format("MAX: {:.0f}", *max_fps);
-        else max_fps_text = "MAX: -";
-        max_w = std::max(max_w, text_with_bg(draw_list, pos, rgb(0x000000), rgb(0xffffff), 255, max_fps_text.c_str()));
-        pos.y += lh;
-
-        const auto avg_fps_text = fmt::format("AVG: {:.0f}", frame_counter.fps());
-        max_w = std::max(max_w, text_with_bg(draw_list, pos, rgb(0x000000), rgb(0xffffff), 255, avg_fps_text.c_str()));
-        pos.y += lh;
-
-        const auto min_fps = std::ranges::min_element(fps_history);
-        std::string min_fps_text;
-        if (min_fps != fps_history.end()) min_fps_text = fmt::format("MIN: {:.0f}", *min_fps);
-        else min_fps_text = "MIN: -";
-        max_w = std::max(max_w, text_with_bg(draw_list, pos, rgb(0x000000), rgb(0xffffff), 255, min_fps_text.c_str()));
-        pos.y += lh;
-
-        ImGui::SetCursorPos({ImGui::GetStyle().WindowPadding.x + max_w + 4.0f, ImGui::GetStyle().WindowPadding.y});
-        ImPlot::PushStyleVar(ImPlotStyleVar_PlotPadding, ImVec2(0.0f, 0.0f));
-        if (ImPlot::BeginPlot("latency", {300, lh * 3}, ImPlotFlags_NoTitle | ImPlotFlags_NoFrame)) {
-            ImPlot::SetupAxes(
-                    "",
-                    "",
-                    ImPlotAxisFlags_NoDecorations | ImPlotAxisFlags_AutoFit,
-                    ImPlotAxisFlags_NoDecorations | ImPlotAxisFlags_AutoFit);
-            ImPlot::PlotLine("", fps_history.data(), static_cast<int>(fps_history.size()));
-            ImPlot::EndPlot();
-        }
-        ImPlot::PopStyleVar();
-
-        pos = {ImGui::GetStyle().WindowPadding.x, ImGui::GetWindowSize().y - ImGui::GetStyle().WindowPadding.y};
-        for (auto &[level, text, acc]: log_flyouts_) {
-            RGB bg_color, fg_color;
-            switch (level) {
-            case spdlog::level::trace:
-                bg_color = rgb(0x000000);
-                fg_color = rgb(0x7f7f7f);
-                break;
-            case spdlog::level::debug:
-                bg_color = rgb(0x000000);
-                fg_color = rgb(0x5c5cff);
-                break;
-            case spdlog::level::info:
-                bg_color = rgb(0x000000);
-                fg_color = rgb(0x00ff00);
-                break;
-            case spdlog::level::warn:
-                bg_color = rgb(0x000000);
-                fg_color = rgb(0xffff00);
-                break;
-            case spdlog::level::err:
-                bg_color = rgb(0x000000);
-                fg_color = rgb(0xff0000);
-                break;
-            case spdlog::level::critical:
-                bg_color = rgb(0xcd0000);
-                fg_color = rgb(0xffffff);
-                break;
-            default:
-                bg_color = rgb(0x000000);
-                fg_color = rgb(0xffffff);
-                break;
-            }
-
-            pos.y -= lh;
-            text_with_bg(
-                    draw_list,
-                    pos,
-                    bg_color,
-                    fg_color,
-                    static_cast<std::uint8_t>(255.0 * std::clamp(acc, 0.0, 1.0)),
-                    text.c_str());
-        }
-    }
-    ImGui::End();
-    ImGui::PopStyleVar(2);
-}
-
-void astra::Engine::mainloop_() {
-    while (running_) {
+    while (g.running) {
         sdl3::pump_events();
 
-        Messenger::instance().publish<PreUpdate>(frame_counter.dt());
-        Messenger::instance().publish<Update>(frame_counter.dt());
-        Messenger::instance().publish<PostUpdate>(frame_counter.dt());
+        g.msg->publish<PreUpdate>(g.frame_counter.dt());
+        g.msg->publish<Update>(g.frame_counter.dt());
+        g.msg->publish<PostUpdate>(g.frame_counter.dt());
 
-        Messenger::instance().publish<PreDraw>();
-        Messenger::instance().publish<Draw>();
-        draw_debug_overlay_();
-        Messenger::instance().publish<PostDraw>();
+        g.msg->publish<PreDraw>();
+        g.msg->publish<Draw>();
+        // draw_debug_overlay_();
+        g.msg->publish<PostDraw>();
 
-        window->swap();
+        g.window->swap();
 
-        frame_counter.update();
+        g.frame_counter.update();
     }
-}
-
-void astra::Engine::register_callbacks_() {
-    callback_id_ = Messenger::instance().get_id();
-
-    Messenger::instance().subscribe<sdl3::QuitEvent>(*callback_id_, [this](auto) { shutdown(); });
-
-    Messenger::instance().subscribe<PreUpdate>(*callback_id_, [this](const auto *p) {
-        for (auto &[level, text, acc]: log_flyouts_) acc -= p->dt;
-        while (!log_flyouts_.empty() && log_flyouts_.back().acc <= 0) log_flyouts_.pop_back();
-    });
-
-    Messenger::instance().subscribe<LogMessage>(*callback_id_, [this](const auto *p) {
-        log_flyouts_.emplace_front(p->level, p->text, 5.0);
-    });
-}
-
-void astra::Engine::unregister_callbacks_() {
-    Messenger::instance().release_id(*callback_id_);
-    callback_id_ = std::nullopt;
 }

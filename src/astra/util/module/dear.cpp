@@ -1,5 +1,5 @@
 #include "astra/util/module/dear.hpp"
-
+#include "astra/core/engine.hpp"
 #include "astra/core/log.hpp"
 #include "astra/core/payloads.hpp"
 #include "imgui_impl_opengl3.h"
@@ -8,7 +8,7 @@
 #include "sdl3_raii/events/mouse.hpp"
 #include "sdl3_raii/events/raw.hpp"
 
-astra::Dear::Dear(sdl3::Window *window) {
+astra::Dear::Dear(const sdl3::Window &window) {
     IMGUI_CHECKVERSION();
 
     imgui_ctx_ = ImGui::CreateContext();
@@ -19,7 +19,7 @@ astra::Dear::Dear(sdl3::Window *window) {
 
     (void)ImGui::GetIO();
 
-    if (!ImGui_ImplSDL3_InitForOpenGL(window->handle(), window->gl_context()))
+    if (!ImGui_ImplSDL3_InitForOpenGL(window.handle(), window.gl_context()))
         ASTRA_LOG_ERROR("Failed to initialize ImGui/SDL3 backend");
 
     if (!ImGui_ImplOpenGL3_Init("#version 130")) ASTRA_LOG_ERROR("Failed to initialize ImGui/OpenGL backend");
@@ -66,47 +66,47 @@ astra::Dear &astra::Dear::operator=(Dear &&other) noexcept {
 }
 
 void astra::Dear::register_callbacks_() {
-    callback_id_ = Messenger::instance().get_id();
+    callback_id_ = g.msg->get_id();
 
-    Messenger::instance().subscribe<sdl3::RawEvent>(*callback_id_, [&](const auto *p) {
+    g.msg->subscribe<sdl3::RawEvent>(*callback_id_, [&](const auto *p) {
         ImGui_ImplSDL3_ProcessEvent(&p->e);
 
         const ImGuiIO &io = ImGui::GetIO();
 
         if (!keyboard_captured_ && io.WantCaptureKeyboard) {
-            Messenger::instance().capture<sdl3::KeyboardEvent>(*callback_id_);
+            g.msg->capture<sdl3::KeyboardEvent>(*callback_id_);
             keyboard_captured_ = true;
         } else if (keyboard_captured_ && !io.WantCaptureKeyboard) {
-            Messenger::instance().uncapture<sdl3::KeyboardEvent>(*callback_id_);
+            g.msg->uncapture<sdl3::KeyboardEvent>(*callback_id_);
             keyboard_captured_ = false;
         }
 
         if (!mouse_captured_ && io.WantCaptureMouse) {
-            Messenger::instance().capture<sdl3::MouseButtonEvent>(*callback_id_);
-            Messenger::instance().capture<sdl3::MouseMotionEvent>(*callback_id_);
-            Messenger::instance().capture<sdl3::MouseWheelEvent>(*callback_id_);
+            g.msg->capture<sdl3::MouseButtonEvent>(*callback_id_);
+            g.msg->capture<sdl3::MouseMotionEvent>(*callback_id_);
+            g.msg->capture<sdl3::MouseWheelEvent>(*callback_id_);
             mouse_captured_ = true;
         } else if (mouse_captured_ && !io.WantCaptureMouse) {
-            Messenger::instance().uncapture<sdl3::MouseButtonEvent>(*callback_id_);
-            Messenger::instance().uncapture<sdl3::MouseMotionEvent>(*callback_id_);
-            Messenger::instance().uncapture<sdl3::MouseWheelEvent>(*callback_id_);
+            g.msg->uncapture<sdl3::MouseButtonEvent>(*callback_id_);
+            g.msg->uncapture<sdl3::MouseMotionEvent>(*callback_id_);
+            g.msg->uncapture<sdl3::MouseWheelEvent>(*callback_id_);
             mouse_captured_ = false;
         }
     });
 
-    Messenger::instance().subscribe<PreDraw>(*callback_id_, [&](const auto *) {
+    g.msg->subscribe<PreDraw>(*callback_id_, [&](const auto *) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
     });
 
-    Messenger::instance().subscribe<PostDraw>(*callback_id_, [&](const auto *) {
+    g.msg->subscribe<PostDraw>(*callback_id_, [&](const auto *) {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     });
 }
 
 void astra::Dear::unregister_callbacks_() {
-    Messenger::instance().release_id(*callback_id_);
+    g.msg->release_id(*callback_id_);
     callback_id_ = std::nullopt;
 }
