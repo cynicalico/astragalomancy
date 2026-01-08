@@ -163,46 +163,32 @@ void draw_fps_and_latency(ImDrawList *dl) {
 }
 
 void draw_log_flyouts(ImDrawList *dl) {
+    const static std::unordered_map<spdlog::level::level_enum, astra::RGB> bg_colors = {
+            {spdlog::level::trace, astra::rgb(0x000000)},
+            {spdlog::level::debug, astra::rgb(0x000000)},
+            {spdlog::level::info, astra::rgb(0x000000)},
+            {spdlog::level::warn, astra::rgb(0x000000)},
+            {spdlog::level::err, astra::rgb(0x000000)},
+            {spdlog::level::critical, astra::rgb(0x000000)},
+    };
+
+    const static std::unordered_map<spdlog::level::level_enum, astra::RGB> fg_colors = {
+            {spdlog::level::trace, astra::rgb(0x7f7f7f)},
+            {spdlog::level::debug, astra::rgb(0x5c5cff)},
+            {spdlog::level::info, astra::rgb(0x00ff00)},
+            {spdlog::level::warn, astra::rgb(0xffff00)},
+            {spdlog::level::err, astra::rgb(0xff0000)},
+            {spdlog::level::critical, astra::rgb(0xffffff)},
+    };
+
     auto pos = ImVec2{ImGui::GetStyle().WindowPadding.x, ImGui::GetWindowSize().y - ImGui::GetStyle().WindowPadding.y};
     for (auto &[level, text, acc]: log_flyouts()) {
-        astra::RGB bg_color, fg_color;
-        switch (level) {
-        case spdlog::level::trace:
-            bg_color = astra::rgb(0x000000);
-            fg_color = astra::rgb(0x7f7f7f);
-            break;
-        case spdlog::level::debug:
-            bg_color = astra::rgb(0x000000);
-            fg_color = astra::rgb(0x5c5cff);
-            break;
-        case spdlog::level::info:
-            bg_color = astra::rgb(0x000000);
-            fg_color = astra::rgb(0x00ff00);
-            break;
-        case spdlog::level::warn:
-            bg_color = astra::rgb(0x000000);
-            fg_color = astra::rgb(0xffff00);
-            break;
-        case spdlog::level::err:
-            bg_color = astra::rgb(0x000000);
-            fg_color = astra::rgb(0xff0000);
-            break;
-        case spdlog::level::critical:
-            bg_color = astra::rgb(0xcd0000);
-            fg_color = astra::rgb(0xffffff);
-            break;
-        default:
-            bg_color = astra::rgb(0x000000);
-            fg_color = astra::rgb(0xffffff);
-            break;
-        }
-
         pos.y -= ImGui::GetTextLineHeightWithSpacing();
         text_with_bg(
                 dl,
                 pos,
-                bg_color,
-                fg_color,
+                bg_colors.at(level),
+                fg_colors.at(level),
                 static_cast<std::uint8_t>(255.0 * std::clamp(acc, 0.0, 1.0)),
                 text.c_str());
     }
@@ -229,15 +215,15 @@ void draw_debug_overlay() {
 void setup_engine_callbacks() {
     using namespace astra;
 
-    g.engine_callback_id = g.msg->get_id();
-    g.msg->subscribe<sdl3::QuitEvent>(g.engine_callback_id, [&](auto) { g.running = false; });
+    g.internal.engine_callback_id = g.msg->get_id();
+    g.msg->subscribe<sdl3::QuitEvent>(g.internal.engine_callback_id, [&](auto) { g.running = false; });
 
-    g.msg->subscribe<PreUpdate>(g.engine_callback_id, [&](const auto *p) {
+    g.msg->subscribe<PreUpdate>(g.internal.engine_callback_id, [&](const auto *p) {
         auto &flyouts = log_flyouts();
         for (auto &[level, text, acc]: flyouts) acc -= p->dt;
         while (!flyouts.empty() && flyouts.back().acc <= 0) flyouts.pop_back();
     });
-    g.msg->subscribe<LogMessage>(g.engine_callback_id, [&](const auto *p) {
+    g.msg->subscribe<LogMessage>(g.internal.engine_callback_id, [&](const auto *p) {
         log_flyouts().emplace_front(p->level, p->text, 5.0);
     });
 }

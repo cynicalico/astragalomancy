@@ -17,7 +17,9 @@ struct Globals {
     bool running{false};
     FrameCounter frame_counter;
 
-    Messenger::ID engine_callback_id; /// INTERNAL ENGINE USE ONLY
+    struct {
+        Messenger::ID engine_callback_id;
+    } internal; /// INTERNAL ENGINE USE ONLY
 };
 } // namespace detail
 
