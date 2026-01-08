@@ -40,7 +40,7 @@ void astra::FrameCounter::update() {
     averager_.update(timestamps.size());
 
     if (now - last_alpha_update_ >= 1e9) {
-        averager_.alpha = 2.0 / (averager_.value() + 1.0);
+        averager_.alpha = 2.0 / (timestamps.size() + 1.0);
         last_alpha_update_ = now;
     }
 }
