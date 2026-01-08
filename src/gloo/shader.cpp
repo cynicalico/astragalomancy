@@ -232,12 +232,12 @@ gloo::ShaderBuilder &gloo::ShaderBuilder::add_stage_src(ShaderType type, std::st
     return *this;
 }
 
-gloo::ShaderBuilder &gloo::ShaderBuilder::add_stage_path(ShaderType type, const std::filesystem::path &path) {
-    stages_.emplace_back(type, path);
-    return *this;
-}
+// gloo::ShaderBuilder &gloo::ShaderBuilder::add_stage_path(ShaderType type, const std::filesystem::path &path) {
+//     stages_.emplace_back(type, path);
+//     return *this;
+// }
 
-std::unique_ptr<gloo::Shader> gloo::ShaderBuilder::build() {
+std::shared_ptr<gloo::Shader> gloo::ShaderBuilder::build() {
     for (auto &[type, source]: stages_) {
         const auto id = glCreateShader(static_cast<GLenum>(type));
         ASTRA_LOG_TRACE("Created {} shader (id={})", type, id);
@@ -254,7 +254,7 @@ std::unique_ptr<gloo::Shader> gloo::ShaderBuilder::build() {
 
     if (!try_link_(id_)) return nullptr;
 
-    auto shader = std::unique_ptr<Shader>(new Shader(id_));
+    auto shader = std::shared_ptr<Shader>(new Shader(id_));
     id_ = 0; // don't delete the program when we go out of scope
     return shader;
 }

@@ -6,8 +6,7 @@ project(
 )
 
 option(ASTRA_BUILD_EXAMPLES "Build astra examples" OFF)
-option(ASTRA_BUILD_DEPENDENCIES "Build astra dependencies (à la FetchContent)" OFF)
-option(ASTRA_SPDLOG_LOG_LEVEL "Log level for spdlog, see" NONE)
+option(ASTRA_SPDLOG_LOG_LEVEL "Log level for spdlog" NONE)
 
 add_library(astra)
 add_library(astra::astra ALIAS astra)
@@ -29,6 +28,7 @@ target_sources(
         "src/astra/core/init.cpp"
         "src/astra/core/log.cpp"
         "src/astra/gfx/2d/module/painter.cpp"
+        "src/astra/gfx/shader_mgr.cpp"
         "src/astra/util/averagers.cpp"
         "src/astra/util/io.cpp"
         "src/astra/util/math.cpp"
@@ -72,6 +72,7 @@ target_sources(
         "include/astra/core/payloads.hpp"
         "include/astra/core/types.hpp"
         "include/astra/gfx/2d/module/painter.hpp"
+        "include/astra/gfx/shader_mgr.hpp"
         "include/astra/util/averagers.hpp"
         "include/astra/util/constexpr_hash.hpp"
         "include/astra/util/enum_class_helpers.hpp"

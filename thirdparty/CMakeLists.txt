@@ -1,55 +1,47 @@
 include(FetchContent)
 
-if (ASTRA_BUILD_DEPENDENCIES)
-    FetchContent_Declare(
-            fmt
-            GIT_REPOSITORY https://github.com/fmtlib/fmt
-            GIT_TAG 11.2.0
-            GIT_SHALLOW TRUE
-    )
-    FetchContent_MakeAvailable(fmt)
+FetchContent_Declare(
+        fmt
+        GIT_REPOSITORY https://github.com/fmtlib/fmt
+        GIT_TAG 11.2.0
+        GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(fmt)
 
-    FetchContent_Declare(
-            glm
-            GIT_REPOSITORY https://github.com/g-truc/glm
-            GIT_TAG 1.0.1
-            GIT_SHALLOW TRUE
-    )
-    FetchContent_MakeAvailable(glm)
+FetchContent_Declare(
+        glm
+        GIT_REPOSITORY https://github.com/g-truc/glm
+        GIT_TAG 1.0.1
+        GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(glm)
 
-    FetchContent_Declare(
-            sdl3
-            GIT_REPOSITORY https://github.com/libsdl-org/SDL
-            GIT_TAG release-3.4.0
-            GIT_SHALLOW TRUE
-    )
-    set(SDL_SHARED OFF)
-    set(SDL_STATIC ON)
-    FetchContent_MakeAvailable(sdl3)
+FetchContent_Declare(
+        sdl3
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL
+        GIT_TAG release-3.4.0
+        GIT_SHALLOW TRUE
+)
+set(SDL_SHARED OFF)
+set(SDL_STATIC ON)
+FetchContent_MakeAvailable(sdl3)
 
-    FetchContent_Declare(
-            spdlog
-            GIT_REPOSITORY https://github.com/gabime/spdlog
-            GIT_TAG v1.15.3
-            GIT_SHALLOW TRUE
-    )
-    set(SPDLOG_FMT_EXTERNAL ON)
-    FetchContent_MakeAvailable(spdlog)
+FetchContent_Declare(
+        spdlog
+        GIT_REPOSITORY https://github.com/gabime/spdlog
+        GIT_TAG v1.15.3
+        GIT_SHALLOW TRUE
+)
+set(SPDLOG_FMT_EXTERNAL ON)
+FetchContent_MakeAvailable(spdlog)
 
-    FetchContent_Declare(
-            boost_multiprecision
-            GIT_REPOSITORY https://github.com/boostorg/multiprecision
-            GIT_TAG Boost_1_89_0
-            GIT_SHALLOW TRUE
-    )
-    FetchContent_MakeAvailable(boost_multiprecision)
-else ()
-    find_package(fmt REQUIRED)
-    find_package(glm REQUIRED)
-    find_package(SDL3 REQUIRED)
-    find_package(spdlog REQUIRED)
-    find_package(Boost REQUIRED)
-endif ()
+FetchContent_Declare(
+        boost_multiprecision
+        GIT_REPOSITORY https://github.com/boostorg/multiprecision
+        GIT_TAG Boost_1_89_0
+        GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(boost_multiprecision)
 
 FetchContent_Declare(
         glad2
@@ -93,6 +85,14 @@ FetchContent_Declare(
         GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(stb)
+
+FetchContent_Declare(
+        ctre
+        GIT_REPOSITORY https://github.com/hanickadot/compile-time-regular-expressions
+        GIT_TAG v3.10.0
+        GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(ctre)
 
 add_library(astra_thirdparty)
 add_library(astra::astra_thirdparty ALIAS astra_thirdparty)
@@ -177,10 +177,6 @@ target_link_libraries(
         glad_gl_core_46
         SDL3::SDL3
         spdlog::spdlog
+        ctre::ctre
+        Boost::multiprecision
 )
-
-if (ASTRA_BUILD_DEPENDENCIES)
-    target_link_libraries(astra_thirdparty PUBLIC Boost::multiprecision)
-else ()
-    target_link_libraries(astra_thirdparty PUBLIC Boost::boost)
-endif ()

@@ -62,9 +62,11 @@ void astra::init(const sdl3::AppInfo &app_info, const std::function<sdl3::Window
     gloo::init();
 
     g.dear = std::make_unique<Dear>(*g.window);
+    g.shaders = std::make_unique<ShaderMgr>();
 }
 
 void astra::shutdown() {
+    g.shaders.reset();
     g.dear.reset();
     g.window.reset();
     g.hermes.reset();

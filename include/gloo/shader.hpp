@@ -104,9 +104,9 @@ public:
     ShaderBuilder &operator=(ShaderBuilder &&other) noexcept = delete;
 
     ShaderBuilder &add_stage_src(ShaderType type, std::string source);
-    ShaderBuilder &add_stage_path(ShaderType type, const std::filesystem::path &path);
+    // ShaderBuilder &add_stage_path(ShaderType type, const std::filesystem::path &path);
 
-    std::unique_ptr<Shader> build();
+    std::shared_ptr<Shader> build();
 
 private:
     GLuint id_;

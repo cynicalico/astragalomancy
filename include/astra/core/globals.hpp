@@ -1,6 +1,7 @@
 #pragma once
 
 #include "astra/core/hermes.hpp"
+#include "astra/gfx/shader_mgr.hpp"
 #include "astra/util/module/dear.hpp"
 #include "astra/util/time.hpp"
 #include "sdl3_raii/window.hpp"
@@ -13,6 +14,8 @@ struct Globals {
     std::unique_ptr<Hermes> hermes{nullptr};
     std::unique_ptr<sdl3::Window> window{nullptr};
     std::unique_ptr<Dear> dear{nullptr};
+
+    std::unique_ptr<ShaderMgr> shaders{nullptr};
 
     bool running{false};
     FrameCounter frame_counter;

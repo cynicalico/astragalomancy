@@ -5,7 +5,7 @@ in vec3 in_color;
 
 out vec3 color;
 
-uniform mat4 projection;
+#include "assets/shader/common.shader"
 
 void main() {
     color = in_color;

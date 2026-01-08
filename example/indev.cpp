@@ -21,6 +21,9 @@ Indev::Indev() {
     astra::g.hermes->subscribe<astra::Draw>(*hermes_id, [this](const auto) { draw(); });
     astra::g.hermes->subscribe<sdl3::KeyboardEvent>(*hermes_id, [this](const auto e) { keyboard_event_callback_(e); });
     astra::g.hermes->subscribe<sdl3::MouseButtonEvent>(*hermes_id, [this](const auto e) { mouse_event_callback_(e); });
+
+    auto shader = astra::g.shaders->add_shader("assets/shader/triangles.shader");
+    if (!shader) throw std::runtime_error("Failed to load shader");
 }
 
 Indev::~Indev() {
