@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -16,7 +16,7 @@ enum class AudioEventType {
 };
 
 struct AudioDeviceEvent {
-    ASTRA_TAG_MEMBER(sdl3::AudioEvent);
+    HERMES_TAG_MEMBER(sdl3::AudioEvent);
     AudioEventType type;
     std::uint64_t timestamp;
     SDL_AudioDeviceID which;

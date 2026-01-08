@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -11,7 +11,7 @@
 
 namespace sdl3 {
 struct SensorEvent {
-    ASTRA_TAG_MEMBER(sdl3::SensorEvent);
+    HERMES_TAG_MEMBER(sdl3::SensorEvent);
     std::uint64_t timestamp;
     SDL_SensorID which;
     std::array<float, 6> data;

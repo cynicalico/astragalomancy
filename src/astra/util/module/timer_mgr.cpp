@@ -90,7 +90,7 @@ astra::TimerMgr::TimerMgr() {
 }
 
 astra::TimerMgr::~TimerMgr() {
-    if (callback_id_) unregister_callbacks_();
+    if (hermes_id_) unregister_callbacks_();
 }
 
 astra::TimerMgr::TimerMgr(TimerMgr &&other) noexcept {
@@ -160,11 +160,11 @@ void astra::TimerMgr::update_(double dt) {
 }
 
 void astra::TimerMgr::register_callbacks_() {
-    callback_id_ = g.msg->get_id();
-    g.msg->subscribe<PreUpdate>(*callback_id_, [&](const auto *p) { update_(p->dt); });
+    hermes_id_ = g.hermes->acquire_id();
+    g.hermes->subscribe<PreUpdate>(*hermes_id_, [&](const auto *p) { update_(p->dt); });
 }
 
 void astra::TimerMgr::unregister_callbacks_() {
-    g.msg->release_id(*callback_id_);
-    callback_id_ = std::nullopt;
+    g.hermes->release_id(*hermes_id_);
+    hermes_id_ = std::nullopt;
 }

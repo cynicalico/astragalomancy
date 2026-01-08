@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -17,7 +17,7 @@ enum class CameraEventType {
 };
 
 struct CameraDeviceEvent {
-    ASTRA_TAG_MEMBER(sdl3::CameraEvent);
+    HERMES_TAG_MEMBER(sdl3::CameraEvent);
     CameraEventType type;
     std::uint64_t timestamp;
     SDL_CameraID which;

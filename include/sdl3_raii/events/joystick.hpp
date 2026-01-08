@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -10,7 +10,7 @@
 
 namespace sdl3 {
 struct JoystickAxisEvent {
-    ASTRA_TAG_MEMBER(sdl3::JoystickAxisEvent);
+    HERMES_TAG_MEMBER(sdl3::JoystickAxisEvent);
     std::uint64_t timestamp;
     SDL_JoystickID which;
     std::uint8_t axis;
@@ -18,7 +18,7 @@ struct JoystickAxisEvent {
 };
 
 struct JoystickBallEvent {
-    ASTRA_TAG_MEMBER(sdl3::JoystickBallEvent);
+    HERMES_TAG_MEMBER(sdl3::JoystickBallEvent);
     std::uint64_t timestamp;
     SDL_JoystickID which;
     std::uint8_t ball;
@@ -36,7 +36,7 @@ enum class JoystickBatteryState {
 };
 
 struct JoystickBatteryEvent {
-    ASTRA_TAG_MEMBER(sdl3::JoystickBatteryEvent);
+    HERMES_TAG_MEMBER(sdl3::JoystickBatteryEvent);
     std::uint64_t timestamp;
     SDL_JoystickID which;
     JoystickBatteryState state;
@@ -49,7 +49,7 @@ enum class JoystickButtonEventType {
 };
 
 struct JoystickButtonEvent {
-    ASTRA_TAG_MEMBER(sdl3::JoystickButtonEvent);
+    HERMES_TAG_MEMBER(sdl3::JoystickButtonEvent);
     JoystickButtonEventType type;
     std::uint64_t timestamp;
     SDL_JoystickID which;
@@ -64,7 +64,7 @@ enum class JoystickDeviceEventType {
 };
 
 struct JoystickDeviceEvent {
-    ASTRA_TAG_MEMBER(sdl3::JoystickDeviceEvent);
+    HERMES_TAG_MEMBER(sdl3::JoystickDeviceEvent);
     JoystickDeviceEventType type;
     std::uint64_t timestamp;
     SDL_JoystickID which;
@@ -83,7 +83,7 @@ enum class JoystickHatValue {
 };
 
 struct JoystickHatEvent {
-    ASTRA_TAG_MEMBER(sdl3::JoystickHatEvent);
+    HERMES_TAG_MEMBER(sdl3::JoystickHatEvent);
     std::uint64_t timestamp;
     SDL_JoystickID which;
     std::uint8_t hat;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include "sdl3_raii/keycode.hpp"
 #include "sdl3_raii/scancode.hpp"
@@ -18,7 +18,7 @@ enum class KeyboardDeviceEventType {
 };
 
 struct KeyboardDeviceEvent {
-    ASTRA_TAG_MEMBER(sdl3::KeyboardDeviceEvent);
+    HERMES_TAG_MEMBER(sdl3::KeyboardDeviceEvent);
     KeyboardDeviceEventType type;
     std::uint64_t timestamp;
     SDL_KeyboardID which;
@@ -30,7 +30,7 @@ enum class KeyboardEventType {
 };
 
 struct KeyboardEvent {
-    ASTRA_TAG_MEMBER(sdl3::KeyboardEvent);
+    HERMES_TAG_MEMBER(sdl3::KeyboardEvent);
     KeyboardEventType type;
     std::uint64_t timestamp;
     SDL_KeyboardID which;

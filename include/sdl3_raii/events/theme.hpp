@@ -1,10 +1,10 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 namespace sdl3 {
 struct SystemThemeChangedEvent {
-    ASTRA_TAG_MEMBER(sdl3::SystemThemeChangedEvent);
+    HERMES_TAG_MEMBER(sdl3::SystemThemeChangedEvent);
     std::uint64_t timestamp;
 };
 } // namespace sdl3

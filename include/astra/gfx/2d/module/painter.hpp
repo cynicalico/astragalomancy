@@ -1,7 +1,7 @@
 #pragma once
 
 #include "astra/core/color.hpp"
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include "sdl3_raii/window.hpp"
 

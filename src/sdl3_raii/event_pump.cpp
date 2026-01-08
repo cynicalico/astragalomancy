@@ -34,17 +34,17 @@ void pump_events() {
 } // namespace sdl3
 
 void publish_event(const SDL_Event &e) {
-    astra::g.msg->publish<sdl3::RawEvent>(e);
+    astra::g.hermes->publish<sdl3::RawEvent>(e);
 
     switch (e.type) {
     case SDL_EVENT_SYSTEM_THEME_CHANGED:
-        astra::g.msg->publish<sdl3::SystemThemeChangedEvent>(e.common.timestamp);
+        astra::g.hermes->publish<sdl3::SystemThemeChangedEvent>(e.common.timestamp);
         break;
 
     case SDL_EVENT_AUDIO_DEVICE_ADDED:
     case SDL_EVENT_AUDIO_DEVICE_REMOVED:
     case SDL_EVENT_AUDIO_DEVICE_FORMAT_CHANGED:
-        astra::g.msg->publish<sdl3::AudioDeviceEvent>(
+        astra::g.hermes->publish<sdl3::AudioDeviceEvent>(
                 static_cast<sdl3::AudioEventType>(e.type), e.adevice.timestamp, e.adevice.which, e.adevice.recording);
         break;
 
@@ -52,14 +52,14 @@ void publish_event(const SDL_Event &e) {
     case SDL_EVENT_CAMERA_DEVICE_REMOVED:
     case SDL_EVENT_CAMERA_DEVICE_APPROVED:
     case SDL_EVENT_CAMERA_DEVICE_DENIED:
-        astra::g.msg->publish<sdl3::CameraDeviceEvent>(
+        astra::g.hermes->publish<sdl3::CameraDeviceEvent>(
                 static_cast<sdl3::CameraEventType>(e.type), e.adevice.timestamp, e.adevice.which);
         break;
 
     case SDL_EVENT_CLIPBOARD_UPDATE: {
         std::vector<std::string> mime_types;
         for (std::size_t i = 0; i < e.clipboard.num_mime_types; ++i) mime_types.emplace_back(e.clipboard.mime_types[i]);
-        astra::g.msg->publish<sdl3::ClipboardEvent>(e.clipboard.timestamp, e.clipboard.owner, mime_types);
+        astra::g.hermes->publish<sdl3::ClipboardEvent>(e.clipboard.timestamp, e.clipboard.owner, mime_types);
     } break;
 
     case SDL_EVENT_DISPLAY_ORIENTATION:
@@ -68,7 +68,7 @@ void publish_event(const SDL_Event &e) {
     case SDL_EVENT_DISPLAY_DESKTOP_MODE_CHANGED:
     case SDL_EVENT_DISPLAY_CURRENT_MODE_CHANGED:
     case SDL_EVENT_DISPLAY_CONTENT_SCALE_CHANGED:
-        astra::g.msg->publish<sdl3::DisplayEvent>(
+        astra::g.hermes->publish<sdl3::DisplayEvent>(
                 static_cast<sdl3::DisplayEventType>(e.type),
                 e.display.timestamp,
                 e.display.displayID,
@@ -81,7 +81,7 @@ void publish_event(const SDL_Event &e) {
     case SDL_EVENT_DROP_TEXT:
     case SDL_EVENT_DROP_COMPLETE:
     case SDL_EVENT_DROP_POSITION:
-        astra::g.msg->publish<sdl3::DropEvent>(
+        astra::g.hermes->publish<sdl3::DropEvent>(
                 static_cast<sdl3::DropEventType>(e.type),
                 e.drop.timestamp,
                 e.drop.windowID,
@@ -92,12 +92,12 @@ void publish_event(const SDL_Event &e) {
         break;
 
     case SDL_EVENT_GAMEPAD_AXIS_MOTION:
-        astra::g.msg->publish<sdl3::GamepadAxisEvent>(e.gaxis.timestamp, e.gaxis.which, e.gaxis.axis, e.gaxis.value);
+        astra::g.hermes->publish<sdl3::GamepadAxisEvent>(e.gaxis.timestamp, e.gaxis.which, e.gaxis.axis, e.gaxis.value);
         break;
 
     case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
     case SDL_EVENT_GAMEPAD_BUTTON_UP:
-        astra::g.msg->publish<sdl3::GamepadButtonEvent>(
+        astra::g.hermes->publish<sdl3::GamepadButtonEvent>(
                 static_cast<sdl3::GamepadButtonEventType>(e.type),
                 e.gbutton.timestamp,
                 e.gbutton.which,
@@ -110,14 +110,14 @@ void publish_event(const SDL_Event &e) {
     case SDL_EVENT_GAMEPAD_REMAPPED:
     case SDL_EVENT_GAMEPAD_UPDATE_COMPLETE:
     case SDL_EVENT_GAMEPAD_STEAM_HANDLE_UPDATED:
-        astra::g.msg->publish<sdl3::GamepadDeviceEvent>(
+        astra::g.hermes->publish<sdl3::GamepadDeviceEvent>(
                 static_cast<sdl3::GamepadDeviceEventType>(e.type), e.gdevice.timestamp, e.gdevice.which);
         break;
 
     case SDL_EVENT_GAMEPAD_SENSOR_UPDATE: {
         std::array<float, 3> data{};
         std::memcpy(data.data(), e.gsensor.data, sizeof(float) * 3);
-        astra::g.msg->publish<sdl3::GamepadSensorEvent>(
+        astra::g.hermes->publish<sdl3::GamepadSensorEvent>(
                 e.gsensor.timestamp,
                 e.gsensor.which,
                 static_cast<sdl3::GamepadSensorType>(e.gsensor.sensor),
@@ -128,7 +128,7 @@ void publish_event(const SDL_Event &e) {
     case SDL_EVENT_GAMEPAD_TOUCHPAD_DOWN:
     case SDL_EVENT_GAMEPAD_TOUCHPAD_MOTION:
     case SDL_EVENT_GAMEPAD_TOUCHPAD_UP:
-        astra::g.msg->publish<sdl3::GamepadTouchpadEvent>(
+        astra::g.hermes->publish<sdl3::GamepadTouchpadEvent>(
                 static_cast<sdl3::GamepadTouchpadEventType>(e.type),
                 e.gtouchpad.timestamp,
                 e.gtouchpad.which,
@@ -140,16 +140,16 @@ void publish_event(const SDL_Event &e) {
         break;
 
     case SDL_EVENT_JOYSTICK_AXIS_MOTION:
-        astra::g.msg->publish<sdl3::JoystickAxisEvent>(e.jaxis.timestamp, e.jaxis.which, e.jaxis.axis, e.jaxis.value);
+        astra::g.hermes->publish<sdl3::JoystickAxisEvent>(e.jaxis.timestamp, e.jaxis.which, e.jaxis.axis, e.jaxis.value);
         break;
 
     case SDL_EVENT_JOYSTICK_BALL_MOTION:
-        astra::g.msg->publish<sdl3::JoystickBallEvent>(
+        astra::g.hermes->publish<sdl3::JoystickBallEvent>(
                 e.jball.timestamp, e.jball.which, e.jball.ball, e.jball.xrel, e.jball.yrel);
         break;
 
     case SDL_EVENT_JOYSTICK_BATTERY_UPDATED:
-        astra::g.msg->publish<sdl3::JoystickBatteryEvent>(
+        astra::g.hermes->publish<sdl3::JoystickBatteryEvent>(
                 e.jbattery.timestamp,
                 e.jbattery.which,
                 static_cast<sdl3::JoystickBatteryState>(e.jbattery.state),
@@ -158,7 +158,7 @@ void publish_event(const SDL_Event &e) {
 
     case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
     case SDL_EVENT_JOYSTICK_BUTTON_UP:
-        astra::g.msg->publish<sdl3::JoystickButtonEvent>(
+        astra::g.hermes->publish<sdl3::JoystickButtonEvent>(
                 static_cast<sdl3::JoystickButtonEventType>(e.type),
                 e.jbutton.timestamp,
                 e.jbutton.which,
@@ -169,24 +169,24 @@ void publish_event(const SDL_Event &e) {
     case SDL_EVENT_JOYSTICK_ADDED:
     case SDL_EVENT_JOYSTICK_REMOVED:
     case SDL_EVENT_JOYSTICK_UPDATE_COMPLETE:
-        astra::g.msg->publish<sdl3::JoystickDeviceEvent>(
+        astra::g.hermes->publish<sdl3::JoystickDeviceEvent>(
                 static_cast<sdl3::JoystickDeviceEventType>(e.type), e.jdevice.timestamp, e.jdevice.which);
         break;
 
     case SDL_EVENT_JOYSTICK_HAT_MOTION:
-        astra::g.msg->publish<sdl3::JoystickHatEvent>(
+        astra::g.hermes->publish<sdl3::JoystickHatEvent>(
                 e.jhat.timestamp, e.jhat.which, e.jhat.hat, static_cast<sdl3::JoystickHatValue>(e.jhat.value));
         break;
 
     case SDL_EVENT_KEYBOARD_ADDED:
     case SDL_EVENT_KEYBOARD_REMOVED:
-        astra::g.msg->publish<sdl3::KeyboardDeviceEvent>(
+        astra::g.hermes->publish<sdl3::KeyboardDeviceEvent>(
                 static_cast<sdl3::KeyboardDeviceEventType>(e.type), e.key.timestamp, e.key.which);
         break;
 
     case SDL_EVENT_KEY_DOWN:
     case SDL_EVENT_KEY_UP:
-        astra::g.msg->publish<sdl3::KeyboardEvent>(
+        astra::g.hermes->publish<sdl3::KeyboardEvent>(
                 static_cast<sdl3::KeyboardEventType>(e.type),
                 e.key.timestamp,
                 e.key.which,
@@ -200,7 +200,7 @@ void publish_event(const SDL_Event &e) {
 
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
     case SDL_EVENT_MOUSE_BUTTON_UP:
-        astra::g.msg->publish<sdl3::MouseButtonEvent>(
+        astra::g.hermes->publish<sdl3::MouseButtonEvent>(
                 static_cast<sdl3::MouseButtonEventType>(e.type),
                 e.button.timestamp,
                 e.button.windowID,
@@ -214,12 +214,12 @@ void publish_event(const SDL_Event &e) {
 
     case SDL_EVENT_MOUSE_ADDED:
     case SDL_EVENT_MOUSE_REMOVED:
-        astra::g.msg->publish<sdl3::MouseDeviceEvent>(
+        astra::g.hermes->publish<sdl3::MouseDeviceEvent>(
                 static_cast<sdl3::MouseDeviceEventType>(e.type), e.button.timestamp, e.button.which);
         break;
 
     case SDL_EVENT_MOUSE_MOTION:
-        astra::g.msg->publish<sdl3::MouseMotionEvent>(
+        astra::g.hermes->publish<sdl3::MouseMotionEvent>(
                 e.motion.timestamp,
                 e.motion.windowID,
                 e.motion.which,
@@ -231,7 +231,7 @@ void publish_event(const SDL_Event &e) {
         break;
 
     case SDL_EVENT_MOUSE_WHEEL:
-        astra::g.msg->publish<sdl3::MouseWheelEvent>(
+        astra::g.hermes->publish<sdl3::MouseWheelEvent>(
                 e.wheel.timestamp,
                 e.wheel.windowID,
                 e.wheel.which,
@@ -245,7 +245,7 @@ void publish_event(const SDL_Event &e) {
         break;
 
     case SDL_EVENT_PEN_AXIS:
-        astra::g.msg->publish<sdl3::PenAxisEvent>(
+        astra::g.hermes->publish<sdl3::PenAxisEvent>(
                 e.paxis.timestamp,
                 e.paxis.windowID,
                 e.paxis.which,
@@ -258,7 +258,7 @@ void publish_event(const SDL_Event &e) {
 
     case SDL_EVENT_PEN_BUTTON_DOWN:
     case SDL_EVENT_PEN_BUTTON_UP:
-        astra::g.msg->publish<sdl3::PenButtonEvent>(
+        astra::g.hermes->publish<sdl3::PenButtonEvent>(
                 static_cast<sdl3::PenButtonEventType>(e.type),
                 e.pbutton.timestamp,
                 e.pbutton.windowID,
@@ -271,7 +271,7 @@ void publish_event(const SDL_Event &e) {
         break;
 
     case SDL_EVENT_PEN_MOTION:
-        astra::g.msg->publish<sdl3::PenMotionEvent>(
+        astra::g.hermes->publish<sdl3::PenMotionEvent>(
                 e.pmotion.timestamp,
                 e.pmotion.windowID,
                 e.pmotion.which,
@@ -282,7 +282,7 @@ void publish_event(const SDL_Event &e) {
 
     case SDL_EVENT_PEN_PROXIMITY_IN:
     case SDL_EVENT_PEN_PROXIMITY_OUT:
-        astra::g.msg->publish<sdl3::PenProximityEvent>(
+        astra::g.hermes->publish<sdl3::PenProximityEvent>(
                 static_cast<sdl3::PenProximityEventType>(e.type),
                 e.pproximity.timestamp,
                 e.pproximity.windowID,
@@ -291,7 +291,7 @@ void publish_event(const SDL_Event &e) {
 
     case SDL_EVENT_PEN_UP:
     case SDL_EVENT_PEN_DOWN:
-        astra::g.msg->publish<sdl3::PenTouchEvent>(
+        astra::g.hermes->publish<sdl3::PenTouchEvent>(
                 static_cast<sdl3::PenTouchEventType>(e.type),
                 e.ptouch.timestamp,
                 e.ptouch.windowID,
@@ -303,25 +303,25 @@ void publish_event(const SDL_Event &e) {
                 e.ptouch.down);
         break;
 
-    case SDL_EVENT_QUIT: astra::g.msg->publish<sdl3::QuitEvent>(e.quit.timestamp); break;
+    case SDL_EVENT_QUIT: astra::g.hermes->publish<sdl3::QuitEvent>(e.quit.timestamp); break;
 
     case SDL_EVENT_RENDER_TARGETS_RESET:
     case SDL_EVENT_RENDER_DEVICE_RESET:
     case SDL_EVENT_RENDER_DEVICE_LOST:
-        astra::g.msg->publish<sdl3::RenderEvent>(
+        astra::g.hermes->publish<sdl3::RenderEvent>(
                 static_cast<sdl3::RenderEventType>(e.type), e.render.timestamp, e.render.windowID);
         break;
 
     case SDL_EVENT_SENSOR_UPDATE: {
         std::array<float, 6> data{};
         std::memcpy(data.data(), e.sensor.data, sizeof(float) * 6);
-        astra::g.msg->publish<sdl3::SensorEvent>(e.sensor.timestamp, e.sensor.which, data, e.sensor.sensor_timestamp);
+        astra::g.hermes->publish<sdl3::SensorEvent>(e.sensor.timestamp, e.sensor.which, data, e.sensor.sensor_timestamp);
     } break;
 
     case SDL_EVENT_TEXT_EDITING_CANDIDATES: {
         std::vector<std::string> candidates;
         for (std::size_t i = 0; i < e.edit_candidates.num_candidates; ++i) candidates.emplace_back(e.edit.text);
-        astra::g.msg->publish<sdl3::TextEditingCandidatesEvent>(
+        astra::g.hermes->publish<sdl3::TextEditingCandidatesEvent>(
                 e.edit_candidates.timestamp,
                 e.edit_candidates.windowID,
                 candidates,
@@ -332,7 +332,7 @@ void publish_event(const SDL_Event &e) {
     } break;
 
     case SDL_EVENT_TEXT_EDITING:
-        astra::g.msg->publish<sdl3::TextEditingEvent>(
+        astra::g.hermes->publish<sdl3::TextEditingEvent>(
                 e.edit.timestamp,
                 e.edit.windowID,
                 e.edit.text,
@@ -341,14 +341,14 @@ void publish_event(const SDL_Event &e) {
         break;
 
     case SDL_EVENT_TEXT_INPUT:
-        astra::g.msg->publish<sdl3::TextInputEvent>(e.text.timestamp, e.text.windowID, e.text.text);
+        astra::g.hermes->publish<sdl3::TextInputEvent>(e.text.timestamp, e.text.windowID, e.text.text);
         break;
 
     case SDL_EVENT_FINGER_DOWN:
     case SDL_EVENT_FINGER_UP:
     case SDL_EVENT_FINGER_MOTION:
     case SDL_EVENT_FINGER_CANCELED:
-        astra::g.msg->publish<sdl3::TouchFingerEvent>(
+        astra::g.hermes->publish<sdl3::TouchFingerEvent>(
                 static_cast<sdl3::TouchFingerEventType>(e.type),
                 e.tfinger.timestamp,
                 e.tfinger.touchID,
@@ -385,7 +385,7 @@ void publish_event(const SDL_Event &e) {
     case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
     case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
     case SDL_EVENT_WINDOW_DESTROYED:
-        astra::g.msg->publish<sdl3::WindowEvent>(
+        astra::g.hermes->publish<sdl3::WindowEvent>(
                 static_cast<sdl3::WindowEventType>(e.type),
                 e.window.timestamp,
                 e.window.windowID,
@@ -395,7 +395,7 @@ void publish_event(const SDL_Event &e) {
 
     default:
         if (e.type >= SDL_EVENT_USER && e.type < SDL_EVENT_LAST) {
-            astra::g.msg->publish<sdl3::UserEvent>(
+            astra::g.hermes->publish<sdl3::UserEvent>(
                     e.type, e.user.timestamp, e.user.windowID, e.user.code, e.user.data1, e.user.data2);
         } else {
             ASTRA_LOG_DEBUG("Unhandled event: {} (0x{:x})", event_type_to_string(e.type), e.type);

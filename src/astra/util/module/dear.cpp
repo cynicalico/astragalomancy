@@ -42,7 +42,7 @@ astra::Dear::~Dear() {
         ImGui::DestroyContext(imgui_ctx_);
     }
 
-    if (callback_id_) unregister_callbacks_();
+    if (hermes_id_) unregister_callbacks_();
 }
 
 astra::Dear::Dear(Dear &&other) noexcept
@@ -72,47 +72,47 @@ astra::Dear &astra::Dear::operator=(Dear &&other) noexcept {
 }
 
 void astra::Dear::register_callbacks_() {
-    callback_id_ = g.msg->get_id();
+    hermes_id_ = g.hermes->acquire_id();
 
-    g.msg->subscribe<sdl3::RawEvent>(*callback_id_, [&](const auto *p) {
+    g.hermes->subscribe<sdl3::RawEvent>(*hermes_id_, [&](const auto *p) {
         ImGui_ImplSDL3_ProcessEvent(&p->e);
 
         const ImGuiIO &io = ImGui::GetIO();
 
         if (!keyboard_captured_ && io.WantCaptureKeyboard) {
-            g.msg->capture<sdl3::KeyboardEvent>(*callback_id_);
+            g.hermes->capture<sdl3::KeyboardEvent>(*hermes_id_);
             keyboard_captured_ = true;
         } else if (keyboard_captured_ && !io.WantCaptureKeyboard) {
-            g.msg->uncapture<sdl3::KeyboardEvent>(*callback_id_);
+            g.hermes->uncapture<sdl3::KeyboardEvent>(*hermes_id_);
             keyboard_captured_ = false;
         }
 
         if (!mouse_captured_ && io.WantCaptureMouse) {
-            g.msg->capture<sdl3::MouseButtonEvent>(*callback_id_);
-            g.msg->capture<sdl3::MouseMotionEvent>(*callback_id_);
-            g.msg->capture<sdl3::MouseWheelEvent>(*callback_id_);
+            g.hermes->capture<sdl3::MouseButtonEvent>(*hermes_id_);
+            g.hermes->capture<sdl3::MouseMotionEvent>(*hermes_id_);
+            g.hermes->capture<sdl3::MouseWheelEvent>(*hermes_id_);
             mouse_captured_ = true;
         } else if (mouse_captured_ && !io.WantCaptureMouse) {
-            g.msg->uncapture<sdl3::MouseButtonEvent>(*callback_id_);
-            g.msg->uncapture<sdl3::MouseMotionEvent>(*callback_id_);
-            g.msg->uncapture<sdl3::MouseWheelEvent>(*callback_id_);
+            g.hermes->uncapture<sdl3::MouseButtonEvent>(*hermes_id_);
+            g.hermes->uncapture<sdl3::MouseMotionEvent>(*hermes_id_);
+            g.hermes->uncapture<sdl3::MouseWheelEvent>(*hermes_id_);
             mouse_captured_ = false;
         }
     });
 
-    g.msg->subscribe<PreDraw>(*callback_id_, [&](const auto *) {
+    g.hermes->subscribe<PreDraw>(*hermes_id_, [&](const auto *) {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
     });
 
-    g.msg->subscribe<PostDraw>(*callback_id_, [&](const auto *) {
+    g.hermes->subscribe<PostDraw>(*hermes_id_, [&](const auto *) {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     });
 }
 
 void astra::Dear::unregister_callbacks_() {
-    g.msg->release_id(*callback_id_);
-    callback_id_ = std::nullopt;
+    g.hermes->release_id(*hermes_id_);
+    hermes_id_ = std::nullopt;
 }

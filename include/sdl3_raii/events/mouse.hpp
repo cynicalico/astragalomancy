@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 #include "astra/util/enum_class_helpers.hpp"
 
 #include <SDL3/SDL_events.h>
@@ -24,7 +24,7 @@ enum class MouseButtonFlags {
 };
 
 struct MouseButtonEvent {
-    ASTRA_TAG_MEMBER(sdl3::MouseButtonEvent);
+    HERMES_TAG_MEMBER(sdl3::MouseButtonEvent);
     MouseButtonEventType type;
     std::uint64_t timestamp;
     SDL_WindowID window_id;
@@ -42,14 +42,14 @@ enum class MouseDeviceEventType {
 };
 
 struct MouseDeviceEvent {
-    ASTRA_TAG_MEMBER(sdl3::MouseDeviceEvent);
+    HERMES_TAG_MEMBER(sdl3::MouseDeviceEvent);
     MouseDeviceEventType type;
     std::uint64_t timestamp;
     SDL_MouseID which;
 };
 
 struct MouseMotionEvent {
-    ASTRA_TAG_MEMBER(sdl3::MouseMotionEvent);
+    HERMES_TAG_MEMBER(sdl3::MouseMotionEvent);
     std::uint64_t timestamp;
     SDL_WindowID window_id;
     SDL_MouseID which;
@@ -66,7 +66,7 @@ enum class MouseWheelDirection {
 };
 
 struct MouseWheelEvent {
-    ASTRA_TAG_MEMBER(sdl3::MouseWheelEvent);
+    HERMES_TAG_MEMBER(sdl3::MouseWheelEvent);
     std::uint64_t timestamp;
     SDL_WindowID window_id;
     SDL_MouseID which;

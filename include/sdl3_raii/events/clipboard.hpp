@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -11,7 +11,7 @@
 
 namespace sdl3 {
 struct ClipboardEvent {
-    ASTRA_TAG_MEMBER(sdl3::ClipboardEvent);
+    HERMES_TAG_MEMBER(sdl3::ClipboardEvent);
     std::uint64_t timestamp;
     bool owner;
     std::vector<std::string> mime_types;

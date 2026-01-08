@@ -1,51 +1,51 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <spdlog/details/log_msg.h>
 
 namespace astra {
 struct PreUpdate {
-    ASTRA_TAG_MEMBER(astra::PreUpdate);
+    HERMES_TAG_MEMBER(astra::PreUpdate);
     double dt;
 };
 
 struct Update {
-    ASTRA_TAG_MEMBER(astra::Update);
+    HERMES_TAG_MEMBER(astra::Update);
     double dt;
 };
 
 struct PostUpdate {
-    ASTRA_TAG_MEMBER(astra::PostUpdate);
+    HERMES_TAG_MEMBER(astra::PostUpdate);
     double dt;
 };
 
 struct PreDraw {
-    ASTRA_TAG_MEMBER(astra::PreDraw);
+    HERMES_TAG_MEMBER(astra::PreDraw);
 };
 
 struct Draw {
-    ASTRA_TAG_MEMBER(astra::Draw);
+    HERMES_TAG_MEMBER(astra::Draw);
 };
 
 struct PostDraw {
-    ASTRA_TAG_MEMBER(astra::PostDraw);
+    HERMES_TAG_MEMBER(astra::PostDraw);
 };
 
 struct PreDrawOverlay {
-    ASTRA_TAG_MEMBER(astra::PreDrawOverlay);
+    HERMES_TAG_MEMBER(astra::PreDrawOverlay);
 };
 
 struct DrawOverlay {
-    ASTRA_TAG_MEMBER(astra::DrawOverlay);
+    HERMES_TAG_MEMBER(astra::DrawOverlay);
 };
 
 struct PostDrawOverlay {
-    ASTRA_TAG_MEMBER(astra::PostDrawOverlay);
+    HERMES_TAG_MEMBER(astra::PostDrawOverlay);
 };
 
 struct LogMessage {
-    ASTRA_TAG_MEMBER(astra::LogMessage);
+    HERMES_TAG_MEMBER(astra::LogMessage);
     spdlog::level::level_enum level;
     std::string text;
 };

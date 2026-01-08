@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -20,7 +20,7 @@ enum class DisplayEventType {
 };
 
 struct DisplayEvent {
-    ASTRA_TAG_MEMBER(sdl3::DisplayEvent);
+    HERMES_TAG_MEMBER(sdl3::DisplayEvent);
     DisplayEventType type;
     std::uint64_t timestamp;
     SDL_DisplayID display_id;

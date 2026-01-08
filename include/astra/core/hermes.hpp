@@ -10,20 +10,20 @@
 #include <unordered_map>
 #include <vector>
 
-#define ASTRA_TAG_MEMBER(name) constexpr static std::uint32_t ASTRA_MESSENGER_TAG{astra::murmur_x86_32(#name, 0)};
+#define HERMES_TAG_MEMBER(name) constexpr static std::uint32_t HERMES_MESSENGER_TAG{astra::murmur_x86_32(#name, 0)};
 
 namespace astra {
 template<typename T>
-concept HasAstraTag = std::same_as<decltype(T::ASTRA_MESSENGER_TAG), const std::uint32_t>;
+concept HasAstraTag = std::same_as<decltype(T::HERMES_MESSENGER_TAG), const std::uint32_t>;
 
-class Messenger {
+class Hermes {
     using Payload = std::span<const std::byte>;
     using Receiver = std::function<void(Payload)>;
 
 public:
     using ID = std::size_t;
 
-    ID get_id();
+    ID acquire_id();
     void release_id(ID id);
 
     template<typename T, typename Func>
@@ -58,7 +58,7 @@ private:
 };
 } // namespace astra
 
-inline astra::Messenger::ID astra::Messenger::get_id() {
+inline astra::Hermes::ID astra::Hermes::acquire_id() {
     if (recycled_ids_.empty()) return next_id_++;
 
     const auto id = recycled_ids_.back();
@@ -66,7 +66,7 @@ inline astra::Messenger::ID astra::Messenger::get_id() {
     return id;
 }
 
-inline void astra::Messenger::release_id(const ID id) {
+inline void astra::Hermes::release_id(const ID id) {
     for (auto &receivers: receivers_ | std::views::values)
         if (receivers.size() > id) receivers[id] = nullptr;
 
@@ -78,8 +78,8 @@ inline void astra::Messenger::release_id(const ID id) {
 
 template<typename T, typename Func>
     requires astra::HasAstraTag<T> and std::invocable<Func, const T *>
-void astra::Messenger::subscribe(ID id, Func &&f) {
-    auto &receivers = receivers_[T::ASTRA_MESSENGER_TAG];
+void astra::Hermes::subscribe(ID id, Func &&f) {
+    auto &receivers = receivers_[T::HERMES_MESSENGER_TAG];
     if (receivers.size() <= id) receivers.resize(id + 1);
     receivers[id] = [f = std::forward<Func>(f)](const Payload buffer) {
         f(reinterpret_cast<const T *>(buffer.data()));
@@ -88,21 +88,21 @@ void astra::Messenger::subscribe(ID id, Func &&f) {
 
 template<typename T>
     requires astra::HasAstraTag<T>
-void astra::Messenger::unsubscribe(ID id) {
-    auto &receivers = receivers_[T::ASTRA_MESSENGER_TAG];
+void astra::Hermes::unsubscribe(ID id) {
+    auto &receivers = receivers_[T::HERMES_MESSENGER_TAG];
     if (receivers.size() > id) receivers[id] = nullptr;
 }
 
 template<typename T, typename... Args>
     requires astra::HasAstraTag<T>
-void astra::Messenger::publish(Args &&...args) {
+void astra::Hermes::publish(Args &&...args) {
     const auto payload = make_payload_<T>(std::forward<Args>(args)...);
-    if (auto cap_id_opt = captures_[T::ASTRA_MESSENGER_TAG]; cap_id_opt) {
-        if (receivers_[T::ASTRA_MESSENGER_TAG].size() > *cap_id_opt) {
-            if (auto &r = receivers_[T::ASTRA_MESSENGER_TAG][*cap_id_opt]; r) r(payload);
+    if (auto cap_id_opt = captures_[T::HERMES_MESSENGER_TAG]; cap_id_opt) {
+        if (receivers_[T::HERMES_MESSENGER_TAG].size() > *cap_id_opt) {
+            if (auto &r = receivers_[T::HERMES_MESSENGER_TAG][*cap_id_opt]; r) r(payload);
         }
     } else {
-        for (auto &r: receivers_[T::ASTRA_MESSENGER_TAG])
+        for (auto &r: receivers_[T::HERMES_MESSENGER_TAG])
             if (r) r(payload);
     }
     operator delete(payload.data(), payload.size());
@@ -110,18 +110,18 @@ void astra::Messenger::publish(Args &&...args) {
 
 template<typename T>
     requires astra::HasAstraTag<T>
-void astra::Messenger::capture(ID id) {
-    captures_[T::ASTRA_MESSENGER_TAG] = id;
+void astra::Hermes::capture(ID id) {
+    captures_[T::HERMES_MESSENGER_TAG] = id;
 }
 
 template<typename T>
     requires astra::HasAstraTag<T>
-void astra::Messenger::uncapture(ID id, bool force) {
-    if (force || captures_[T::ASTRA_MESSENGER_TAG] && *captures_[T::ASTRA_MESSENGER_TAG] == id)
-        captures_[T::ASTRA_MESSENGER_TAG].reset();
+void astra::Hermes::uncapture(ID id, bool force) {
+    if (force || captures_[T::HERMES_MESSENGER_TAG] && *captures_[T::HERMES_MESSENGER_TAG] == id)
+        captures_[T::HERMES_MESSENGER_TAG].reset();
 }
 
 template<typename T, typename... Args>
-std::span<std::byte> astra::Messenger::make_payload_(Args &&...args) {
+std::span<std::byte> astra::Hermes::make_payload_(Args &&...args) {
     return std::span(reinterpret_cast<std::byte *>(new T{std::forward<Args>(args)...}), sizeof(T));
 }

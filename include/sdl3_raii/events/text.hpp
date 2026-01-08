@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -13,7 +13,7 @@
 
 namespace sdl3 {
 struct TextEditingCandidatesEvent {
-    ASTRA_TAG_MEMBER(sdl3::TextEditingCandidatesEvent);
+    HERMES_TAG_MEMBER(sdl3::TextEditingCandidatesEvent);
     std::uint64_t timestamp;
     SDL_WindowID window_id;
     std::vector<std::string> candidates;
@@ -22,7 +22,7 @@ struct TextEditingCandidatesEvent {
 };
 
 struct TextEditingEvent {
-    ASTRA_TAG_MEMBER(sdl3::TextEditingEvent);
+    HERMES_TAG_MEMBER(sdl3::TextEditingEvent);
     std::uint64_t timestamp;
     SDL_WindowID window_id;
     std::string text;
@@ -31,7 +31,7 @@ struct TextEditingEvent {
 };
 
 struct TextInputEvent {
-    ASTRA_TAG_MEMBER(sdl3::TextInputEvent);
+    HERMES_TAG_MEMBER(sdl3::TextInputEvent);
     std::uint64_t timestamp;
     SDL_WindowID window_id;
     std::string text;

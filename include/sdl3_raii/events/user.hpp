@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -10,7 +10,7 @@
 
 namespace sdl3 {
 struct UserEvent {
-    ASTRA_TAG_MEMBER(sdl3::UserEvent);
+    HERMES_TAG_MEMBER(sdl3::UserEvent);
     std::uint32_t type;
     std::uint64_t timestamp;
     SDL_WindowID window_id;

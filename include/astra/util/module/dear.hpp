@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 #include "sdl3_raii/window.hpp"
 
 #include "imgui.h"
@@ -26,7 +26,7 @@ private:
     bool keyboard_captured_{false};
     bool mouse_captured_{false};
 
-    std::optional<Messenger::ID> callback_id_;
+    std::optional<Hermes::ID> hermes_id_;
     void register_callbacks_();
     void unregister_callbacks_();
 };

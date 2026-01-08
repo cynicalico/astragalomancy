@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -11,7 +11,7 @@
 
 namespace sdl3 {
 struct GamepadAxisEvent {
-    ASTRA_TAG_MEMBER(sdl3::GamepadAxisEvent);
+    HERMES_TAG_MEMBER(sdl3::GamepadAxisEvent);
     std::uint64_t timestamp;
     SDL_JoystickID which;
     std::uint8_t axis;
@@ -24,7 +24,7 @@ enum class GamepadButtonEventType {
 };
 
 struct GamepadButtonEvent {
-    ASTRA_TAG_MEMBER(sdl3::GamepadButtonEvent);
+    HERMES_TAG_MEMBER(sdl3::GamepadButtonEvent);
     GamepadButtonEventType type;
     std::uint64_t timestamp;
     SDL_JoystickID which;
@@ -41,7 +41,7 @@ enum class GamepadDeviceEventType {
 };
 
 struct GamepadDeviceEvent {
-    ASTRA_TAG_MEMBER(sdl3::GamepadDeviceEvent);
+    HERMES_TAG_MEMBER(sdl3::GamepadDeviceEvent);
     GamepadDeviceEventType type;
     std::uint64_t timestamp;
     SDL_JoystickID which;
@@ -59,7 +59,7 @@ enum class GamepadSensorType {
 };
 
 struct GamepadSensorEvent {
-    ASTRA_TAG_MEMBER(sdl3::GamepadSensorEvent);
+    HERMES_TAG_MEMBER(sdl3::GamepadSensorEvent);
     std::uint64_t timestamp;
     SDL_JoystickID which;
     GamepadSensorType type;
@@ -74,7 +74,7 @@ enum class GamepadTouchpadEventType {
 };
 
 struct GamepadTouchpadEvent {
-    ASTRA_TAG_MEMBER(sdl3::GamepadTouchpadEvent);
+    HERMES_TAG_MEMBER(sdl3::GamepadTouchpadEvent);
     GamepadTouchpadEventType type;
     std::uint64_t timestamp;
     SDL_JoystickID which;

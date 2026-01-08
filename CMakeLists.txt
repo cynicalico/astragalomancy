@@ -68,7 +68,7 @@ target_sources(
         "include/astra/core/globals.hpp"
         "include/astra/core/init.hpp"
         "include/astra/core/log.hpp"
-        "include/astra/core/messenger.hpp"
+        "include/astra/core/hermes.hpp"
         "include/astra/core/payloads.hpp"
         "include/astra/core/types.hpp"
         "include/astra/gfx/2d/module/painter.hpp"

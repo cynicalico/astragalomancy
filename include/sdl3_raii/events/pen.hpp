@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 #include "astra/util/enum_class_helpers.hpp"
 
 #include <SDL3/SDL_events.h>
@@ -32,7 +32,7 @@ enum class PenAxis {
 };
 
 struct PenAxisEvent {
-    ASTRA_TAG_MEMBER(sdl3::PenAxisEvent);
+    HERMES_TAG_MEMBER(sdl3::PenAxisEvent);
     std::uint64_t timestamp;
     SDL_WindowID window_id;
     SDL_PenID which;
@@ -49,7 +49,7 @@ enum class PenButtonEventType {
 };
 
 struct PenButtonEvent {
-    ASTRA_TAG_MEMBER(sdl3::PenButtonEvent);
+    HERMES_TAG_MEMBER(sdl3::PenButtonEvent);
     PenButtonEventType type;
     std::uint64_t timestamp;
     SDL_WindowID window_id;
@@ -62,7 +62,7 @@ struct PenButtonEvent {
 };
 
 struct PenMotionEvent {
-    ASTRA_TAG_MEMBER(sdl3::PenMotionEvent);
+    HERMES_TAG_MEMBER(sdl3::PenMotionEvent);
     std::uint64_t timestamp;
     SDL_WindowID window_id;
     SDL_PenID which;
@@ -77,7 +77,7 @@ enum class PenProximityEventType {
 };
 
 struct PenProximityEvent {
-    ASTRA_TAG_MEMBER(sdl3::PenProximityEvent);
+    HERMES_TAG_MEMBER(sdl3::PenProximityEvent);
     PenProximityEventType type;
     std::uint64_t timestamp;
     SDL_WindowID window_id;
@@ -90,7 +90,7 @@ enum class PenTouchEventType {
 };
 
 struct PenTouchEvent {
-    ASTRA_TAG_MEMBER(sdl3::PenTouchEvent);
+    HERMES_TAG_MEMBER(sdl3::PenTouchEvent);
     PenTouchEventType type;
     std::uint64_t timestamp;
     SDL_WindowID window_id;

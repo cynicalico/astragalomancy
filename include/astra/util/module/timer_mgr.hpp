@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <functional>
 #include <optional>
@@ -125,7 +125,7 @@ private:
 
     void update_(double dt);
 
-    std::optional<Messenger::ID> callback_id_;
+    std::optional<Hermes::ID> hermes_id_;
     void register_callbacks_();
     void unregister_callbacks_();
 };

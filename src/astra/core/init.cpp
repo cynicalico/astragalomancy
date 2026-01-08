@@ -15,12 +15,15 @@
 #include <deque>
 #include <string>
 
+// TODO: The debug overlay shouldn't really be in here, should get moved to its own file
+//  state could possible be stored globally in `astra::g.internal`
+
 class MessengerSink final : public spdlog::sinks::base_sink<spdlog::details::null_mutex> {
 protected:
     void sink_it_(const spdlog::details::log_msg &msg) override {
         spdlog::memory_buf_t formatted;
         formatter_->format(msg, formatted);
-        astra::g.msg->publish<astra::LogMessage>(msg.level, fmt::to_string(formatted));
+        astra::g.hermes->publish<astra::LogMessage>(msg.level, fmt::to_string(formatted));
     }
     void flush_() override { /* do nothing */ }
 };
@@ -28,7 +31,7 @@ protected:
 void setup_engine_callbacks();
 
 void astra::init(const sdl3::AppInfo &app_info, const std::function<sdl3::WindowBuilder()> &window_builder_f) {
-    g.msg = std::make_unique<Messenger>();
+    g.hermes = std::make_unique<Hermes>();
 
     setup_engine_callbacks();
 
@@ -64,7 +67,7 @@ void astra::init(const sdl3::AppInfo &app_info, const std::function<sdl3::Window
 void astra::shutdown() {
     g.dear.reset();
     g.window.reset();
-    g.msg.reset();
+    g.hermes.reset();
 
     sdl3::exit();
 }
@@ -87,14 +90,14 @@ void astra::mainloop() {
     while (g.running) {
         sdl3::pump_events();
 
-        g.msg->publish<PreUpdate>(g.frame_counter.dt());
-        g.msg->publish<Update>(g.frame_counter.dt());
-        g.msg->publish<PostUpdate>(g.frame_counter.dt());
+        g.hermes->publish<PreUpdate>(g.frame_counter.dt());
+        g.hermes->publish<Update>(g.frame_counter.dt());
+        g.hermes->publish<PostUpdate>(g.frame_counter.dt());
 
-        g.msg->publish<PreDraw>();
-        g.msg->publish<Draw>();
+        g.hermes->publish<PreDraw>();
+        g.hermes->publish<Draw>();
         draw_debug_overlay();
-        g.msg->publish<PostDraw>();
+        g.hermes->publish<PostDraw>();
 
         g.window->swap();
 
@@ -195,35 +198,54 @@ void draw_log_flyouts(ImDrawList *dl) {
 }
 
 void draw_debug_overlay() {
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(glm::vec2(astra::g.window->pixel_size()));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2.0f, 2.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 2.0f));
+
+    ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(glm::vec2(astra::g.window->pixel_size()));
     if (ImGui::Begin(
                 "##overlay",
                 nullptr,
                 ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove |
                         ImGuiWindowFlags_NoInputs)) {
         const auto draw_list = ImGui::GetWindowDrawList();
+
         draw_fps_and_latency(draw_list);
+
         draw_log_flyouts(draw_list);
     }
     ImGui::End();
+
+    ImGui::SetNextWindowPos({ImGui::GetIO().DisplaySize.x, 0.0f}, ImGuiCond_Always, ImVec2(1.0f, 0.0f));
+    if (ImGui::Begin("##debug_tabs", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar)) {
+        if (ImGui::BeginTabBar("##tabs")) {
+            if (ImGui::BeginTabItem("Window")) {
+                int swap_interval;
+                SDL_GL_GetSwapInterval(&swap_interval);
+                bool vsync = swap_interval != 0;
+                if (ImGui::Checkbox("vsync", &vsync)) SDL_GL_SetSwapInterval(vsync ? 1 : 0);
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
+        }
+    }
+    ImGui::End();
+
     ImGui::PopStyleVar(2);
 }
 
 void setup_engine_callbacks() {
     using namespace astra;
 
-    g.internal.engine_callback_id = g.msg->get_id();
-    g.msg->subscribe<sdl3::QuitEvent>(g.internal.engine_callback_id, [&](auto) { g.running = false; });
+    g.internal.hermes_id = g.hermes->acquire_id();
+    g.hermes->subscribe<sdl3::QuitEvent>(g.internal.hermes_id, [&](auto) { g.running = false; });
 
-    g.msg->subscribe<PreUpdate>(g.internal.engine_callback_id, [&](const auto *p) {
+    g.hermes->subscribe<PreUpdate>(g.internal.hermes_id, [&](const auto *p) {
         auto &flyouts = log_flyouts();
         for (auto &[level, text, acc]: flyouts) acc -= p->dt;
         while (!flyouts.empty() && flyouts.back().acc <= 0) flyouts.pop_back();
     });
-    g.msg->subscribe<LogMessage>(g.internal.engine_callback_id, [&](const auto *p) {
+    g.hermes->subscribe<LogMessage>(g.internal.hermes_id, [&](const auto *p) {
         log_flyouts().emplace_front(p->level, p->text, 5.0);
     });
 }

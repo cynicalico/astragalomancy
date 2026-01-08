@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -20,7 +20,7 @@ enum class DropEventType {
 };
 
 struct DropEvent {
-    ASTRA_TAG_MEMBER(sdl3::DropEvent);
+    HERMES_TAG_MEMBER(sdl3::DropEvent);
     DropEventType type;
     std::uint64_t timestamp;
     SDL_WindowID window_id;

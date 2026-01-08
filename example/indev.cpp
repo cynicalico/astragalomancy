@@ -2,7 +2,7 @@
 
 class Indev {
 public:
-    std::optional<astra::Messenger::ID> callback_id;
+    std::optional<astra::Hermes::ID> hermes_id;
 
     Indev();
     ~Indev();
@@ -16,16 +16,16 @@ private:
 };
 
 Indev::Indev() {
-    callback_id = astra::g.msg->get_id();
-    astra::g.msg->subscribe<astra::Update>(*callback_id, [this](const auto e) { update(e->dt); });
-    astra::g.msg->subscribe<astra::Draw>(*callback_id, [this](const auto) { draw(); });
-    astra::g.msg->subscribe<sdl3::KeyboardEvent>(*callback_id, [this](const auto e) { keyboard_event_callback_(e); });
-    astra::g.msg->subscribe<sdl3::MouseButtonEvent>(*callback_id, [this](const auto e) { mouse_event_callback_(e); });
+    hermes_id = astra::g.hermes->acquire_id();
+    astra::g.hermes->subscribe<astra::Update>(*hermes_id, [this](const auto e) { update(e->dt); });
+    astra::g.hermes->subscribe<astra::Draw>(*hermes_id, [this](const auto) { draw(); });
+    astra::g.hermes->subscribe<sdl3::KeyboardEvent>(*hermes_id, [this](const auto e) { keyboard_event_callback_(e); });
+    astra::g.hermes->subscribe<sdl3::MouseButtonEvent>(*hermes_id, [this](const auto e) { mouse_event_callback_(e); });
 }
 
 Indev::~Indev() {
-    astra::g.msg->release_id(*callback_id);
-    callback_id = std::nullopt;
+    astra::g.hermes->release_id(*hermes_id);
+    hermes_id = std::nullopt;
 }
 
 void Indev::update(double dt) {}

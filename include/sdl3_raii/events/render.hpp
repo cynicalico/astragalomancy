@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <SDL3/SDL_events.h>
 #include <fmt/format.h>
@@ -16,7 +16,7 @@ enum class RenderEventType {
 };
 
 struct RenderEvent {
-    ASTRA_TAG_MEMBER(sdl3::RenderEvent);
+    HERMES_TAG_MEMBER(sdl3::RenderEvent);
     RenderEventType type;
     std::uint64_t timestamp;
     SDL_WindowID window_id;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "astra/core/messenger.hpp"
+#include "astra/core/hermes.hpp"
 
 #include <fmt/format.h>
 
@@ -9,7 +9,7 @@
 
 namespace sdl3 {
 struct QuitEvent {
-    ASTRA_TAG_MEMBER(sdl3::QuitEvent);
+    HERMES_TAG_MEMBER(sdl3::QuitEvent);
     std::uint64_t timestamp;
 };
 } // namespace sdl3
