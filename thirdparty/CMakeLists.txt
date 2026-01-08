@@ -20,7 +20,7 @@ if (ASTRA_BUILD_DEPENDENCIES)
     FetchContent_Declare(
             sdl3
             GIT_REPOSITORY https://github.com/libsdl-org/SDL
-            GIT_TAG release-3.2.18
+            GIT_TAG release-3.4.0
             GIT_SHALLOW TRUE
     )
     set(SDL_SHARED OFF)
