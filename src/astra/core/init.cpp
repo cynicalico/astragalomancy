@@ -217,6 +217,8 @@ void draw_debug_overlay() {
         draw_log_flyouts(draw_list);
     }
     ImGui::End();
+    
+    ImGui::PopStyleVar(2);
 
     ImGui::SetNextWindowPos({ImGui::GetIO().DisplaySize.x, 0.0f}, ImGuiCond_Always, ImVec2(1.0f, 0.0f));
     if (ImGui::Begin("##debug_tabs", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar)) {
@@ -228,12 +230,14 @@ void draw_debug_overlay() {
                 if (ImGui::Checkbox("vsync", &vsync)) SDL_GL_SetSwapInterval(vsync ? 1 : 0);
                 ImGui::EndTabItem();
             }
+            if (ImGui::BeginTabItem("Shaders")) {
+                astra::g.shaders->draw_editor();
+                ImGui::EndTabItem();
+            }
             ImGui::EndTabBar();
         }
     }
     ImGui::End();
-
-    ImGui::PopStyleVar(2);
 }
 
 void setup_engine_callbacks() {

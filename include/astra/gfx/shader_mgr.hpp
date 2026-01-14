@@ -1,5 +1,6 @@
 #pragma once
 
+#include "astra/core/hermes.hpp"
 #include "gloo/shader.hpp"
 
 #include <filesystem>
@@ -24,8 +25,8 @@ struct ShaderSrc {
 
 class ShaderMgr {
 public:
-    ShaderMgr() = default;
-    ~ShaderMgr() = default;
+    ShaderMgr();
+    ~ShaderMgr();
 
     ShaderMgr(const ShaderMgr &other) = delete;
     ShaderMgr &operator=(const ShaderMgr &other) = delete;
@@ -35,12 +36,21 @@ public:
 
     std::shared_ptr<gloo::Shader> add_shader(const std::filesystem::path &path);
 
+    void draw_editor();
+
 private:
+    Hermes::ID hermes_id_;
+
+    std::vector<std::pair<std::string, std::shared_ptr<gloo::Shader>>> pending_shaders_{};
     std::unordered_map<std::string, ShaderSrc> shader_src_{};
     std::unordered_map<std::string, std::shared_ptr<gloo::Shader>> shaders_{};
 
-    std::optional<ShaderSrc> parse_shader_src_(const std::filesystem::path &path);
+    std::optional<ShaderSrc> read_parse_shader_src_(const std::filesystem::path &path);
+    std::optional<ShaderSrc> parse_shader_src_(const std::string &src);
     void parse_shader_stages_(ShaderSrc &shader_src);
     std::optional<std::string> parse_includes_(std::unordered_set<std::string> &deps, const std::string &src);
+
+    void try_recompile_shader_(const std::string &path, const std::string &src);
+    void sub_pending_shaders_();
 };
 } // namespace astra
